@@ -25,7 +25,7 @@ my %reqtype = (
 );
 
 ###################### process input ##########################################
-my $defport = 3333;
+my $defport = 29533;
 my $defnodedir = '/usr/local/apache2/htdocs/napmedia/nodes';
 my $defnodelife = '60';
 my $nodelifemin = '1';
