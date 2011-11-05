@@ -77,6 +77,11 @@ my $buff;
 my $buffsize = 8 * 1024;
 $SIG{CHLD} = 'IGNORE'; # automatically reap spent worker processes
 
+open PIDFILE, "> $nodedir/napbridge.pid" or die "can't save pid in $nodedir/naptime.pid: $!";
+print PIDFILE $$;
+close PIDFILE;
+print "saved pid $$ to $nodedir/napbridge.pid\n" if $opt{v};
+
 while (1) {
 	my $clientsock = $listener->accept;
 
