@@ -39,6 +39,18 @@ sub getfile_response {
 $SIG{INT} = \&cleanup;
 
 while (1) {
+	# try and open a connection with the server
+	unless (defined $remotesock and $remotesock->connected) {
+		$sel->remove($remotesock) if defined $remotesock;
+		$remotesock = IO::Socket::INET->new(
+			PeerHost => "$naphost:$napport",
+			Proto => 'tcp',
+		) or warn "can't connect to $naphost:$napport: $!" and sleep 5 and next;
+		print "established connection to $naphost:$napport\n";
+		$remotesock->autoflush(1);
+		$sel->add($remotesock);
+	}
+
 	# our local communication channel
 	unless (defined $localsock and $localsock->connected) {
 		$sel->remove($localsock) if defined $localsock;
@@ -52,18 +64,6 @@ while (1) {
 		print "server listening on $sockfile\n";
 		$localsock->autoflush(1);
 		$sel->add($localsock);
-	}
-
-	# try and open a connection with the server
-	unless (defined $remotesock and $remotesock->connected) {
-		$sel->remove($remotesock) if defined $remotesock;
-		$remotesock = IO::Socket::INET->new(
-			PeerHost => "$naphost:$napport",
-			Proto => 'tcp',
-		) or warn "can't connect to $naphost:$napport: $!" and next;
-		print "established connection to $naphost:$napport\n";
-		$remotesock->autoflush(1);
-		$sel->add($remotesock);
 	}
 
 	print "waiting for something ...\n";
@@ -84,13 +84,14 @@ while (1) {
 				if (defined $localconn and $localconn->connected) {
 					my $response;
 					$response = <$remotesock>;
+					my $cbuff;
 					if ($response =~ /^RESPONSE (\d+)/) {
 						my $bytes = $1;
-						<$remotesock>;
-						$remotesock->recv($remotesock, $response, $bytes);
+						$response .= <$remotesock>;
+						read($remotesock, $cbuff, $bytes);
 					}
-					print "forwarding response\n$response";
-					print $localconn $response; 
+					print "forwarding response\n$response$cbuff";
+					print $localconn $response,$cbuff; 
 					$localconn->flush;
 					$localconn->close;
 				} else {
@@ -111,8 +112,8 @@ while (1) {
 }
 
 sub cleanup {
-	$remotesock->close() if defined $remotesock;
-	$localsock->close() if defined $localsock;
+	$remotesock->close if defined $remotesock;
+	$localsock->close if defined $localsock;
 	unlink $sockfile;
 	exit;
 }

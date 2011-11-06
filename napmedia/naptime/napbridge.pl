@@ -104,8 +104,8 @@ while (1) {
                                         $response = <$clientsock>;
                                         if ($response =~ /^RESPONSE (\d+)/) {
                                                 my $bytes = $1;
-                                                <$clientsock>;
-                                                $clientsock->recv($clientsock, $response, $bytes);
+                                                $response .= <$clientsock>;
+                                                read($clientsock, $response, $bytes);
                                         }
                                         print "forwarding response\n$response";
                                         print $fifoconn $response;
