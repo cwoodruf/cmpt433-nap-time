@@ -111,8 +111,8 @@ while (1) {
 }
 
 sub cleanup {
-	$remotesock->close() if defined $remotesock and $remotesock->connected;
-	$localsock->close() if defined $localsock and $localsock->connected;
+	$remotesock->close() if defined $remotesock;
+	$localsock->close() if defined $localsock;
 	unlink $sockfile;
 	exit;
 }
