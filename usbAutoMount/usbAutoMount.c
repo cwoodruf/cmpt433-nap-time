@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/mount.h>
+#include <sys/stat.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -14,27 +15,33 @@ struct DeviceInfo{
 
 struct DeviceInfo getDevInfo(char *buf){
   struct DeviceInfo ret;
-  char *dType, *fType;
-  int count = 0;
-  dType = strtok(buf, " ");
-  /*while (count < 6){
-    fType = strtok(NULL, " ");
-    count ++;
-  }*/
+  char *dType;
+  
+  dType = strtok(buf, " ");  
   strcpy(ret.devType, dType);
-  //strcpy(ret.fsType, fType);
+  
   return ret;
 }
 
 
 int main()
 {
+  size_t len = 50;
   char *cmd = "fdisk -l";
-  char buf[BUFSIZ]; 
+  char buf[BUFSIZ], hostname[len], mountpt[len];; 
   struct DeviceInfo devInfo;  
   FILE *ptr;  
-  int linecount, prevlinecount = 0;
-  int bUSBInsert = FALSE, bUSBRemove = FALSE;
+  int linecount, prevlinecount = 0, bUSBInsert = FALSE, bUSBRemove = FALSE;
+  struct stat st;
+
+  // create a directory that is unique to every board
+  strcpy(mountpt, "/mnt/udisk");
+  gethostname(hostname, len);  
+  strcat(mountpt, hostname); 
+
+  // check whether folder already exists, if not, create it.
+  if (stat(mountpt, &st) != 0)
+    mkdir(mountpt, 0777);
 
   while (TRUE){
     linecount = 0;
@@ -57,9 +64,9 @@ int main()
       
       if(bUSBInsert){
         devInfo = getDevInfo(buf);	
-	mount(devInfo.devType, "/mnt/udisk", "vfat", MS_MGC_VAL | MS_NOSUID, "");        
+	mount(devInfo.devType, mountpt, "vfat", MS_MGC_VAL | MS_NOSUID, "");        
       }else if(bUSBRemove) {        
- 	umount2("/mnt/udisk", MNT_FORCE);	
+ 	umount2(mountpt, MNT_FORCE);	
       }
 
       prevlinecount = linecount;                      
