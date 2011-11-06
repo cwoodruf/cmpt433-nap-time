@@ -26,7 +26,7 @@ our $nodelife = our $napnodelife = 60;
 our $napnodelifemin = 1;
 our $napnodelifemax = 86400;
 
-######################## callbacks #####################################
+######################## callbacks ############################################
 # list of currently alive ips
 sub peers {
 	my ($req) = @_;
@@ -62,6 +62,7 @@ sub getfile {
 	my $node = nodeload($theirip);
 	warn "getindex: no node for $theirip!" and return unless defined $node;
 	warn "no peer socket for $theirip!" and return unless -S $node->{fifo};
+	warn "need a file for getfile $theirip!" and return unless $file =~ /\S/;
 	return &forward_req("getfile $file",$node,$req);
 }
 
@@ -115,7 +116,7 @@ sub forward_req {
 	) or warn "getindex: can't open socket: $!";
 	my $sel = IO::Select->new;
 	$sel->add($fifoconn);
-	print $fifoconn "index\n";
+	print $fifoconn "$command\n";
 	$fifoconn->flush;
 	my @readers = $sel->can_read;
 	foreach my $reader (@readers) {
