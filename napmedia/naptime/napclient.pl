@@ -2,6 +2,9 @@
 # purpose of this script is to implement a simple nap client
 # probably this would be a shell script and a c program on the EM2440 board 
 # idea is to send commands to this client via a unix socket and wait for a response
+
+use lib qw{/usr/local/apache2/htdocs/napmedia/naptime};
+
 use threads ('yield', 'stack_size' => 64*4096, 'exit' => 'threads_only', 'stringify');
 use Nap qw/$naphost %napreq $napport/;
 use IO::Socket::INET;
