@@ -84,13 +84,13 @@ while (1) {
 				if (defined $localconn and $localconn->connected) {
 					my $response;
 					$response = <$remotesock>;
+					print "forwarding response\n$response";
 					my $cbuff;
 					if ($response =~ /^RESPONSE (\d+)/) {
 						my $bytes = $1;
 						$response .= <$remotesock>;
 						read($remotesock, $cbuff, $bytes);
 					}
-					print "forwarding response\n$response$cbuff";
 					print $localconn $response,$cbuff; 
 					$localconn->flush;
 					$localconn->close;
