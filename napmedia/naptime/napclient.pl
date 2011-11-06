@@ -2,7 +2,8 @@
 # purpose of this script is to implement a simple nap client
 # probably this would be a shell script and a c program on the EM2440 board 
 # idea is to send commands to this client via a unix socket and wait for a response
-use Nap qw/$naphost %napreq $napport $napnodelife/;
+use threads ('yield', 'stack_size' => 64*4096, 'exit' => 'threads_only', 'stringify');
+use Nap qw/$naphost %napreq $napport/;
 use IO::Socket::INET;
 use IO::Socket::UNIX;
 use IO::Select;
@@ -38,17 +39,61 @@ sub getfile_response {
 
 $SIG{INT} = \&cleanup;
 
+sub get_password {
+	open PW, "password" or die "can't find validation password!";
+	my $password = <PW>;
+	close PW;
+	chomp $password;
+	return $password;
+}
+
+sub validate {
+	my ($remotesock) = @_;
+	my $password = &get_password;
+	print $remotesock "validate $password\n";
+	$remotesock->flush;
+	my $valid = <$remotesock>;
+	chomp $valid;
+	unless ($valid eq 'VALID') {
+		warn "could not validate: $valid";
+		return 0;
+	}
+	print "validated ok!\n";
+	return 1;
+}
+
+sub remoteconnect {
+	$sel->remove($remotesock) if defined $remotesock;
+	$remotesock = IO::Socket::INET->new(
+		PeerHost => "$naphost:$napport",
+		Proto => 'tcp',
+	) or warn "can't connect to $naphost:$napport: $!" and return;
+	print "established connection to $naphost:$napport\n";
+	$remotesock->autoflush(1);
+	$remotesock->close and return unless &validate($remotesock);
+	$sel->add($remotesock);
+	1;
+}
+
+while (!&remoteconnect) { sleep 5; }
+
+threads->create(
+	sub { 
+		sleep $Nap::nodelife/2; 
+		while ($remotesock->connected) { 
+			my @writers = $sel->can_write;
+			foreach my $writer (@writers) {
+				&validate($remotesock) if $writer == $remotesock; 
+			}
+			sleep $Nap::nodelife/2; 
+		} 
+	}
+)->detach;
+
 while (1) {
 	# try and open a connection with the server
 	unless (defined $remotesock and $remotesock->connected) {
-		$sel->remove($remotesock) if defined $remotesock;
-		$remotesock = IO::Socket::INET->new(
-			PeerHost => "$naphost:$napport",
-			Proto => 'tcp',
-		) or warn "can't connect to $naphost:$napport: $!" and sleep 5 and next;
-		print "established connection to $naphost:$napport\n";
-		$remotesock->autoflush(1);
-		$sel->add($remotesock);
+		&remotesock or sleep 5 and next;	
 	}
 
 	# our local communication channel
@@ -72,6 +117,7 @@ while (1) {
 		print "got something\n";
 		foreach my $reader (@readers) {
 			if ($reader == $localsock) {
+				# a local process is asking us to do something
 				print "from local socket\n";
 				$localconn = $localsock->accept;
 				my $data = <$localconn>;
@@ -82,6 +128,7 @@ while (1) {
 			} elsif ($reader == $remotesock) {
 				print "from remote socket\n";
 				if (defined $localconn and $localconn->connected) {
+					# finish the request from the local process initiated above
 					my $response;
 					$response = <$remotesock>;
 					print "forwarding response\n$response";
@@ -95,7 +142,7 @@ while (1) {
 					$localconn->flush;
 					$localconn->close;
 				} else {
-					# in this case we've been asked to do something by a remote peer
+					# do something for a remote peer
 					my $request = <$remotesock>;
 					print "request: $request";
 					my ($cmd, $cmddata) = ($request =~ /(\S*)(.*)/);
@@ -105,7 +152,6 @@ while (1) {
 					}
 				}
 			}
-			sleep 1;
 		}
 	}
 	sleep 5;

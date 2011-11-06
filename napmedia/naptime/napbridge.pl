@@ -74,8 +74,21 @@ while (1) {
 	if (my $pid = fork) {
 		print "started worker $pid\n" if $opt{v};
 	} else {
-		# keep track of all the other nodes that have connected to you 
-		exit 1 unless (my $node = &save_connection($clientsock));
+		# keep track of all the other nodes that have connected 
+		my $validate = <$clientsock>;
+		my $req = &parse_req($clientsock, $validate);
+		if (!defined $req or $req->{cmd} ne 'validate') {
+			exit 1;
+		} else {
+			my $response;
+			unless (($response = &do_req($req)) eq 'VALID') {
+				print "validate request failed: $response!\n",Dumper($req);
+				print $clientsock "$response\n";
+				exit 2;
+			}
+			print $clientsock "$response\n";
+		}
+		my $node = &nodeload($req->{ip});
 		my $fifo = $node->{fifoconn};
 		my $sel = IO::Select->new();
 		$sel->add($clientsock);
@@ -91,56 +104,27 @@ while (1) {
 							print "request failed!\n",Dumper($req) if $opt{v};
 							print $clientsock "FAIL\n";
 						}
-					} else {
-						print "ACKing $node->{ip}\n" if $opt{v};
-						print $clientsock "ACK\n";
 					}
 				} elsif ($reader == $fifo) {
 					my $fifoconn = $fifo->accept;
 					my $fiforaw = <$fifoconn>;
 					print "from fifo to client: $fiforaw\n" if $opt{v};
 					print $clientsock $fiforaw;
-                                        my ($response,$cbuff);
-                                        $response = <$clientsock>;
-                                        print "forwarding response\n$response" if $opt{v};
-                                        if ($response =~ /^RESPONSE (\d+)/) {
-                                                my $bytes = $1;
-                                                $response .= <$clientsock>;
-                                                read($clientsock, $cbuff, $bytes);
-                                        }
-                                        print $fifoconn $response,$cbuff;
-                                        $fifoconn->flush;
+					my ($response,$cbuff);
+					$response = <$clientsock>;
+					print "forwarding response\n$response" if $opt{v};
+					if ($response =~ /^RESPONSE (\d+)/) {
+						my $bytes = $1;
+						$response .= <$clientsock>;
+						read($clientsock, $cbuff, $bytes);
+					}
+					print $fifoconn $response,$cbuff;
+					$fifoconn->flush;
 				}
 			}
 		}
 	}
 }	
-
-# see http://www.rexroof.com/blog/2005/09/unix-domain-sockets-in-perl.php
-# for example of how to use unix domain sockets
-sub save_connection {
-	my ($socket) = @_;
-	my $ip = $socket->peerhost;
-	my $node = &nodeload($ip);
-	my $fifo = "$Nap::nodedir/$ip.sock";
-	$node->{fifo} = $fifo;
-	$node->{ip} = $ip;
-	$node->{port} = $socket->peerport;
-	$node->{ts} = time;
-	# this unix socket is meant to live for the life of the process
-	if (&nodesave($ip,$node)) {
-		unlink $fifo;
-		my $local = IO::Socket::UNIX->new(
-			Local => $fifo,
-			Type => SOCK_STREAM,
-			Listen => 10,
-		) or warn "can't open local socket: $!" and return;
-		# pointless to save this to file - so its set here
-		$node->{fifoconn} = $local;
-		return $node;
-	}
-	return;
-}
 
 sub parse_req {
 	my ($socket, $buff) = @_;
@@ -165,3 +149,4 @@ sub do_req {
 	print "processing $req->{cmd}\n" if $opt{v};
 	return &{$napreq{$req->{cmd}}}($req);
 }
+
