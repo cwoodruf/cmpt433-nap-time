@@ -30,7 +30,7 @@ our $napnodelifemax = 86400;
 ######################## callbacks ############################################
 # re-initialize a node
 sub validate {
-	my ($req) = @_;
+	my ($req,$node) = @_;
 	my $pw = $req->{data};
 	$pw =~ s/^\s*//;
 	$pw =~ s/\s*$//;
@@ -40,7 +40,10 @@ sub validate {
 	chomp $password;
 	print "got $pw (correct pasword $password)\n" if $main::opt{v};
 	return "ERROR WRONGPW" unless $pw eq $password;
-	return "VALID" if &save_connection($req->{sock});
+	$node = &save_connection($req->{sock});
+	if (defined $node) {
+		return $node;
+	}
 	return "ERROR SAVING";
 }
  
@@ -67,6 +70,7 @@ sub peers {
 	print $sock $header,$peers;
 	1;
 }
+
 # needs a neighbour ip
 sub getindex {
 	my ($req) = @_;
@@ -76,6 +80,7 @@ sub getindex {
 	warn "no peer socket for $theirip!" and return unless -S $node->{fifo};
 	return &forward_req('index',$node,$req);
 }
+
 # needs neighbour ip and file id
 sub getfile {
 	my ($req) = @_;
@@ -115,7 +120,7 @@ sub save_connection {
 	my ($socket) = @_;
 	my $ip = $socket->peerhost;
 	my $node = &nodeload($ip);
-	my $fifo = "$Nap::nodedir/$ip.sock";
+	my $fifo = "$nodedir/$ip.sock";
 	$node->{fifo} = $fifo;
 	$node->{ip} = $ip;
 	$node->{port} = $socket->peerport;
@@ -126,7 +131,7 @@ sub save_connection {
 		my $local = IO::Socket::UNIX->new(
 			Local => $fifo,
 			Type => SOCK_STREAM,
-			Listen => 10,
+			Listen => 32,
 		) or warn "can't open local socket: $!" and return;
 		# pointless to save this to file - so its set here
 		$node->{fifoconn} = $local;
