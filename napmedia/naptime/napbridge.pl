@@ -102,12 +102,12 @@ while (1) {
 					print $clientsock $fiforaw;
                                         my ($response,$cbuff);
                                         $response = <$clientsock>;
+                                        print "forwarding response\n$response" if $opt{v};
                                         if ($response =~ /^RESPONSE (\d+)/) {
                                                 my $bytes = $1;
                                                 $response .= <$clientsock>;
                                                 read($clientsock, $cbuff, $bytes);
                                         }
-                                        print "forwarding response\n$response$cbuff";
                                         print $fifoconn $response,$cbuff;
                                         $fifoconn->flush;
 				}
