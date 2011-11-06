@@ -100,15 +100,15 @@ while (1) {
 					my $fiforaw = <$fifoconn>;
 					print "from fifo to client: $fiforaw\n" if $opt{v};
 					print $clientsock $fiforaw;
-                                        my $response;
+                                        my ($response,$cbuff);
                                         $response = <$clientsock>;
                                         if ($response =~ /^RESPONSE (\d+)/) {
                                                 my $bytes = $1;
                                                 $response .= <$clientsock>;
-                                                read($clientsock, $response, $bytes);
+                                                read($clientsock, $cbuff, $bytes);
                                         }
-                                        print "forwarding response\n$response";
-                                        print $fifoconn $response;
+                                        print "forwarding response\n$cbuff$response";
+                                        print $fifoconn $cbuff,$response;
                                         $fifoconn->flush;
 				}
 			}
