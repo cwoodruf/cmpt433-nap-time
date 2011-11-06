@@ -30,7 +30,7 @@ sub getfile_response {
 	my $fsize = (stat($file))[7];
 	print $sock "RESPONSE $fsize $file\n\n";
 	while (<FILE>) {
-		print $sock;
+		print $sock $_;
 	}
 	close FILE;
 	return;
@@ -89,7 +89,6 @@ while (1) {
 						<$remotesock>;
 						$remotesock->recv($remotesock, $response, $bytes);
 					}
-					while (($response .=  <$remotesock>) !~ /^END/m) {}
 					print "forwarding response\n$response";
 					print $localconn $response; 
 					$localconn->flush;
