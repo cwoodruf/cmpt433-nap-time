@@ -28,7 +28,7 @@ while (<STDIN>) {
 			print FILE $cbuff;
 		}
 		close FILE;
-		print Dumper(stat($fname));
+		print Dumper([stat($fname)]);
 	} else {
 		while (<$client>) {
 			print $_;
