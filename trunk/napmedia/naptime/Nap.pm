@@ -12,6 +12,7 @@ our @EXPORT = qw/%napreq $naphost $napport $napnodedir $napnodelife $napnodelife
 
 ###################### types of requests ######################################
 our %napreq = (
+	'validate' => \&validate, # tell the system you are still alive
 	'peers' => \&peers, # list of currently alive ips
 	'index' => \&getindex, # needs a neighbour ip
 	'getfile' => \&getfile, # needs neighbour ip and file id
@@ -22,11 +23,27 @@ our %napreq = (
 our $naphost = 'drdata.co.cc';
 our $napport = 29533;
 our $nodedir = our $napnodedir = '/usr/local/apache2/htdocs/napmedia/nodes';
-our $nodelife = our $napnodelife = 60;
+our $nodelife = our $napnodelife = 600;
 our $napnodelifemin = 1;
 our $napnodelifemax = 86400;
 
 ######################## callbacks ############################################
+# re-initialize a node
+sub validate {
+	my ($req) = @_;
+	my $pw = $req->{data};
+	$pw =~ s/^\s*//;
+	$pw =~ s/\s*$//;
+	open PW, "password" or return "ERROR MISSINGPW";
+	my $password = <PW>;
+	close PW;
+	chomp $password;
+	print "got $pw (correct pasword $password)\n" if $main::opt{v};
+	return "ERROR WRONGPW" unless $pw eq $password;
+	return "VALID" if &save_connection($req->{sock});
+	return "ERROR SAVING";
+}
+ 
 # list of currently alive ips
 sub peers {
 	my ($req) = @_;
@@ -37,9 +54,13 @@ sub peers {
 		my $node = &nodeload($ip);
 		next unless $node;
 		# if we haven't heard from someone assume they are no longer with us
-		print "found $node->{ip}:$node->{port} $node->{ts} ".time."\n" if $main::opt{v};
-		unlink $node->{fifo} and next if time - $node->{ts} > $nodelife;
-		$peers .= "$ip $node->{desc}\n"; 
+		my $age = time - $node->{ts};
+		print "found $node->{ip}:$node->{port} $node->{ts} s age $age s vs $nodelife\n" if $main::opt{v};
+		if ($age < $nodelife) {
+			$peers .= "$ip $node->{desc}\n"; 
+		} else {
+			unlink $node->{fifo};
+		}
 	}
 	my $header = "RESPONSE ".length($peers)."\n\n";
 	print $header,$peers if $main::opt{v};
@@ -86,6 +107,32 @@ sub nodeload {
 		close NODE;
 	}
 	$node;
+}
+
+# see http://www.rexroof.com/blog/2005/09/unix-domain-sockets-in-perl.php
+# for example of how to use unix domain sockets
+sub save_connection {
+	my ($socket) = @_;
+	my $ip = $socket->peerhost;
+	my $node = &nodeload($ip);
+	my $fifo = "$Nap::nodedir/$ip.sock";
+	$node->{fifo} = $fifo;
+	$node->{ip} = $ip;
+	$node->{port} = $socket->peerport;
+	$node->{ts} = time;
+	# this unix socket is meant to live for the life of the process
+	if (&nodesave($ip,$node)) {
+		unlink $fifo;
+		my $local = IO::Socket::UNIX->new(
+			Local => $fifo,
+			Type => SOCK_STREAM,
+			Listen => 10,
+		) or warn "can't open local socket: $!" and return;
+		# pointless to save this to file - so its set here
+		$node->{fifoconn} = $local;
+		return $node;
+	}
+	return;
 }
 
 sub nodesave {
