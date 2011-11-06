@@ -4,6 +4,8 @@
 # see http://www.thegeekstuff.com/2010/07/perl-tcp-udp-socket-programming/ for inet socket original
 # see http://www.rexroof.com/blog/2005/09/unix-domain-sockets-in-perl.php for unix socket example
 
+use lib qw{/usr/local/apache2/htdocs/napmedia/naptime};
+
 use Nap;
 use IO::File;
 use IO::Select;
