@@ -107,8 +107,8 @@ while (1) {
                                                 $response .= <$clientsock>;
                                                 read($clientsock, $cbuff, $bytes);
                                         }
-                                        print "forwarding response\n$cbuff$response";
-                                        print $fifoconn $cbuff,$response;
+                                        print "forwarding response\n$response$cbuff";
+                                        print $fifoconn $response,$cbuff;
                                         $fifoconn->flush;
 				}
 			}
