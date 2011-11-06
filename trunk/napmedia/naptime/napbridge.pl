@@ -75,20 +75,23 @@ while (1) {
 		print "started worker $pid\n" if $opt{v};
 	} else {
 		# keep track of all the other nodes that have connected 
+		my $node;
 		my $validate = <$clientsock>;
 		my $req = &parse_req($clientsock, $validate);
 		if (!defined $req or $req->{cmd} ne 'validate') {
 			exit 1;
 		} else {
-			my $response;
-			unless (($response = &do_req($req)) eq 'VALID') {
+			# the validate callback will either returned what went wrong or a $node
+			my $response = &do_req($req);
+			if ($response =~ /^ERROR/) {
 				print "validate request failed: $response!\n",Dumper($req);
 				print $clientsock "$response\n";
 				exit 2;
 			}
-			print $clientsock "$response\n";
+			$node = $response;
+			print $clientsock "VALID\n";
 		}
-		my $node = &nodeload($req->{ip});
+print Dumper($node);
 		my $fifo = $node->{fifoconn};
 		my $sel = IO::Select->new();
 		$sel->add($clientsock);
@@ -98,7 +101,7 @@ while (1) {
 			foreach my $reader (@readers) {
 				if ($reader == $clientsock) {
 					my $raw = <$clientsock>;
-					print "raw $raw\n" if $opt{v};
+					# print "raw $raw\n" if $opt{v};
 					if (my $req = &parse_req($clientsock,$raw)) {
 						unless (&do_req($req)) {
 							print "request failed!\n",Dumper($req) if $opt{v};
@@ -108,7 +111,7 @@ while (1) {
 				} elsif ($reader == $fifo) {
 					my $fifoconn = $fifo->accept;
 					my $fiforaw = <$fifoconn>;
-					print "from fifo to client: $fiforaw\n" if $opt{v};
+					# print "from fifo to client: $fiforaw\n" if $opt{v};
 					print $clientsock $fiforaw;
 					my ($response,$cbuff);
 					$response = <$clientsock>;
