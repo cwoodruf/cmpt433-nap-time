@@ -14,7 +14,7 @@ our @EXPORT = qw/%napreq $naphost $napport $napnodedir $napnodelife $napnodelife
 our %napreq = (
 	'peers' => \&peers, # list of currently alive ips
 	'index' => \&getindex, # needs a neighbour ip
-	'file' => \&getfile, # needs neighbour ip and file id
+	'getfile' => \&getfile, # needs neighbour ip and file id
 	'stream' => \&stream, # sends continuous stream of bytes
 );
 
@@ -53,31 +53,16 @@ sub getindex {
 	my $node = nodeload($theirip);
 	warn "getindex: no node for $theirip!" and return unless defined $node;
 	warn "no peer socket for $theirip!" and return unless -S $node->{fifo};
-	my $fifoconn = IO::Socket::UNIX->new(
-		Peer => $node->{fifo},
-		Type => SOCK_STREAM,
-		Timeout => 2,
-	) or warn "getindex: can't open socket: $!";
-	my $sel = IO::Select->new;
-	$sel->add($fifoconn);
-	print $fifoconn "index\n";
-	$fifoconn->flush;
-	my @readers = $sel->can_read;
-	foreach my $reader (@readers) {
-		next unless $reader == $fifoconn;
-		my $reqsock = $req->{sock};
-		while (my $data = <$fifoconn>) {
-			print $reqsock $data;
-		}
-	}
-	close $fifoconn;
-	1;
+	return &forward_req('index',$node,$req);
 }
-
 # needs neighbour ip and file id
 sub getfile {
 	my ($req) = @_;
-	1;
+	my ($theirip, $file) = ($req->{data} =~ m#(\S+) (.*)#);
+	my $node = nodeload($theirip);
+	warn "getindex: no node for $theirip!" and return unless defined $node;
+	warn "no peer socket for $theirip!" and return unless -S $node->{fifo};
+	return &forward_req("getfile $file",$node,$req);
 }
 
 ###################### utility functions ######################################
@@ -118,6 +103,30 @@ sub nodesave {
 	}
 	warn "error opening $nodedir/$ip.php: $!";
 	0;
+}
+
+# send a request to another node and return the response to the requesting node
+sub forward_req {
+	my ($command, $node, $req) = @_;
+	my $fifoconn = IO::Socket::UNIX->new(
+		Peer => $node->{fifo},
+		Type => SOCK_STREAM,
+		Timeout => 2,
+	) or warn "getindex: can't open socket: $!";
+	my $sel = IO::Select->new;
+	$sel->add($fifoconn);
+	print $fifoconn "index\n";
+	$fifoconn->flush;
+	my @readers = $sel->can_read;
+	foreach my $reader (@readers) {
+		next unless $reader == $fifoconn;
+		my $reqsock = $req->{sock};
+		while (my $data = <$fifoconn>) {
+			print $reqsock $data;
+		}
+	}
+	close $fifoconn;
+	1;
 }
 
 1;
