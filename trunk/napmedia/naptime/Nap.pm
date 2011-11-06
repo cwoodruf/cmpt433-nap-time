@@ -42,8 +42,8 @@ sub peers {
 		$peers .= "$ip $node->{desc}\n"; 
 	}
 	my $header = "RESPONSE ".length($peers)."\n\n";
-	print $header.$peers if $main::opt{v};
-	print $sock $header.$peers;
+	print $header,$peers if $main::opt{v};
+	print $sock $header,$peers;
 	1;
 }
 # needs a neighbour ip
