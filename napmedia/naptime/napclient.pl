@@ -54,7 +54,6 @@ sub validate {
 	my ($remotesock) = @_;
 	my $password = &get_password;
 	print $remotesock "validate $password\n";
-print "validate $password\n";
 	$remotesock->flush;
 	my $valid = <$remotesock>;
 	chomp $valid;
