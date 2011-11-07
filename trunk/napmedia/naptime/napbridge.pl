@@ -93,7 +93,6 @@ while (1) {
 			$node = $response;
 			print $clientsock "VALID\n";
 		}
-print Dumper($node);
 		my $fifo = $node->{fifoconn};
 		my $sel = IO::Select->new();
 		$sel->add($clientsock);
