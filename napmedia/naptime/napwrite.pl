@@ -8,7 +8,7 @@ $SIG{INT} = sub { $client->close; exit; };
 
 while (<STDIN>) {
 	$client = IO::Socket::UNIX->new(
-		Peer => 'napclient.sock',
+		Peer => "$ENV{HOME}/napclient.sock",
 		Type => SOCK_STREAM,
 	) or die $!;
 

@@ -12,7 +12,7 @@ use IO::Socket::UNIX;
 use IO::Select;
 use strict;
 
-my $sockfile = "napclient.sock";
+my $sockfile = "$ENV{HOME}/napclient.sock";
 
 my $sel = IO::Select->new;
 my $remotesock;
@@ -54,6 +54,7 @@ sub validate {
 	my ($remotesock) = @_;
 	my $password = &get_password;
 	print $remotesock "validate $password\n";
+print "validate $password\n";
 	$remotesock->flush;
 	my $valid = <$remotesock>;
 	chomp $valid;
@@ -108,7 +109,7 @@ while (1) {
 			Type => SOCK_STREAM,
 			Local => $sockfile,
 			Listen => 32,
-		) or die "socket error: $!"; # actually need local communications to work at all
+		) or die "socket error for $sockfile: $!"; # actually need local communications to work at all
 		print "server listening on $sockfile\n";
 		$localsock->autoflush(1);
 		$sel->add($localsock);
