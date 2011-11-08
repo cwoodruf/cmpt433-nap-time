@@ -12,6 +12,9 @@
  *
  * argument process code from
  * http://www.gnu.org/s/hello/manual/libc/Example-of-Getopt.html 
+ * 
+ * posix threads
+ * http://www.yolinux.com/TUTORIALS/LinuxTutorialPosixThreads.html
  *
  * inet code from Tom Betz
  */
@@ -31,16 +34,26 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <pthread.h>
 #include "nap.h"
 #include "napfile.h"
 /* #include "napclient.h" - now incorporated in nap.h */
 
+/* global data for threads */
+int keepalive = NAPKEEPALIVE;
+int port = NAPPORT;
+char *pwfile = NAPPWFILE;
+char *host = NAPHOST;
+pthread_mutex_t bridge_lock = PTHREAD_MUTEX_INITIALIZER;
+
+/* function declarations */
 int local_sock_connect(char *sockfile, struct sockaddr_un *address);
 int bridge_sock_connect(char *host, int port, struct sockaddr_in *address);
 int listen_sock_connect(int port, struct sockaddr_in *address);
 
-void bridge_client (char* host, int port);
+/* void bridge_client (char* host, int port); // reincorporated in main loop */
 int validate_bridge_sock (char *pwfile, int bridge_fd);
+void *revalidate_bridge(void *i);
 
 int connection_handler(int connection_fd);
 int max_array(int ary[], int count); 
@@ -52,6 +65,7 @@ void sig_chld(int signo)
   waitpid(-1, &status, WNOHANG);
 }
 
+/* start */
 int main(int argc, char **argv)
 {
  /* for select */
@@ -70,46 +84,47 @@ int main(int argc, char **argv)
  struct sockaddr_in listen_address;
  struct sockaddr_in bridge_address;
  socklen_t address_length = sizeof(struct sockaddr_un);
+ pthread_t revalidate_bridge_thread;
 
 #define FDCOUNT 2
  int fds[FDCOUNT];
  int connection_fd;
 
  /* options */
- char *pwfile = NAPPWFILE;
  char *sockfile = NAPSOCK;
- char *host = NAPHOST;
- int port = NAPPORT;
  int c;
  int verbose = 0;
- int emulate = 0;
 
  /* for the child processes below - they need to be automatically cleared */
  signal(SIGCHLD,sig_chld);
 
- while ((c = getopt(argc, argv, "vehp:s:H:P:")) >= 0) {
+ while ((c = getopt(argc, argv, "vhp:s:H:P:t:")) >= 0) {
   switch (c)
    {
    case 'h': printf(
     "%s -evh -p{pwfile} -s{socket file} -H{host} -P{port}\n"
-    "\tSimple client that can forward commands to the napclient program\n"
-    "\t-e emulate the connection with the host\n"
+    "\tProgram that maintains connection to the napbridge server"
+    "and does the job of forwarding requests and responses.\n"
+    "\tCreates a local unix socket that can be used to send requests to.\n"
+    "\tListens for requests on its local subnet and will try connecting on"
+    "local subnet if it see address is local.\n"
     "\t-v verbose output\n"
     "\t-h this help\n"
+    "\t-t{keepalive} revalidate connection after keepalive seconds (%d)\n"
     "\t-p{pwfile} password file to use to validate with bridge (%s)\n"
     "\t-s{socket file} socket file to send commands to (%s)\n"
     "\t-H{host} napbridge host to connect to (%s)\n"
     "\t-P{port} napbridge port to connect to (%d)\n",
-    argv[0], NAPPWFILE, NAPSOCK, host, port
+    argv[0], NAPKEEPALIVE, NAPPWFILE, NAPSOCK, host, port
     );
     return 0;
 
-   case 'e': emulate = 1; break;
    case 'v': verbose = 1; break;
    case 'p': pwfile = optarg; break;
    case 's': sockfile = optarg; break;
    case 'H': host = optarg; break;
    case 'P': port = atoi(optarg); break;
+   case 't': keepalive = atoi(optarg); break;
    default: 
     printf("unknown option %c\n", c); 
     abort();
@@ -117,6 +132,7 @@ int main(int argc, char **argv)
  }
 
 /*
+ // this is now implemented in main loop below
  child = fork();
  if(child == 0)
  {
@@ -125,11 +141,20 @@ int main(int argc, char **argv)
   return 0;
  }
 */
+ bridge_fd = bridge_sock_connect(host, port, &bridge_address);
+ if (pthread_create(&revalidate_bridge_thread, NULL, revalidate_bridge, (void *)&bridge_fd)) {
+  perror("could not create revalidate_bridge_thread");
+  return 1;
+ }
+ if (pthread_detach(revalidate_bridge_thread)) {
+  perror("error detaching revalidate_bridge_thread");
+  return 1;
+ }
 
  while (1) {
-  printf("attempting to reconnect\n");
-  /* TODO: allow the bridge socket to not exist and try reconnect in the background */
-  bridge_fd = bridge_sock_connect(host, port, &bridge_address);
+  printf("attempting to connect\n");
+  /* TODO: allow the bridge socket to not exist and try reconnect in the background? */
+  bridge_fd = bridge_sock_connect(host, port,NULL);
   if (bridge_fd < 0) { 
    perror("can't connect to bridge socket"); 
    sleep(5); 
@@ -151,11 +176,13 @@ int main(int argc, char **argv)
   printf("connected to listen to %d locally on %d\n", port, listen_fd);
 
   FD_ZERO(&socklist); /* Always clear the structure first. */
+  FD_SET(bridge_fd, &socklist);
   FD_SET(listen_fd, &socklist);
   FD_SET(unix_fd, &socklist);
 
   fds[0] = unix_fd;
   fds[1] = listen_fd;
+  fds[2] = bridge_fd;
   nfds = 1 + max_array(fds,FDCOUNT);
  
   /* this will alert us when there is something to read on a socket */
@@ -215,8 +242,31 @@ int main(int argc, char **argv)
  }
  close(unix_fd);
  close(listen_fd);
+ close(bridge_fd);
  unlink(sockfile);
  return 0;
+}
+
+void *revalidate_bridge(void *i) 
+{
+ int retval;
+ int bridge_fd = *(int*)i;
+ struct sockaddr_in address;
+
+ printf("starting revalidate_bridge: keepalive %d\n", keepalive);
+ sleep(keepalive);
+
+ while (1) {
+
+  pthread_mutex_lock(&bridge_lock);
+  retval = validate_bridge_sock(pwfile, bridge_fd);
+  if (retval < 0) {
+   bridge_fd = bridge_sock_connect(host, port, &address);
+  }
+  pthread_mutex_unlock(&bridge_lock);
+
+  sleep(keepalive);
+ }
 }
 
 /* - causing compilation errors: I've incorporated this into the main while loop
@@ -370,11 +420,15 @@ int validate_bridge_sock (char *pwfile, int bridge_fd) {
   return -1;
  }
  nap_chomp(message);
- printf("got message %s vs %s\n", message, NAPRESPONSE_VALID);
  if (strcmp (message, NAPRESPONSE_VALID) == 0) {
   return 0;
  }
- fprintf(stderr,"validate_bridge_sock: invalid password");
+ fprintf(
+  stderr,
+  "validate_bridge_sock: invalid password (response %s vs expected %s)\n",
+  message,
+  NAPRESPONSE_VALID
+ );
  return -1;
 }
 
@@ -387,9 +441,21 @@ int validate_bridge_sock (char *pwfile, int bridge_fd) {
  * @return file descriptor for socket
  */
 int bridge_sock_connect(char *host, int port, struct sockaddr_in *serverAddr)
-{
+{ 
  //create a socket for IPv4 protocol and TCP
- int newsocket = socket(PF_INET, SOCK_STREAM, 0);
+ static int newsocket = -1; 
+ struct sockaddr_in newaddr;
+
+ // allow function to be called multiple times on a live socket
+ // use serverAddr to indicate if we want to reuse it
+ if (serverAddr == NULL) {
+  if (newsocket >= 0) return newsocket;
+  serverAddr = &newaddr;
+ } else {
+  if (newsocket >= 0) close(newsocket);
+ }
+
+ newsocket = socket(PF_INET, SOCK_STREAM, 0);
  
  //initialize the bytes of serverAddr to all zero
  memset (serverAddr, 0, sizeof(struct sockaddr_in));
