@@ -1,4 +1,9 @@
 <?php
+# for naptime/napbridge.pl daemon that connects nodes
+$Nap_bridge = "naptime/napbridge.pl";
+$Nap_bridgepid = "nodes/napbridge.pid";
+$Nap_bridgelog = "napbridge.txt";
+
 class Nap {
 	private static $pwfile = 'naplib/.nappw';
 	private static $find = '/usr/bin/find';

@@ -27,7 +27,7 @@ To run:
 $0 [options] >> {logfile} 2>&1 &
 
 Options:
-	-P{pwfile} where to find validation password file ($pwfile)
+	-P{pwfile} where to find validation password file ($nappwfile)
 	-p{port} port to listen on for requests ($napport)
 	-d{dir} where to find php serialized node data ($napnodedir)
 	-t{ttl} time to live in seconds for a node entry ($napnodelife)

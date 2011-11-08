@@ -7,10 +7,12 @@ Use address drdata.co.cc:29533 via tcp to connect.
 <p>
 <i>commands:
 <ul>
+<li>validate [password] - intialize node so it is visible to other nodes - typically for up to 10 min
 <li>peers - get a list of nodes we know about
 <li>index [ip] - get the list of content from a node at ip [ip]
-<li>getfile [ip] [fileid] - get bytes from file identified by [fileid] hash
-<li>stream [ip] - send a stream of bytes to ip [ip]
+<li>getfile [ip] [file name|fileid] - get bytes from file (works with file name for now)
+<li>stream [ip] - send a stream of bytes to ip [ip] (not implemented yet)
+<li>... possibly more ...
 </ul>
 </i>
 <p>
