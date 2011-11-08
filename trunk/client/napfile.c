@@ -6,9 +6,9 @@
 #include <stdio.h>
 #include <unistd.h>
 
-void chomp (char* buffer);
+void nap_chomp (char* buffer);
 
-int readFile (char* path, char* buffer, int count) {
+int nap_readFile (char* path, char* buffer, int count) {
 	FILE* file = fopen (path, "r");
 	if (file == NULL) {
 		return -1;
@@ -20,11 +20,11 @@ int readFile (char* path, char* buffer, int count) {
 	}
 
 	fclose (file);
-	chomp (buffer);
+	nap_chomp (buffer);
 	return 0;
 }
 
-void chomp (char* buffer) {
+void nap_chomp (char* buffer) {
 	char* p = buffer;
 	if (p == NULL) {
 		return;
@@ -38,7 +38,7 @@ void chomp (char* buffer) {
 	(*p) = 0;
 }
 
-int fileExists (char* path) {
+int nap_fileExists (char* path) {
 	if (access (path, F_OK) == 0) {
 		return 1;
 	}
