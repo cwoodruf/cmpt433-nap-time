@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 {
  struct sockaddr_un address;
  int  socket_fd, nbytes;
- char buffer[BUFFSIZE];
+ char buffer[NAPBUFFSIZE];
  char *sockfile = "./napclient.sock";
  int c;
  int verbose = 0;
