@@ -35,7 +35,7 @@ sub validate {
 	my $pw = $req->{data};
 	$pw =~ s/^\s*//;
 	$pw =~ s/\s*$//;
-	open PW, $main::pwfile or return "ERROR MISSINGPW $!";
+	open PW, $main::pwfile or return "ERROR MISSINGPW $main::pwfile $!";
 	my $password = <PW>;
 	close PW;
 	chomp $password;
