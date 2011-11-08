@@ -1,3 +1,5 @@
+#ifndef NAPFILE
+#define NAPFILE
 /**
 * read file content.
 * path: path to the file
@@ -12,3 +14,6 @@ int readFile (char* path, char* buffer, int count);
 * 0 if file doesn't exist
 **/
 int fileExists (char* path);
+
+#endif /* NAPFILE */
+
