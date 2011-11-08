@@ -11,4 +11,8 @@
 #define NAPHOST		"184.71.163.218"
 #define NAPPORT		29533
 
+#define NAPRESPONSE_VALID 		"VALID"
+#define NAPCOMMAND_VALIDATE 		"validate"
+#define NAPPASSWORD_FILE_LOCATION 	"./passwd"
+
 #endif /* NAP */

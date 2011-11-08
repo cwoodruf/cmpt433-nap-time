@@ -31,13 +31,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
-#include "file.h"
 #include "nap.h"
+#include "napfile.h"
 /* #include "napclient.h" - now incorporated in nap.h */
-
-#define RESPONSE_VALID "VALID"
-#define COMMAND_VALIDATE "validate"
-#define PASSWORD_FILE_LOCATION "./passwd"
 
 int local_sock_connect(char *sockfile, struct sockaddr_un *address);
 int bridge_sock_connect(char *host, int port);
@@ -121,12 +117,10 @@ int main(int argc, char **argv)
   return 0;
  }
 
- /**
-  * this is different in that we have to listen on 2 interfaces:
-  * 1) listen locally for connections on the NAPPORT port
-  * 2) listen on our local unix domain socket for commands
-  */
  while (1) {
+  bridge_fd = bridge_sock_connect(port, &bridge_address);
+  if (bridge_fd < 0) { perror("can't connect to bridge socket"); sleep(5); continue; }
+
   unix_fd = local_sock_connect(sockfile, &unix_address); 
   if (unix_fd < 0) { perror("can't connect to local unix socket"); sleep(5); continue; }
  
@@ -153,8 +147,6 @@ int main(int argc, char **argv)
      {
       /* now inside newly created connection handling process */
       /* close listening socket in child process */
-      close (listen_fd);
-      close (unix_fd);
       return connection_handler(connection_fd);
      }
      /* still inside server process */
@@ -171,8 +163,22 @@ int main(int argc, char **argv)
      {
       /* now inside newly created connection handling process */
       /* close listening socket in child process */
-      close (listen_fd);
-      close (unix_fd);
+      return connection_handler(connection_fd);
+     }
+     /* still inside server process */
+     close(connection_fd);
+    }
+   }
+   else if (FD_ISSET(bridge_fd, &socklist)) {
+    if ((connection_fd = accept(bridge_fd, 
+                                (struct sockaddr *) &bridge_address,
+                                &address_length)) > -1)
+    {
+     child = fork();
+     if(child == 0)
+     {
+      /* now inside newly created connection handling process */
+      /* close bridgeing socket in child process */
       return connection_handler(connection_fd);
      }
      /* still inside server process */
@@ -227,6 +233,7 @@ void bridge_client (char* host, int port) {
   }
  }
 }
+
 /**
  * example function for handling input from a connection
  */
@@ -312,14 +319,14 @@ int validate_bridge_sock (int bridge_fd) {
 		return -1;
 	}
 	char password[30] = {0};
-	int result = readFile (PASSWORD_FILE_LOCATION, password, 30);
+	int result = readFile (NAPPASSWORD_FILE_LOCATION, password, 30);
 	if (result == -1) {
 		printf ("Can't find validation password\n");
 		return -1;
 	}
 
 	char validateString[50] = {0};
-	sprintf (validateString, "%s %s\n", COMMAND_VALIDATE, password);
+	sprintf (validateString, "%s %s\n", NAPCOMMAND_VALIDATE, password);
 	result = send(remoteSocket, validateString, strlen(validateString), 0);
 	if (result == -1) {
 		if (errno == EDESTADDRREQ) {
@@ -337,7 +344,7 @@ int validate_bridge_sock (int bridge_fd) {
 		return -1;
 	}
 	
-	if (strcmp (message, RESPONSE_VALID) == 0) {
+	if (strcmp (message, NAPRESPONSE_VALID) == 0) {
 		return 0;
 	} else {
 		return -1;
