@@ -49,13 +49,18 @@ pthread_mutex_t bridge_lock = PTHREAD_MUTEX_INITIALIZER;
 /* function declarations */
 int local_sock_connect(char *sockfile, struct sockaddr_un *address);
 int bridge_sock_connect(char *host, int port, struct sockaddr_in *address);
+int validate_bridge_sock (char *pwfile, int bridge_fd);
 int listen_sock_connect(int port, struct sockaddr_in *address);
 
 /* void bridge_client (char* host, int port); // reincorporated in main loop */
-int validate_bridge_sock (char *pwfile, int bridge_fd);
+
+/* connection handlers */
+void initiate_request(int localconn); 
+void forward_response(int remoteconn, int localconn);
+void generate_response(int remoteconn);
 void *revalidate_bridge(void *i);
 
-int connection_handler(int connection_fd);
+/* int connection_handler(int connection_fd); */
 int max_array(int ary[], int count); 
 
 /* http://www.steve.org.uk/Reference/Unix/faq_8.html */
@@ -88,7 +93,7 @@ int main(int argc, char **argv)
 
 #define FDCOUNT 2
  int fds[FDCOUNT];
- int connection_fd;
+ int unix_conn, listen_conn, bridge_conn;
 
  /* options */
  char *sockfile = NAPSOCK;
@@ -141,6 +146,8 @@ int main(int argc, char **argv)
   return 0;
  }
 */
+
+ /* TODO: allow the bridge socket to not exist and try reconnect in the background? */
  bridge_fd = bridge_sock_connect(host, port, &bridge_address);
  if (pthread_create(&revalidate_bridge_thread, NULL, revalidate_bridge, (void *)&bridge_fd)) {
   perror("could not create revalidate_bridge_thread");
@@ -153,17 +160,17 @@ int main(int argc, char **argv)
 
  while (1) {
   printf("attempting to connect\n");
-  /* TODO: allow the bridge socket to not exist and try reconnect in the background? */
   bridge_fd = bridge_sock_connect(host, port,NULL);
   if (bridge_fd < 0) { 
    perror("can't connect to bridge socket"); 
    sleep(5); 
    continue; 
   }
-  /* essential to validate with bridge or no communication possible */
+  /* essential to validate with bridge or no communication possible - you can update the pwfile to fix */
   if ((retval = validate_bridge_sock(pwfile, bridge_fd))) { 
    fprintf(stderr, "error validating bridge: %d\n", retval); 
-   return 1;
+   sleep(5);
+   continue;
   }
   printf("connected to bridge on %d\n", bridge_fd);
 
@@ -188,52 +195,40 @@ int main(int argc, char **argv)
   /* this will alert us when there is something to read on a socket */
   while ((retval = select(nfds, &socklist, NULL, NULL, NULL)) >= 0) {
    if (FD_ISSET(unix_fd, &socklist)) {
-    if ((connection_fd = accept(unix_fd, 
+    if ((unix_conn = accept(unix_fd, 
                                 (struct sockaddr *) &unix_address,
                                 &address_length)) > -1)
     {
-     child = fork();
-     if(child == 0)
-     {
-      /* now inside newly created connection handling process */
-      /* close listening socket in child process */
-      return connection_handler(connection_fd);
-     }
-     /* still inside server process */
-     close(connection_fd);
+     initiate_request(unix_conn);
+     close(unix_conn);
+     unix_conn = -1;
     }
    }
    else if (FD_ISSET(listen_fd, &socklist)) {
-    if ((connection_fd = accept(listen_fd, 
+    if ((listen_conn = accept(listen_fd, 
                                 (struct sockaddr *) &listen_address,
                                 &address_length)) > -1)
     {
-     child = fork();
-     if(child == 0)
-     {
-      /* now inside newly created connection handling process */
-      /* close listening socket in child process */
-      return connection_handler(connection_fd);
-     }
-     /* still inside server process */
-     close(connection_fd);
+     if (unix_conn >= 0) {
+      forward_response(listen_conn,unix_conn);
+     } else {
+      generate_response(listen_conn);
+     } 
     }
    }
    else if (FD_ISSET(bridge_fd, &socklist)) {
-    if ((connection_fd = accept(bridge_fd, 
+    pthread_mutex_lock(&bridge_lock);
+    if ((bridge_conn = accept(bridge_fd, 
                                 (struct sockaddr *) &bridge_address,
                                 &address_length)) > -1)
     {
-     child = fork();
-     if(child == 0)
-     {
-      /* now inside newly created connection handling process */
-      /* close bridgeing socket in child process */
-      return connection_handler(connection_fd);
-     }
-     /* still inside server process */
-     close(connection_fd);
+     if (unix_conn >= 0) {
+      forward_response(bridge_conn,unix_conn);
+     } else {
+      generate_response(bridge_conn);
+     } 
     }
+    pthread_mutex_unlock(&bridge_lock);
    }
   }
   if (retval < 0) {
@@ -246,7 +241,72 @@ int main(int argc, char **argv)
  unlink(sockfile);
  return 0;
 }
+/*
+ // example function for handling input from a connection
+int connection_handler(int connection_fd)
+{ 
+ int nbytes;
+ char buffer[BUFFSIZE];
 
+ nbytes = read(connection_fd, buffer, BUFFSIZE);
+ buffer[nbytes] = 0;
+
+ printf("MESSAGE FROM CLIENT: %s\n", buffer);
+ nbytes = snprintf(buffer, BUFFSIZE, "hello from the server");
+ write(connection_fd, buffer, nbytes);
+ 
+ close(connection_fd);
+ return 0;
+}
+*/
+
+int is_localsubnet(char *ip) 
+{
+ return 0;
+}
+
+/**
+ * get initial command from local unix socket
+ * this will be a single line string
+ * @param localconn
+ */
+void initiate_request(int localconn) 
+{
+ int nbytes, islocal = 0;
+ char *cmd, *ip;
+ char buffer[BUFFSIZE+1],copy[BUFFSIZE+1];
+
+ nbytes = read(localconn, buffer, BUFFSIZE);
+ buffer[nbytes] = 0;
+ strcpy(copy,buffer);
+
+ if (nbytes > 0) {
+  cmd = strtok(copy," ");
+  ip = strtok(NULL," ");
+  if (ip != NULL) islocal = is_localsubnet(ip);
+  if (islocal) {
+   printf("sending %s to local subnet host %s\n", buffer, ip);
+  } else {
+   printf("sending %s to bridge server for ip %s\n", buffer, ip);
+  }
+ }
+}
+
+void forward_response(int remoteconn, int localconn) 
+{
+}
+
+void generate_response(int remoteconn)
+{
+}
+
+/**
+ * thread functiont that handles revalidating with bridge server
+ * does this on a regular schedule bridge_lock should be used above
+ * to protect writing to the bridge_fd
+ * @param the socket handle bridge_fd
+ * uses host, port and keepalive global variables
+ */
 void *revalidate_bridge(void *i) 
 {
  int retval;
@@ -269,65 +329,12 @@ void *revalidate_bridge(void *i)
  }
 }
 
-/* - causing compilation errors: I've incorporated this into the main while loop
-void bridge_client (char* host, int port) {
- int bridge_fd = bridge_sock_connect(host, port, &bridge_address);
- while (bridge_fd < 0) {
-  perror("can't connect to bridge socket");
-  sleep(5);
-  bridge_fd = bridge_sock_connect (host, port);
- }
-
- fd_set rfds;
- struct timeval tv;
- int result;
-
- FD_ZERO (&rfds);
- FD_SET (bridge_fd, &rfds);
-
- // wait up to four minutes and 30 seconds
- tv.tv_sec = 270;
- tv.tv_usec = 0;
- char message[50];
- while (1) {
-  result = select (1, &rfds, NULL, NULL, &tv);
-  if (result == -1) {
-   printf ("bridge client: select error\n");
-  } else if (result) {
-   //receive and send some data to server
-  } else {
-   if (validate_bridge_sock (bridge_fd) == 1) {
-    int result = bridge_sock_connect (host, port);
-    while (result == -1) {
-     sleep (5);
-     result = bridge_sock_connect (host, port);
-    }
-    bridge_fd = result;
-   }
-  }
- }
-}
-*/
-
 /**
- * example function for handling input from a connection
+ * finds maximum positive value in an array
+ * @param array of ints
+ * @param count
+ * @return largest postive value
  */
-int connection_handler(int connection_fd)
-{ 
- int nbytes;
- char buffer[BUFFSIZE];
-
- nbytes = read(connection_fd, buffer, BUFFSIZE);
- buffer[nbytes] = 0;
-
- printf("MESSAGE FROM CLIENT: %s\n", buffer);
- nbytes = snprintf(buffer, BUFFSIZE, "hello from the server");
- write(connection_fd, buffer, nbytes);
- 
- close(connection_fd);
- return 0;
-}
-
 int max_array(int ary[], int count) 
 {
  int i, max = 0;
@@ -507,4 +514,44 @@ int listen_sock_connect(int port,struct sockaddr_in *address)
 
   return mysocket;
 }
+
+/* - causing compilation errors: I've incorporated this into the main while loop
+void bridge_client (char* host, int port) {
+ int bridge_fd = bridge_sock_connect(host, port, &bridge_address);
+ while (bridge_fd < 0) {
+  perror("can't connect to bridge socket");
+  sleep(5);
+  bridge_fd = bridge_sock_connect (host, port);
+ }
+
+ fd_set rfds;
+ struct timeval tv;
+ int result;
+
+ FD_ZERO (&rfds);
+ FD_SET (bridge_fd, &rfds);
+
+ // wait up to four minutes and 30 seconds
+ tv.tv_sec = 270;
+ tv.tv_usec = 0;
+ char message[50];
+ while (1) {
+  result = select (1, &rfds, NULL, NULL, &tv);
+  if (result == -1) {
+   printf ("bridge client: select error\n");
+  } else if (result) {
+   //receive and send some data to server
+  } else {
+   if (validate_bridge_sock (bridge_fd) == 1) {
+    int result = bridge_sock_connect (host, port);
+    while (result == -1) {
+     sleep (5);
+     result = bridge_sock_connect (host, port);
+    }
+    bridge_fd = result;
+   }
+  }
+ }
+}
+*/
 
