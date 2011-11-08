@@ -26,7 +26,8 @@ class Home extends Controller {
 	protected function restartbridge() {
 		exec("killall napbridge.pl");
 		exec("echo `/bin/date` >> napbridge.txt");
-		exec("naptime/napbridge.pl -v >> napbridge.txt 2>&1 &",$outarray,$response);
+		$cwd = getcwd();
+		exec("naptime/napbridge.pl -v -P'$cwd/naptime/password' >> napbridge.txt 2>&1 &",$outarray,$response);
 		View::assign('topmsg','napbridge.pl restarted');
 		$this->form();
 	}
