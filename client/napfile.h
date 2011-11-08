@@ -1,3 +1,7 @@
+/**
+ * cmpt433 final project nap time systems
+ * from Tom Betz
+ */
 #ifndef NAPFILE
 #define NAPFILE
 /**

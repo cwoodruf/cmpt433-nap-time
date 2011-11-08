@@ -1,3 +1,8 @@
+/**
+ * cmpt433 final project nap time systems
+ * from Tom Betz
+ * references?
+ */
 #include <stdio.h>
 #include <unistd.h>
 
