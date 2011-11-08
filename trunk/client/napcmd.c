@@ -21,7 +21,7 @@ int main(int argc, char **argv)
  int  socket_fd, nbytes;
  char buffer[BUFFSIZE];
  char *sockfile = "./napclient.sock";
- int c, help = 0;
+ int c;
  int verbose = 0;
  int emulate = 0;
  

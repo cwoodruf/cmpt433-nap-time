@@ -40,7 +40,7 @@ int bridge_sock_connect(char *host, int port, struct sockaddr_in *address);
 int listen_sock_connect(int port, struct sockaddr_in *address);
 
 void bridge_client (char* host, int port);
-int validate_bridge_sock (int bridge_fd);
+int validate_bridge_sock (char *pwfile, int bridge_fd);
 
 int connection_handler(int connection_fd);
 int max_array(int ary[], int count); 
@@ -76,6 +76,7 @@ int main(int argc, char **argv)
  int connection_fd;
 
  /* options */
+ char *pwfile = NAPPWFILE;
  char *sockfile = NAPSOCK;
  char *host = NAPHOST;
  int port = NAPPORT;
@@ -86,28 +87,32 @@ int main(int argc, char **argv)
  /* for the child processes below - they need to be automatically cleared */
  signal(SIGCHLD,sig_chld);
 
- while ((c = getopt(argc, argv, "vhs:H:p:"))) {
+ while ((c = getopt(argc, argv, "vehp:s:H:P:")) >= 0) {
   switch (c)
    {
    case 'h': printf(
-    "%s -evh -s{socket file} -h{host} -p{port}\n"
+    "%s -evh -p{pwfile} -s{socket file} -H{host} -P{port}\n"
     "\tSimple client that can forward commands to the napclient program\n"
     "\t-e emulate the connection with the host\n"
     "\t-v verbose output\n"
     "\t-h this help\n"
+    "\t-p{pwfile} password file to use to validate with bridge (%s)\n"
     "\t-s{socket file} socket file to send commands to (%s)\n"
-    "\t-h{host} napbridge host to connect to (%s)\n"
-    "\t-h{port} napbridge port to connect to (%d)\n",
-    argv[0], sockfile, host, port
+    "\t-H{host} napbridge host to connect to (%s)\n"
+    "\t-P{port} napbridge port to connect to (%d)\n",
+    argv[0], NAPPWFILE, NAPSOCK, host, port
     );
     return 0;
 
    case 'e': emulate = 1; break;
    case 'v': verbose = 1; break;
+   case 'p': pwfile = optarg; break;
    case 's': sockfile = optarg; break;
    case 'H': host = optarg; break;
-   case 'p': port = atoi(optarg); break;
-   default: abort();
+   case 'P': port = atoi(optarg); break;
+   default: 
+    printf("unknown option %c\n", c); 
+    abort();
    }
  }
 
@@ -122,6 +127,7 @@ int main(int argc, char **argv)
 */
 
  while (1) {
+  printf("attempting to reconnect\n");
   /* TODO: allow the bridge socket to not exist and try reconnect in the background */
   bridge_fd = bridge_sock_connect(host, port, &bridge_address);
   if (bridge_fd < 0) { 
@@ -130,16 +136,19 @@ int main(int argc, char **argv)
    continue; 
   }
   /* essential to validate with bridge or no communication possible */
-  if ((retval = validate_bridge_sock(bridge_fd))) { 
+  if ((retval = validate_bridge_sock(pwfile, bridge_fd))) { 
    fprintf(stderr, "error validating bridge: %d\n", retval); 
    return 1;
   }
+  printf("connected to bridge on %d\n", bridge_fd);
 
   unix_fd = local_sock_connect(sockfile, &unix_address); 
   if (unix_fd < 0) { perror("can't connect to local unix socket"); sleep(5); continue; }
+  printf("connected to unix socket %s on %d\n", sockfile, unix_fd);
  
   listen_fd = listen_sock_connect(port, &listen_address);
   if (listen_fd < 0) { perror("can't connect to listen socket"); sleep(5); continue; }
+  printf("connected to listen to %d locally on %d\n", port, listen_fd);
 
   FD_ZERO(&socklist); /* Always clear the structure first. */
   FD_SET(listen_fd, &socklist);
@@ -329,13 +338,12 @@ int local_sock_connect(char *sockfile, struct sockaddr_un *address)
  * returns 0 if success
  * return -1 otherwise
  */
-int validate_bridge_sock (int bridge_fd) {
- int remoteSocket = bridge_fd;
- if (remoteSocket == -1) {
+int validate_bridge_sock (char *pwfile, int bridge_fd) {
+ if (bridge_fd == -1) {
   return -1;
  }
  char password[30] = {0};
- int result = nap_readFile (NAPPASSWORD_FILE_LOCATION, password, 30);
+ int result = nap_readFile (pwfile, password, 30);
  if (result == -1) {
   printf ("Can't find validation password\n");
   return -1;
@@ -343,8 +351,9 @@ int validate_bridge_sock (int bridge_fd) {
 
  char validateString[50] = {0};
  sprintf (validateString, "%s %s\n", NAPCOMMAND_VALIDATE, password);
- result = send(remoteSocket, validateString, strlen(validateString), 0);
+ result = send(bridge_fd, validateString, strlen(validateString), 0);
  if (result == -1) {
+  perror("validate_bridge_sock: can't send");
   if (errno == EDESTADDRREQ) {
    return 1;
   }
@@ -352,19 +361,21 @@ int validate_bridge_sock (int bridge_fd) {
  }
 
  char message[50] = {0};
- result = recv (remoteSocket, message, 50, 0);
+ result = recv (bridge_fd, message, 50, 0);
  if (result == -1) {
+  perror("validate_bridge_sock: can't receive");
   if (errno == EDESTADDRREQ) {
    return 1;
   }
   return -1;
  }
- 
+ nap_chomp(message);
+ printf("got message %s vs %s\n", message, NAPRESPONSE_VALID);
  if (strcmp (message, NAPRESPONSE_VALID) == 0) {
   return 0;
- } else {
-  return -1;
  }
+ fprintf(stderr,"validate_bridge_sock: invalid password");
+ return -1;
 }
 
 /**
@@ -393,7 +404,7 @@ int bridge_sock_connect(char *host, int port, struct sockaddr_in *serverAddr)
  serverAddr->sin_port = htons (port);
 
  //connect
- int result = connect (newsocket, (struct sockaddr*)serverAddr, sizeof (serverAddr));
+ int result = connect (newsocket, (struct sockaddr*)serverAddr, sizeof (struct sockaddr));
 
  if (result == -1) {
   perror ("Client: bridge connection failed.\n");

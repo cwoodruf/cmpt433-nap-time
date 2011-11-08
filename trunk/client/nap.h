@@ -7,12 +7,12 @@
 #define UNIX_PATH_MAX   108
 
 #define NAPSOCK 	"./napclient.sock"
+#define NAPPWFILE 	"./nappassword"
 /* drdata.co.dd */
 #define NAPHOST		"184.71.163.218"
 #define NAPPORT		29533
 
-#define NAPRESPONSE_VALID 		"VALID"
 #define NAPCOMMAND_VALIDATE 		"validate"
-#define NAPPASSWORD_FILE_LOCATION 	"./passwd"
+#define NAPRESPONSE_VALID 		"VALID"
 
 #endif /* NAP */

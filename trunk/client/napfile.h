@@ -18,6 +18,10 @@ int nap_readFile (char* path, char* buffer, int count);
 * 0 if file doesn't exist
 **/
 int nap_fileExists (char* path);
+/**
+ * remove line ending character
+ */
+void nap_chomp(char *str);
 
 #endif /* NAPFILE */
 
