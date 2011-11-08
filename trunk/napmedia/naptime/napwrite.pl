@@ -6,9 +6,12 @@ use strict;
 my $client;
 $SIG{INT} = sub { $client->close; exit; };
 
+my $sockfile = shift;
+die "need a connected socket file!" unless -S $sockfile;
+
 while (<STDIN>) {
 	$client = IO::Socket::UNIX->new(
-		Peer => "$ENV{HOME}/napclient.sock",
+		Peer => $sockfile,
 		Type => SOCK_STREAM,
 	) or die $!;
 
