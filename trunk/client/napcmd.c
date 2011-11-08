@@ -1,6 +1,6 @@
 /**
  * cmpt433 final project nap-time-systems group
- * Cobbled together by Cal Woodruff <cwoodruf@sfu.ca> 301013983
+ * Cobbled together by Cal Woodruff <cwoodruf@sfu.ca>
  * taken almost verbatim from
  * http://www.thomasstover.com/uds.html
  * and from
@@ -13,11 +13,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-
-/* maximum size that can be transfered atomically on a unix domain socket */
-#define BUFFSIZE 	4096
-/* known bug that this is not defined in sys/un.h */
-#define UNIX_PATH_MAX   108
+#include "nap.h"
 
 int main(int argc, char **argv)
 {
