@@ -11,6 +11,8 @@
 /* drdata.co.dd */
 #define NAPHOST		"184.71.163.218"
 #define NAPPORT		29533
+/* how long to wait before revalidating */
+#define NAPKEEPALIVE	300
 
 #define NAPCOMMAND_VALIDATE 		"validate"
 #define NAPRESPONSE_VALID 		"VALID"
