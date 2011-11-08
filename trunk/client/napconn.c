@@ -1,32 +1,51 @@
 /**
  * cmpt433 final project nap time systems
  * Cobbled together by Cal Woodruff <cwoodruf@sfu.ca>
+ *
  * unix domain socket code from 
  * http://www.thomasstover.com/uds.html
+ * http://linux.die.net/man/2/bind
+ *
  * select / accept documentation
  * http://linux.die.net/man/2/accept
  * http://www.softlab.ntua.gr/facilities/documentation/unix/unix-socket-faq/unix-socket-faq-4.html
+ *
  * argument process code from
  * http://www.gnu.org/s/hello/manual/libc/Example-of-Getopt.html 
+ *
  * inet code from Tom Betz
  */
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "nap.h"
+/* #include "napclient.h" - now incorporated in nap.h */
 
-int local_sock_connect(char *sockfile, struct sockadd_un *address);
-int bridge_sock_connect(char *host, int port, struct sockadd_un *address);
-int listen_sock_connect(int port, struct sockadd_un *address);
+int local_sock_connect(char *sockfile, struct sockaddr_un *address);
+int bridge_sock_connect(char *host, int port, struct sockaddr_in *address);
+int listen_sock_connect(int port, struct sockaddr_in *address);
 
 int connection_handler(int connection_fd);
 int max_array(int ary[], int count); 
+
+/* http://www.steve.org.uk/Reference/Unix/faq_8.html */
+void sig_chld(int signo)
+{
+  int status;
+  waitpid(-1, &status, WNOHANG);
+}
 
 int main(int argc, char **argv)
 {
@@ -34,14 +53,17 @@ int main(int argc, char **argv)
  fd_set socklist;
  int retval, nfds;
 
+ /* for fork */
+ pid_t child;
+
  /* sockets and connections */
  int bridge_fd;
  int listen_fd;
  int unix_fd;
 
  struct sockaddr_un unix_address;
- struct sockaddr_un bridge_address;
- struct sockaddr_un listen_address;
+ struct sockaddr_in bridge_address;
+ struct sockaddr_in listen_address;
  socklen_t address_length = sizeof(struct sockaddr_un);
 
 #define FDCOUNT 3
@@ -52,21 +74,24 @@ int main(int argc, char **argv)
  char *sockfile = NAPSOCK;
  char *host = NAPHOST;
  int port = NAPPORT;
- int c, help = 0;
+ int c;
  int verbose = 0;
  int emulate = 0;
 
- while ((c = getopt(argc, argv, "vhs:h:p:"))) {
+ /* for the child processes below - they need to be automatically cleared */
+ signal(SIGCHLD,sig_chld);
+
+ while ((c = getopt(argc, argv, "vhs:H:p:"))) {
   switch (c)
    {
    case 'h': printf(
     "%s -evh -s{socket file} -h{host} -p{port}\n"
     "\tSimple client that can forward commands to the napclient program\n"
-    "\t-e emulate the connection with the host\n";
+    "\t-e emulate the connection with the host\n"
     "\t-v verbose output\n"
     "\t-h this help\n"
-    "\t-s{socket file} socket file to send commands to (%s)\n",
-    "\t-h{host} napbridge host to connect to (%s)\n",
+    "\t-s{socket file} socket file to send commands to (%s)\n"
+    "\t-h{host} napbridge host to connect to (%s)\n"
     "\t-h{port} napbridge port to connect to (%d)\n",
     argv[0], sockfile, host, port
     );
@@ -75,7 +100,7 @@ int main(int argc, char **argv)
    case 'e': emulate = 1; break;
    case 'v': verbose = 1; break;
    case 's': sockfile = optarg; break;
-   case 'h': host = optarg; break;
+   case 'H': host = optarg; break;
    case 'p': port = atoi(optarg); break;
    default: abort();
    }
@@ -89,28 +114,28 @@ int main(int argc, char **argv)
   * 3) listen on our local unix domain socket for commands
   */
  while (1) {
-  unix_fd = local_sock_connect(char *sockfile, &unix_address); 
-  if (unix_fd < 0) { perror("can't connect to local unix socket"); sleep 5; continue; }
+  unix_fd = local_sock_connect(sockfile, &unix_address); 
+  if (unix_fd < 0) { perror("can't connect to local unix socket"); sleep(5); continue; }
  
-  bridge_fd = bridge_sock_connect(char *host, int port, &bridge_address);
-  if (bridge_fd < 0) { perror("can't connect to bridge socket"); sleep 5; continue; }
+  bridge_fd = bridge_sock_connect(host, port, &bridge_address);
+  if (bridge_fd < 0) { perror("can't connect to bridge socket"); sleep(5); continue; }
  
-  listen_fd = listen_sock_connect(int port, &listen_address);
-  if (listen_fd < 0) { perror("can't connect to listen socket"); sleep 5; continue; }
+  listen_fd = listen_sock_connect(port, &listen_address);
+  if (listen_fd < 0) { perror("can't connect to listen socket"); sleep(5); continue; }
 
   FD_ZERO(&socklist); /* Always clear the structure first. */
-  FD_SET(napbridge_fd, &socklist);
-  FD_SET(inet_fd, &socklist);
+  FD_SET(bridge_fd, &socklist);
+  FD_SET(listen_fd, &socklist);
   FD_SET(unix_fd, &socklist);
 
   fds[0] = unix_fd;
   fds[1] = bridge_fd;
   fds[2] = listen_fd;
-  nfds = 1 + maxarray(fds,FDCOUNT);
+  nfds = 1 + max_array(fds,FDCOUNT);
  
   /* this will alert us when there is something to read on a socket */
   while ((retval = select(nfds, &socklist, NULL, NULL, NULL)) >= 0) {
-   if (FD_ISSET(unix_fd, &rfds)) {
+   if (FD_ISSET(unix_fd, &socklist)) {
     if ((connection_fd = accept(unix_fd, 
                                 (struct sockaddr *) &unix_address,
                                 &address_length)) > -1)
@@ -125,7 +150,7 @@ int main(int argc, char **argv)
      close(connection_fd);
     }
    }
-   else if (FD_ISSET(listen_fd, &rfds)) {
+   else if (FD_ISSET(listen_fd, &socklist)) {
     if ((connection_fd = accept(listen_fd, 
                                 (struct sockaddr *) &listen_address,
                                 &address_length)) > -1)
@@ -140,7 +165,7 @@ int main(int argc, char **argv)
      close(connection_fd);
     }
    }
-   else if (FD_ISSET(bridge_fd, &rfds)) {
+   else if (FD_ISSET(bridge_fd, &socklist)) {
     if ((connection_fd = accept(bridge_fd, 
                                 (struct sockaddr *) &bridge_address,
                                 &address_length)) > -1)
@@ -195,15 +220,15 @@ int max_array(int ary[], int count)
  }
  return max;
 }
+
 /**
  * connects to our local unix command socket
  * @param sockfile - name of socket file to make
  * @return file descriptor for unix domain socket
  */
-int local_sock_connect(char *sockfile) 
+int local_sock_connect(char *sockfile, struct sockaddr_un *address) 
 {
  int unix_fd;
- pid_t child;
 
  unix_fd = socket(PF_UNIX, SOCK_STREAM, 0);
  if(unix_fd < 0)
@@ -218,7 +243,7 @@ int local_sock_connect(char *sockfile)
  memset(address, 0, sizeof(struct sockaddr_un));
 
  address->sun_family = AF_UNIX;
- snprintf(address->sun_path, UNIX_PATH_MAX, sockfile);
+ snprintf(address->sun_path, UNIX_PATH_MAX, "%s", sockfile);
 
  if(bind(unix_fd, 
          (struct sockaddr *) address, 
@@ -236,15 +261,44 @@ int local_sock_connect(char *sockfile)
  return unix_fd;
 }
 
+/*
+ * CMPT433 naplclient code
+ * T.E. Betz
+ * 6 November 2011
+ */
 /**
- * connect with the external napbridge server
+ * connect with the external napbridge server as a client
+ * we'll get commands from them and should try and keep the connection open
+ *
  * @param host - host running napbridge
  * @param port - port to try and connect to
  * @return file descriptor for socket
  */
-int bridge_connect(char *host, int port)
+int bridge_sock_connect(char *host, int port, struct sockaddr_in *serverAddr)
 {
- return -1;
+ //create a socket for IPv4 protocol and TCP
+ int newsocket = socket (PF_INET, SOCK_STREAM, 0);
+ 
+ //initialize the bytes of serverAddr to all zero
+ bzero (serverAddr, sizeof(struct sockaddr_in));
+ 
+ //specify IPv4 address type
+ serverAddr->sin_family = PF_INET;
+ 
+ //specify server address using MACRO (adjust to real value)
+ inet_pton (PF_INET,host,&(serverAddr->sin_addr));
+ 
+ //server port number
+ serverAddr->sin_port = htons (NAPPORT);
+
+ //connect
+ int result = connect (newsocket, (struct sockaddr*)serverAddr, sizeof (serverAddr));
+
+ if (result == -1) {
+  perror ("Client: bridge connection failed.\n");
+  return -1;
+ }
+ return result;
 }
 
 /**
@@ -252,7 +306,7 @@ int bridge_connect(char *host, int port)
  * @param port - port to listen on
  * @return file descriptor for incoming connections 
  */
-int listen_sock_connect(int port) 
+int listen_sock_connect(int port,struct sockaddr_in *address) 
 {
  return -1;
 }
