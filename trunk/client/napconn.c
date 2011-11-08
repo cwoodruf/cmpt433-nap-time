@@ -30,12 +30,21 @@
 #include <signal.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <errno.h>
+#include "file.h"
 #include "nap.h"
 /* #include "napclient.h" - now incorporated in nap.h */
 
+#define RESPONSE_VALID "VALID"
+#define COMMAND_VALIDATE "validate"
+#define PASSWORD_FILE_LOCATION "./passwd"
+
 int local_sock_connect(char *sockfile, struct sockaddr_un *address);
-int bridge_sock_connect(char *host, int port, struct sockaddr_in *address);
+int bridge_sock_connect(char *host, int port);
 int listen_sock_connect(int port, struct sockaddr_in *address);
+
+void bridge_client (char* host, int port);
+int validate_bridge_sock (int bridge_fd);
 
 int connection_handler(int connection_fd);
 int max_array(int ary[], int count); 
@@ -57,17 +66,15 @@ int main(int argc, char **argv)
  pid_t child;
 
  /* sockets and connections */
- int bridge_fd;
  int listen_fd;
  int unix_fd;
 
  struct sockaddr_un unix_address;
- struct sockaddr_in bridge_address;
  struct sockaddr_in listen_address;
  socklen_t address_length = sizeof(struct sockaddr_un);
 
-#define FDCOUNT 3
- int fds[FDCOUNT-1];
+#define FDCOUNT 2
+ int fds[FDCOUNT];
  int connection_fd;
 
  /* options */
@@ -105,32 +112,33 @@ int main(int argc, char **argv)
    default: abort();
    }
  }
- 
+
+ child = fork();
+ if(child == 0)
+ {
+  /* initiate a connection to NAPHOST and wait for requests */
+  bridge_client (host, port);
+  return 0;
+ }
 
  /**
-  * this is different in that we have to listen on 3 interfaces:
+  * this is different in that we have to listen on 2 interfaces:
   * 1) listen locally for connections on the NAPPORT port
-  * 2) initiate a connection to NAPHOST and wait for requests
-  * 3) listen on our local unix domain socket for commands
+  * 2) listen on our local unix domain socket for commands
   */
  while (1) {
   unix_fd = local_sock_connect(sockfile, &unix_address); 
   if (unix_fd < 0) { perror("can't connect to local unix socket"); sleep(5); continue; }
  
-  bridge_fd = bridge_sock_connect(host, port, &bridge_address);
-  if (bridge_fd < 0) { perror("can't connect to bridge socket"); sleep(5); continue; }
- 
   listen_fd = listen_sock_connect(port, &listen_address);
   if (listen_fd < 0) { perror("can't connect to listen socket"); sleep(5); continue; }
 
   FD_ZERO(&socklist); /* Always clear the structure first. */
-  FD_SET(bridge_fd, &socklist);
   FD_SET(listen_fd, &socklist);
   FD_SET(unix_fd, &socklist);
 
   fds[0] = unix_fd;
-  fds[1] = bridge_fd;
-  fds[2] = listen_fd;
+  fds[1] = listen_fd;
   nfds = 1 + max_array(fds,FDCOUNT);
  
   /* this will alert us when there is something to read on a socket */
@@ -144,6 +152,9 @@ int main(int argc, char **argv)
      if(child == 0)
      {
       /* now inside newly created connection handling process */
+      /* close listening socket in child process */
+      close (listen_fd);
+      close (unix_fd);
       return connection_handler(connection_fd);
      }
      /* still inside server process */
@@ -159,21 +170,9 @@ int main(int argc, char **argv)
      if(child == 0)
      {
       /* now inside newly created connection handling process */
-      return connection_handler(connection_fd);
-     }
-     /* still inside server process */
-     close(connection_fd);
-    }
-   }
-   else if (FD_ISSET(bridge_fd, &socklist)) {
-    if ((connection_fd = accept(bridge_fd, 
-                                (struct sockaddr *) &bridge_address,
-                                &address_length)) > -1)
-    {
-     child = fork();
-     if(child == 0)
-     {
-      /* now inside newly created connection handling process */
+      /* close listening socket in child process */
+      close (listen_fd);
+      close (unix_fd);
       return connection_handler(connection_fd);
      }
      /* still inside server process */
@@ -186,17 +185,53 @@ int main(int argc, char **argv)
   }
  }
  close(unix_fd);
- close(bridge_fd);
  close(listen_fd);
  unlink(sockfile);
  return 0;
 }
 
+void bridge_client (char* host, int port) {
+ int bridge_fd = bridge_sock_connect(host, port);
+ while (bridge_fd < 0) {
+  perror("can't connect to bridge socket");
+  sleep(5);
+  bridge_fd = bridge_sock_connect (host, port);
+ }
+
+ fd_set rfds;
+ struct timeval tv;
+ int result;
+
+ FD_ZERO (&rfds);
+ FD_SET (bridge_fd, &rfds);
+
+ /* wait up to four minutes and 30 seconds*/
+ tv.tv_sec = 270;
+ tv.tv_usec = 0;
+ char message[50];
+ while (1) {
+  result = select (1, &rfds, NULL, NULL, &tv);
+  if (result == -1) {
+   printf ("bridge client: select error\n");
+  } else if (result) {
+   //receive and send some data to server
+  } else {
+   if (validate_bridge_sock (bridge_fd) == 1) {
+    int result = bridge_sock_connect (host, port);
+    while (result == -1) {
+     sleep (5);
+     result = bridge_sock_connect (host, port);
+    }
+    bridge_fd = result;
+   }
+  }
+ }
+}
 /**
  * example function for handling input from a connection
  */
 int connection_handler(int connection_fd)
-{
+{ 
  int nbytes;
  char buffer[BUFFSIZE];
 
@@ -267,6 +302,49 @@ int local_sock_connect(char *sockfile, struct sockaddr_un *address)
  * 6 November 2011
  */
 /**
+ * returns 1 if validation fails because of no connection
+ * returns 0 if success
+ * return -1 otherwise
+ */
+int validate_bridge_sock (int bridge_fd) {
+	int remoteSocket = bridge_fd;
+	if (remoteSocket == -1) {
+		return -1;
+	}
+	char password[30] = {0};
+	int result = readFile (PASSWORD_FILE_LOCATION, password, 30);
+	if (result == -1) {
+		printf ("Can't find validation password\n");
+		return -1;
+	}
+
+	char validateString[50] = {0};
+	sprintf (validateString, "%s %s\n", COMMAND_VALIDATE, password);
+	result = send(remoteSocket, validateString, strlen(validateString), 0);
+	if (result == -1) {
+		if (errno == EDESTADDRREQ) {
+			return 1;
+		}
+		return -1;
+	}
+
+	char message[50] = {0};
+	result = recv (remoteSocket, message, 50, 0);
+	if (result == -1) {
+		if (errno == EDESTADDRREQ) {
+			return 1;
+		}
+		return -1;
+	}
+	
+	if (strcmp (message, RESPONSE_VALID) == 0) {
+		return 0;
+	} else {
+		return -1;
+	}
+}
+
+/**
  * connect with the external napbridge server as a client
  * we'll get commands from them and should try and keep the connection open
  *
@@ -274,31 +352,33 @@ int local_sock_connect(char *sockfile, struct sockaddr_un *address)
  * @param port - port to try and connect to
  * @return file descriptor for socket
  */
-int bridge_sock_connect(char *host, int port, struct sockaddr_in *serverAddr)
+int bridge_sock_connect(char *host, int port)
 {
+ struct sockaddr_in serverAddr;
+
  //create a socket for IPv4 protocol and TCP
  int newsocket = socket (PF_INET, SOCK_STREAM, 0);
  
  //initialize the bytes of serverAddr to all zero
- bzero (serverAddr, sizeof(struct sockaddr_in));
+ memset (&serverAddr, 0, sizeof(struct sockaddr_in));
  
  //specify IPv4 address type
- serverAddr->sin_family = PF_INET;
+ serverAddr.sin_family = PF_INET;
  
  //specify server address using MACRO (adjust to real value)
- inet_pton (PF_INET,host,&(serverAddr->sin_addr));
+ inet_pton (PF_INET,host,&(serverAddr.sin_addr));
  
  //server port number
- serverAddr->sin_port = htons (NAPPORT);
+ serverAddr.sin_port = htons (port);
 
  //connect
- int result = connect (newsocket, (struct sockaddr*)serverAddr, sizeof (serverAddr));
+ int result = connect (newsocket, (struct sockaddr*)&serverAddr, sizeof (serverAddr));
 
  if (result == -1) {
   perror ("Client: bridge connection failed.\n");
   return -1;
  }
- return result;
+ return newsocket;
 }
 
 /**
@@ -308,6 +388,27 @@ int bridge_sock_connect(char *host, int port, struct sockaddr_in *serverAddr)
  */
 int listen_sock_connect(int port,struct sockaddr_in *address) 
 {
- return -1;
+  struct sockaddr_in serverAddr;
+
+  // get a tcp/ip socket
+  int mysocket = socket (PF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (mysocket == -1) {
+    printf ("Cannot open socket\n");
+    return -1;
+  }
+
+  memset (&serverAddr, 0, sizeof (serverAddr));
+  serverAddr.sin_family = PF_INET;
+  serverAddr.sin_addr.s_addr = htonl (INADDR_ANY);
+  serverAddr.sin_port = htons (29533);
+  bind (mysocket, (struct sockaddr *)&serverAddr, sizeof (serverAddr));
+
+  int result = listen (mysocket, 1);
+  if (result == -1) {
+    printf ("Failed to listen\n");
+    return -1;
+  }
+
+  return mysocket;
 }
 
