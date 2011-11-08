@@ -24,20 +24,29 @@ class Home extends Controller {
 		$this->doaction($this->actions[1]);
 	}
 	protected function restartbridge() {
+		global $Nap_bridgepid, $Nap_bridge, $Nap_bridgelog;
+		# wait between restarts ...
+		while (time() - filemtime($Nap_bridgepid) < 10) {
+			sleep(1);
+		}
 		exec("killall napbridge.pl");
-		exec("echo `/bin/date` >> napbridge.txt");
+		exec("echo `/bin/date` >> $Nap_bridgelog");
 		$cwd = getcwd();
-		exec("naptime/napbridge.pl -v -P'$cwd/naptime/password' >> napbridge.txt 2>&1 &",$outarray,$response);
-		View::assign('topmsg','napbridge.pl restarted');
-		$this->form();
+		exec("$Nap_bridge -v -P'$cwd/naptime/password' >> $Nap_bridgelog 2>&1 &");
+		View::assign('topmsg',"$Nap_bridge restarted");
+		View::assign('bridgestatus',$this->bridgestatus());
+		# waiting after seems to help with reporting the status below
+		sleep(2);
+		View::wrap('bridgestatus.tpl');
 	}
 	protected function bridgestatus() {
+		global $Nap_bridgepid, $Nap_bridge, $Nap_bridgelog;
 		$cwd = getcwd();
-		$pid = trim(file_get_contents("nodes/napbridge.pid"));
-		if ($pid and preg_match("#$pid.*napbridge.pl#",`ps -ef`)) {
-			return "napbridge.pl running on ".htmlentities($pid);
+		$pid = trim(file_get_contents($Nap_bridgepid));
+		if (preg_match("#\b$pid\b.*$Nap_bridge#",`ps -ef`)) {
+			return "$Nap_bridge running as $pid";
 		}
-		return "napbridge.pl is not running $pid";
+		return "$Nap_bridge is not running $pid";
 	}
 	protected function form() {
 		View::assign('bridgestatus',$this->bridgestatus());

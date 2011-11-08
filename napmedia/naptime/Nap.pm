@@ -7,7 +7,8 @@ use Fcntl qw/:flock/;
 use PHP::Serialization qw/serialize unserialize/;
 use strict;
 our @ISA = qw/Exporter/;
-our @EXPORT = qw/%napreq $naphost $napport $napnodedir $napnodelife $napnodelifemin $napnodelifemax 
+our @EXPORT = qw/%napreq $naphost $napport $napnodedir $nappwfile
+		$napnodelife $napnodelifemin $napnodelifemax 
 		valid_ip nodeload nodesave/;
 
 ###################### types of requests ######################################
