@@ -22,6 +22,7 @@ our %napreq = (
 ###################### program defaults #######################################
 our $naphost = 'drdata.co.cc';
 our $napport = 29533;
+our $nappwfile = "password";
 our $nodedir = our $napnodedir = '/usr/local/apache2/htdocs/napmedia/nodes';
 our $nodelife = our $napnodelife = 600;
 our $napnodelifemin = 1;
@@ -34,7 +35,7 @@ sub validate {
 	my $pw = $req->{data};
 	$pw =~ s/^\s*//;
 	$pw =~ s/\s*$//;
-	open PW, "password" or return "ERROR MISSINGPW $!";
+	open PW, $main::pwfile or return "ERROR MISSINGPW $!";
 	my $password = <PW>;
 	close PW;
 	chomp $password;
