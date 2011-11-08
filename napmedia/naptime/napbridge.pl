@@ -19,14 +19,15 @@ $| = 1; # autoflush
 
 ###################### process input ##########################################
 our %opt;
-getopts('H:p:d:hv',\%opt);
+getopts('P:p:d:hv',\%opt);
 my $usage = <<TXT;
-$0 [-p{port}] [-d{node dir}] [-t{ttl}] [-v] [-h]
+$0 [-P{pwfile}] [-p{port}] [-d{node dir}] [-t{ttl}] [-v] [-h]
 
 To run:
 $0 [options] >> {logfile} 2>&1 &
 
 Options:
+	-P{pwfile} where to find validation password file ($pwfile)
 	-p{port} port to listen on for requests ($napport)
 	-d{dir} where to find php serialized node data ($napnodedir)
 	-t{ttl} time to live in seconds for a node entry ($napnodelife)
@@ -34,6 +35,9 @@ Options:
 	-h this help
 TXT
 print $usage and exit if $opt{h};
+
+our $pwfile = $opt{P} || $nappwfile;
+die "$pwfile not a file!" unless -f $pwfile;
 
 my $port = $opt{p} || $napport;
 die "port should be a number between 1024 and 65535!\n$usage" 
