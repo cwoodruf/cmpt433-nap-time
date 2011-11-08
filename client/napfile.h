@@ -11,13 +11,13 @@
 * count: maximum bytes to be read
 * return -1 upon failure, 0 upon success
 **/
-int readFile (char* path, char* buffer, int count);
+int nap_readFile (char* path, char* buffer, int count);
 
 /**
 * return 1 if file exists
 * 0 if file doesn't exist
 **/
-int fileExists (char* path);
+int nap_fileExists (char* path);
 
 #endif /* NAPFILE */
 

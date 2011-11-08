@@ -36,7 +36,7 @@
 /* #include "napclient.h" - now incorporated in nap.h */
 
 int local_sock_connect(char *sockfile, struct sockaddr_un *address);
-int bridge_sock_connect(char *host, int port);
+int bridge_sock_connect(char *host, int port, struct sockaddr_in *address);
 int listen_sock_connect(int port, struct sockaddr_in *address);
 
 void bridge_client (char* host, int port);
@@ -64,9 +64,11 @@ int main(int argc, char **argv)
  /* sockets and connections */
  int listen_fd;
  int unix_fd;
+ int bridge_fd;
 
  struct sockaddr_un unix_address;
  struct sockaddr_in listen_address;
+ struct sockaddr_in bridge_address;
  socklen_t address_length = sizeof(struct sockaddr_un);
 
 #define FDCOUNT 2
@@ -109,17 +111,29 @@ int main(int argc, char **argv)
    }
  }
 
+/*
  child = fork();
  if(child == 0)
  {
-  /* initiate a connection to NAPHOST and wait for requests */
+  // initiate a connection to NAPHOST and wait for requests 
   bridge_client (host, port);
   return 0;
  }
+*/
 
  while (1) {
-  bridge_fd = bridge_sock_connect(port, &bridge_address);
-  if (bridge_fd < 0) { perror("can't connect to bridge socket"); sleep(5); continue; }
+  /* TODO: allow the bridge socket to not exist and try reconnect in the background */
+  bridge_fd = bridge_sock_connect(host, port, &bridge_address);
+  if (bridge_fd < 0) { 
+   perror("can't connect to bridge socket"); 
+   sleep(5); 
+   continue; 
+  }
+  /* essential to validate with bridge or no communication possible */
+  if ((retval = validate_bridge_sock(bridge_fd))) { 
+   fprintf(stderr, "error validating bridge: %d\n", retval); 
+   return 1;
+  }
 
   unix_fd = local_sock_connect(sockfile, &unix_address); 
   if (unix_fd < 0) { perror("can't connect to local unix socket"); sleep(5); continue; }
@@ -196,8 +210,9 @@ int main(int argc, char **argv)
  return 0;
 }
 
+/* - causing compilation errors: I've incorporated this into the main while loop
 void bridge_client (char* host, int port) {
- int bridge_fd = bridge_sock_connect(host, port);
+ int bridge_fd = bridge_sock_connect(host, port, &bridge_address);
  while (bridge_fd < 0) {
   perror("can't connect to bridge socket");
   sleep(5);
@@ -211,7 +226,7 @@ void bridge_client (char* host, int port) {
  FD_ZERO (&rfds);
  FD_SET (bridge_fd, &rfds);
 
- /* wait up to four minutes and 30 seconds*/
+ // wait up to four minutes and 30 seconds
  tv.tv_sec = 270;
  tv.tv_usec = 0;
  char message[50];
@@ -233,6 +248,7 @@ void bridge_client (char* host, int port) {
   }
  }
 }
+*/
 
 /**
  * example function for handling input from a connection
@@ -314,41 +330,41 @@ int local_sock_connect(char *sockfile, struct sockaddr_un *address)
  * return -1 otherwise
  */
 int validate_bridge_sock (int bridge_fd) {
-	int remoteSocket = bridge_fd;
-	if (remoteSocket == -1) {
-		return -1;
-	}
-	char password[30] = {0};
-	int result = readFile (NAPPASSWORD_FILE_LOCATION, password, 30);
-	if (result == -1) {
-		printf ("Can't find validation password\n");
-		return -1;
-	}
+ int remoteSocket = bridge_fd;
+ if (remoteSocket == -1) {
+  return -1;
+ }
+ char password[30] = {0};
+ int result = nap_readFile (NAPPASSWORD_FILE_LOCATION, password, 30);
+ if (result == -1) {
+  printf ("Can't find validation password\n");
+  return -1;
+ }
 
-	char validateString[50] = {0};
-	sprintf (validateString, "%s %s\n", NAPCOMMAND_VALIDATE, password);
-	result = send(remoteSocket, validateString, strlen(validateString), 0);
-	if (result == -1) {
-		if (errno == EDESTADDRREQ) {
-			return 1;
-		}
-		return -1;
-	}
+ char validateString[50] = {0};
+ sprintf (validateString, "%s %s\n", NAPCOMMAND_VALIDATE, password);
+ result = send(remoteSocket, validateString, strlen(validateString), 0);
+ if (result == -1) {
+  if (errno == EDESTADDRREQ) {
+   return 1;
+  }
+  return -1;
+ }
 
-	char message[50] = {0};
-	result = recv (remoteSocket, message, 50, 0);
-	if (result == -1) {
-		if (errno == EDESTADDRREQ) {
-			return 1;
-		}
-		return -1;
-	}
-	
-	if (strcmp (message, NAPRESPONSE_VALID) == 0) {
-		return 0;
-	} else {
-		return -1;
-	}
+ char message[50] = {0};
+ result = recv (remoteSocket, message, 50, 0);
+ if (result == -1) {
+  if (errno == EDESTADDRREQ) {
+   return 1;
+  }
+  return -1;
+ }
+ 
+ if (strcmp (message, NAPRESPONSE_VALID) == 0) {
+  return 0;
+ } else {
+  return -1;
+ }
 }
 
 /**
@@ -359,27 +375,25 @@ int validate_bridge_sock (int bridge_fd) {
  * @param port - port to try and connect to
  * @return file descriptor for socket
  */
-int bridge_sock_connect(char *host, int port)
+int bridge_sock_connect(char *host, int port, struct sockaddr_in *serverAddr)
 {
- struct sockaddr_in serverAddr;
-
  //create a socket for IPv4 protocol and TCP
- int newsocket = socket (PF_INET, SOCK_STREAM, 0);
+ int newsocket = socket(PF_INET, SOCK_STREAM, 0);
  
  //initialize the bytes of serverAddr to all zero
- memset (&serverAddr, 0, sizeof(struct sockaddr_in));
+ memset (serverAddr, 0, sizeof(struct sockaddr_in));
  
  //specify IPv4 address type
- serverAddr.sin_family = PF_INET;
+ serverAddr->sin_family = PF_INET;
  
  //specify server address using MACRO (adjust to real value)
- inet_pton (PF_INET,host,&(serverAddr.sin_addr));
+ inet_pton (PF_INET,host,&(serverAddr->sin_addr));
  
  //server port number
- serverAddr.sin_port = htons (port);
+ serverAddr->sin_port = htons (port);
 
  //connect
- int result = connect (newsocket, (struct sockaddr*)&serverAddr, sizeof (serverAddr));
+ int result = connect (newsocket, (struct sockaddr*)serverAddr, sizeof (serverAddr));
 
  if (result == -1) {
   perror ("Client: bridge connection failed.\n");
@@ -395,8 +409,6 @@ int bridge_sock_connect(char *host, int port)
  */
 int listen_sock_connect(int port,struct sockaddr_in *address) 
 {
-  struct sockaddr_in serverAddr;
-
   // get a tcp/ip socket
   int mysocket = socket (PF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (mysocket == -1) {
@@ -404,11 +416,11 @@ int listen_sock_connect(int port,struct sockaddr_in *address)
     return -1;
   }
 
-  memset (&serverAddr, 0, sizeof (serverAddr));
-  serverAddr.sin_family = PF_INET;
-  serverAddr.sin_addr.s_addr = htonl (INADDR_ANY);
-  serverAddr.sin_port = htons (29533);
-  bind (mysocket, (struct sockaddr *)&serverAddr, sizeof (serverAddr));
+  memset (address, 0, sizeof (struct sockaddr_in));
+  address->sin_family = PF_INET;
+  address->sin_addr.s_addr = htonl (INADDR_ANY);
+  address->sin_port = htons (port);
+  bind (mysocket, (struct sockaddr *)address, sizeof (struct sockaddr_in));
 
   int result = listen (mysocket, 1);
   if (result == -1) {
