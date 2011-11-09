@@ -36,17 +36,20 @@ sub validate {
 	my $pw = $req->{data};
 	$pw =~ s/^\s*//;
 	$pw =~ s/\s*$//;
-	open PW, $main::pwfile or return "ERROR MISSINGPW $main::pwfile $!";
+	my $sock = $req->{sock};
+	open PW, $main::pwfile or print $sock "ERROR MISSINGPW $main::pwfile $!\n" and return;
 	my $password = <PW>;
 	close PW;
 	chomp $password;
-	print "got $pw (correct pasword $password)\n" if $main::opt{v};
-	return "ERROR WRONGPW" unless $pw eq $password;
+	print "got $pw correct\n" if $main::opt{v};
+	print $sock "ERROR WRONGPW\n" and return unless $pw eq $password;
 	$node = &save_connection($req->{sock});
 	if (defined $node) {
+		print $sock "VALID\n";
 		return $node;
 	}
-	return "ERROR SAVING";
+	print $sock "ERROR SAVING\n";
+	0;
 }
  
 # list of currently alive ips
@@ -167,7 +170,7 @@ sub forward_req {
 		Peer => $node->{fifo},
 		Type => SOCK_STREAM,
 		Timeout => 2,
-	) or warn "getindex: can't open socket: $!";
+	) or warn "getindex: can't open socket: $!" and return 0;
 	my $sel = IO::Select->new;
 	$sel->add($fifoconn);
 	print $fifoconn "$command\n";
