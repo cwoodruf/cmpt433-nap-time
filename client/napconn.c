@@ -21,23 +21,26 @@
  *
  * inet code from Tom Betz
  */
+/* using alphabetical order here - there are so many of these */
+#include <arpa/inet.h>
 #include <ctype.h>
+#include <errno.h>
+#include <netinet/in.h>
+#include <pthread.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/file.h>
+#include <sys/resource.h>
 #include <sys/select.h>
 #include <sys/socket.h>
-#include <sys/un.h>
-#include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/time.h>
-#include <sys/resource.h>
+#include <sys/types.h>
+#include <sys/un.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <string.h>
-#include <signal.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <errno.h>
-#include <pthread.h>
 #include "nap.h"
 #include "napfile.h"
 /* #include "napclient.h" - now incorporated in nap.h */
@@ -46,6 +49,9 @@
 int keepalive = NAPKEEPALIVE;
 int port = NAPPORT;
 int verbose = 0;
+char *basedir = NAPBASEDIR;
+char *indexfile = NAPINDEXFILE;
+char *peersfile = NAPPEERSFILE;
 char *sockfile = NAPSOCK;
 char *pwfile = NAPPWFILE;
 char *host = NAPHOST;
@@ -58,7 +64,7 @@ pthread_mutex_t bridge_lock = PTHREAD_MUTEX_INITIALIZER;
 /* function declarations */
 int local_sock_connect(char *sockfile, struct sockaddr_un *address);
 int bridge_sock_connect(char *host, int port, struct sockaddr_in *address);
-int validate_bridge_sock (char *pwfile, int bridge_fd);
+int validate_bridge_sock (char *pwfile);
 int listen_sock_connect(int port, struct sockaddr_in *address);
 
 /* void bridge_client (char* host, int port); // reincorporated in main loop */
@@ -102,19 +108,21 @@ int main(int argc, char **argv)
  struct sockaddr_in bridge_address;
  socklen_t address_length = sizeof(struct sockaddr_un);
  pthread_t revalidate_bridge_thread;
- int unix_conn = -1, listen_conn = -1, bridge_conn = -1;
+ int unix_conn = -1, listen_conn = -1;
 
  /* for options */
  int c;
 
  /* for the child processes below - they need to be automatically cleared */
  signal(SIGCHLD,sig_chld);
+ /* so we don't just die if the bridge server is not available */
+ signal(SIGPIPE,SIG_IGN);
 
- while ((c = getopt(argc, argv, "vhp:s:H:P:t:")) >= 0) {
+ while ((c = getopt(argc, argv, "vhp:s:H:P:t:b:")) >= 0) {
   switch (c)
    {
    case 'h': printf(
-    "%s -evh -p{pwfile} -s{socket file} -H{host} -P{port}\n"
+    "%s -evh -t{keepalive} -b{basedir} -p{pwfile} -s{socket file} -H{host} -P{port}\n"
     "\tProgram that maintains connection to the napbridge server"
     "and does the job of forwarding requests and responses.\n"
     "\tCreates a local unix socket that can be used to send requests to.\n"
@@ -123,11 +131,12 @@ int main(int argc, char **argv)
     "\t-v verbose output\n"
     "\t-h this help\n"
     "\t-t{keepalive} revalidate connection after keepalive seconds (%d)\n"
+    "\t-b{basedir} base directory for files (%s)\n"
     "\t-p{pwfile} password file to use to validate with bridge (%s)\n"
     "\t-s{socket file} socket file to send commands to (%s)\n"
     "\t-H{host} napbridge host to connect to (%s)\n"
     "\t-P{port} napbridge port to connect to (%d)\n",
-    argv[0], NAPKEEPALIVE, NAPPWFILE, NAPSOCK, host, port
+    argv[0], NAPKEEPALIVE, NAPBASEDIR, NAPPWFILE, NAPSOCK, host, port
     );
     return 0;
 
@@ -167,19 +176,23 @@ int main(int argc, char **argv)
 
  while (1) {
   printf("attempting to connect\n");
-  bridge_fd = bridge_sock_connect(host, port,NULL);
+  pthread_mutex_lock(&bridge_lock);
+  bridge_fd = bridge_sock_connect(host, port, &bridge_address);
   if (bridge_fd < 0) { 
    perror("can't connect to bridge socket"); 
+   pthread_mutex_unlock(&bridge_lock);
    sleep(5); 
    continue; 
   }
-  /* essential to validate with bridge or no communication possible - you can update the pwfile to fix */
-  if ((retval = validate_bridge_sock(pwfile, bridge_fd))) { 
+  /* essential to validate with bridge or no communication possible - pwfile reread every time */
+  if ((retval = validate_bridge_sock(pwfile))) { 
    fprintf(stderr, "error validating bridge: %d\n", retval); 
+   pthread_mutex_unlock(&bridge_lock);
    sleep(5);
    continue;
   }
   printf("connected to bridge on %d\n", bridge_fd);
+  pthread_mutex_unlock(&bridge_lock);
 
   unix_fd = local_sock_connect(sockfile, &unix_address); 
   if (unix_fd < 0) { perror("can't connect to local unix socket"); sleep(5); continue; }
@@ -205,7 +218,9 @@ printf("got unix_fd req\n");
                             &address_length)) > -1)
     {
 printf("initiate_request %d\n", unix_conn);
+     pthread_mutex_lock(&bridge_lock);
      initiate_request(unix_conn);
+     pthread_mutex_unlock(&bridge_lock);
      close(unix_conn);
      unix_conn = -1;
     }
@@ -224,16 +239,13 @@ printf("generate_response %d\n", listen_conn);
    }
    else if (FD_ISSET(bridge_fd, &socklist)) {
 printf("got bridge_fd req\n");
-    pthread_mutex_lock(&bridge_lock);
-    if ((bridge_conn = accept(bridge_fd, 
-                              (struct sockaddr *) &bridge_address,
-                              &address_length)) > -1)
-    {
-printf("generate_response %d\n", bridge_conn);
-     generate_response(bridge_conn);
-     close(bridge_conn);
-     bridge_conn = -1;
+    if (recv(bridge_fd,&c,1,MSG_PEEK) <= 0) {
+     perror("bridge_fd broken aborting");
+     break;
     }
+    /* check that the connection isn't closed */
+    pthread_mutex_lock(&bridge_lock);
+    generate_response(bridge_fd);
     pthread_mutex_unlock(&bridge_lock);
    }
 
@@ -245,11 +257,11 @@ printf("generate_response %d\n", bridge_conn);
   if (retval < 0) {
    perror("select error");
   }
+  close(unix_fd);
+  close(listen_fd);
+  close(bridge_fd);
+  unlink(sockfile);
  }
- close(unix_fd);
- close(listen_fd);
- close(bridge_fd);
- unlink(sockfile);
  return 0;
 }
 /*
@@ -283,75 +295,187 @@ int is_localsubnet(char *ip)
  */
 void initiate_request(int localconn) 
 {
- int nbytes, islocal = 0, fd;
- char *cmd, *ip;
- char buffer[NAPBUFFSIZE],copy[NAPBUFFSIZE],response[NAPBUFFSIZE];
+ int nbytes, islocal = 0, fd, rbytes;
+ char *cmd, *ip, *remainder;
+ char request[NAPBUFFSIZE],copy[NAPBUFFSIZE],response[NAPBUFFSIZE];
  struct sockaddr_in address;
 
- nbytes = read(localconn, buffer, NAPBUFFSIZE);
- buffer[nbytes] = 0;
- strcpy(copy,buffer);
+ FILE *lc = fdopen(localconn, "r+");
+ nbytes = read(localconn, request, NAPBUFFSIZE);
+ request[nbytes] = 0;
+ strcpy(copy,request);
 
- if (nbytes > 0) {
-  cmd = strtok(copy," ");
-  ip = strtok(NULL," ");
-  if (ip != NULL) islocal = is_localsubnet(ip);
+ if (nbytes <= 0) return;
+ cmd = strtok(copy," ");
+ ip = strtok(NULL," ");
+ if (ip != NULL) islocal = is_localsubnet(ip);
 
-  if (islocal) {
-   printf("sending %s to local subnet - will connect to %s\n", buffer, ip);
-   fd = bridge_sock_connect(ip, port, &address);
-   if (fd < 0) {
-    perror("can't connect");
-    /* if we can't connect to node locally connecting via bridge may work */
-    fd = bridge_fd;
-   }
-  } else {
-   printf("sending %s to bridge server for ip %s\n", buffer, ip);
+ if (islocal) {
+  printf("sending %s to local subnet - will connect to %s\n", request, ip);
+  fd = bridge_sock_connect(ip, port, &address);
+  if (fd < 0) {
+   perror("can't connect");
+   /* if we can't connect to node locally connecting via bridge may work */
    fd = bridge_fd;
   }
+ } else {
+  printf("sending %s to bridge server for ip %s\n", request, ip);
+  fd = bridge_fd;
+ }
 
-  if (send_str_sock(fd,buffer) == 0) {
-   /* just forward along what we get back for now */
-   while ((nbytes = recv(fd, response, NAPBUFFSIZE, 0)) > 0) {
-    if (nbytes == -1) {
-     perror("validate_bridge_sock: error receiving");
-     return;
+ if (send_str_sock(fd,request) == 0) {
+  /* parse the first line of the input */
+  if ((nbytes = recv(fd, response, NAPBUFFSIZE, 0)) <= 0) {
+   perror("problem reading");
+  } else {
+   if (strncmp(response,NAPRESPONSE,strlen(NAPRESPONSE)) == 0) {
+    rbytes = atoi(response + strlen(NAPRESPONSE)+1);
+    remainder = strstr(response,"\n");
+    remainder = strstr(remainder,"\n");
+    write(localconn,response,strlen(response));
+    fflush(lc);
+    nbytes = rbytes - strlen(remainder);
+    if (nbytes > 0) {
+printf("gets here?? %d\n",nbytes);
+     if ((remainder = (char *)malloc(nbytes)) == NULL) {
+      perror("response malloc");
+     } else {
+printf("gets here???\n");
+      if ((nbytes = recv(fd, remainder, nbytes, 0)) > 0) {
+       if (write(localconn, remainder, nbytes) < 0) { perror("write localconn"); }
+       else fflush(lc);
+      }
+     }
     }
-    write(localconn,response,nbytes);
+printf("nothing left to send\n");
    }
   }
-  if (fd != bridge_fd) close(fd);
  }
+printf("finished sending and receiving\n");
+ if (fd != bridge_fd) close(fd);
 }
+
+/**
+ * read the request from the other node and formulate a response
+ * these are either a single line or of the format
+ * RESPONSE [bytes] [file]
+ * <blank>
+ * [file data]
+ * the one exception is the stream request where we send an OK
+ * then wait for whatever comes from the other node
+ * @param remote connection to send data to
+ */
+
+/* hacks to adapt behavior of generate_response to work with bridge_fd */
+int nap_read(int fd, void *buff, size_t size) 
+{
+ if (fd == bridge_fd) {
+  return recv(fd,buff,size,0);
+ }
+ return read(fd,buff,size);
+}
+/* */
+int nap_write(int fd, void *buff, size_t size) 
+{
+ if (fd == bridge_fd) {
+  return send(fd,buff,size,0);
+ }
+ return write(fd,buff,size);
+}
+/* end hacks */
 
 void generate_response(int remoteconn)
 {
- int nbytes, bytessent;
- char *resp, *bytestr, *respcode, *fname;
- char **lines, **respline;
- char response[NAPBUFFSIZE],copy[NAPBUFFSIZE];
-
- nbytes = read(remoteconn, response, NAPBUFFSIZE);
- if (nbytes == -1) {
-  perror("validate_bridge_sock: can't receive");
+ int bytesreceived, nbytes, i;
+ char *cmd, *data, *fname=NULL;
+ char request[NAPBUFFSIZE],copy[NAPBUFFSIZE],response[NAPBUFFSIZE],file[NAPBUFFSIZE];
+ int fh;
+ struct stat s;
+ bytesreceived = nap_read(remoteconn, request, NAPBUFFSIZE);
+ if (bytesreceived == -1) {
+  perror("generate_response: can't receive");
   return;
  }
- if (nbytes == 0) return; /* nothing to read ? */
- /* this reads each line and parses the first line */
- strcpy(copy,response);
- resp = strtok_r(copy,"\r\n",lines);
- if (respline) {
-  respcode = strtok_r(resp," ",respline);
-  if (strcmp(respcode,NAPRESPONSE) == 0) {
-   bytestr = strtok_r(NULL,"\r\n");
-   bytessent = atoi(bytestr);
-   fname = strtok_r
-   nbytes = read(remoteconn, response, NAPBUFFSIZE);
+ request[bytesreceived] = 0;
+ strcpy(copy,request);
+ cmd = strtok(copy," \r\n");
+
+ /* did we get anything to do? */
+ if (cmd) {
+
+  /* first check the commands we know */
+  /* mainly we only set a file name and then spit out the contents of that file */
+  if (strcmp(cmd,NAPCOMMAND_PEERS)) {
+    fname = peersfile;
+
+  } else if (strcmp(cmd,NAPCOMMAND_INDEX)) {
+    fname = indexfile;
+
+  } else if (strcmp(cmd,NAPCOMMAND_GETFILE)) {
+   /* this will be a link to the file - probably */
+   data = strtok(NULL," \r\n");
+   if (data) {
+    /* file name should be a sha1sum hash value so allowed chars are [a-z0-9] string is always 40 chars long */
+    for (i=0; i<strlen(data) && i<40; i++) {
+     if ((data[i] >= 'a' && data[i] <= 'f') || (data[i] >= '0' && data[i] <= '9')) continue;
+     fprintf(stderr,"bad file name %s\n",data);
+     return;
+    }
+    fname = data;
+   }
+
+  /* stream is the one exception where we send an OK response and then just write to stdout */
+  } else if (strcmp(cmd,NAPCOMMAND_STREAM)) {
+   if (nap_write(remoteconn,NAPRESPONSE_OK,strlen(NAPRESPONSE_OK)) < 0) {
+    perror("error writing stream response");
+    return;
+   }
+   /* just spit out whatever we get from the other node */
+   while ((nbytes = nap_read(remoteconn,copy,NAPBUFFSIZE)) > 0) {
+    write(STDOUT_FILENO,copy,nbytes);
+   }
+   return;
+
+  } else {
+   fprintf(stderr,"don't understand command %s!\n", cmd);
+   return;
+  }
+
+  /* if we have a file to send back then send it */
+  if (fname) {
+   snprintf(file,NAPBUFFSIZE,"%s/%s",basedir,fname);
+   /* determine size of file */
+   if (stat(file,&s)) {
+    perror("stat");
+    sprintf(response,"%s\n",NAPRESPONSE_NOFILE);
+    if (nap_write(remoteconn,response,strlen(response)) < 0) { perror(response); return; }
+
+   } else {
+    if ((fh = open(file,O_RDONLY)) >= 0) {
+     flock(fh, LOCK_SH);
+
+     /* the response line followed by blank line */
+     snprintf(response,NAPBUFFSIZE,"%s %d %s\n\n",NAPRESPONSE,(int)s.st_size,fname);
+     if (nap_write(remoteconn,response,strlen(response)) < 0) { perror(response); return; }
+
+     /* dumping the file */
+     while ((nbytes = nap_read(fh,response,NAPBUFFSIZE)) > 0) {
+      if (nap_write(remoteconn,response,strlen(response)) < 0) { perror(file); break; }
+     }
+     flock(fh, LOCK_UN);
+     close(fh);
+
+    } else {
+     sprintf(response,"%s\n",NAPRESPONSE_FILEERR);
+     if (nap_write(remoteconn,response,strlen(response)) < 0) { perror(response); return; }
+    }
+   }
+  }
  }
 }
 
 /**
- * thread functiont that handles revalidating with bridge server
+ * thread function that handles revalidating with bridge server
  * does this on a regular schedule bridge_lock should be used above
  * to protect writing to the bridge_fd
  * @param the socket handle bridge_fd
@@ -368,8 +492,8 @@ void *revalidate_bridge(void *i)
  while (1) {
 
   pthread_mutex_lock(&bridge_lock);
-  retval = validate_bridge_sock(pwfile, bridge_fd);
-  if (retval > 0) {
+  retval = validate_bridge_sock(pwfile);
+  if (retval < 0) {
    bridge_fd = bridge_sock_connect(host, port, &address);
   }
   pthread_mutex_unlock(&bridge_lock);
@@ -444,7 +568,7 @@ int local_sock_connect(char *sockfile, struct sockaddr_un *address)
  * returns 0 if success
  * return -1 otherwise
  */
-int validate_bridge_sock (char *pwfile, int bridge_fd) {
+int validate_bridge_sock (char *pwfile) {
  if (bridge_fd == -1) {
   return -1;
  }
@@ -460,13 +584,20 @@ int validate_bridge_sock (char *pwfile, int bridge_fd) {
  if ((result = send_str_sock(bridge_fd, validateString))) return result; 
 
  char message[50] = {0};
- result = recv (bridge_fd, message, 50, 0);
+printf("waiting for validate response\n");
+ result = recv(bridge_fd, message, 50, 0);
  if (result == -1) {
+  close(bridge_fd);
+  bridge_fd = -1;
   perror("validate_bridge_sock: can't receive");
   if (errno == EDESTADDRREQ) {
    return 1;
   }
   return -1;
+ } else if (result == 0) {
+  close(bridge_fd);
+  bridge_fd = -1;
+  return 1;
  }
  nap_chomp(message);
  if (strcmp (message, NAPRESPONSE_VALID) == 0) {
@@ -518,6 +649,7 @@ int bridge_sock_connect(char *host, int port, struct sockaddr_in *serverAddr)
 
  // allow function to be called multiple times on a live socket
  // use serverAddr to indicate if we want to reuse it
+printf("newsocket %d\n", newsocket);
  if (serverAddr == NULL) {
   if (newsocket >= 0) return newsocket;
   serverAddr = &newaddr;
@@ -526,6 +658,7 @@ int bridge_sock_connect(char *host, int port, struct sockaddr_in *serverAddr)
  }
 
  newsocket = socket(PF_INET, SOCK_STREAM, 0);
+printf("newsocket %d\n", newsocket);
  
  //initialize the bytes of serverAddr to all zero
  memset (serverAddr, 0, sizeof(struct sockaddr_in));
@@ -541,6 +674,7 @@ int bridge_sock_connect(char *host, int port, struct sockaddr_in *serverAddr)
 
  //connect
  int result = connect (newsocket, (struct sockaddr*)serverAddr, sizeof (struct sockaddr));
+printf("newsocket %d connect result %d\n", newsocket, result);
 
  if (result == -1) {
   perror ("Client: bridge connection failed.\n");
