@@ -13,13 +13,13 @@ while (<STDIN>) {
 	$client = IO::Socket::UNIX->new(
 		Peer => $sockfile,
 		Type => SOCK_STREAM,
-	) or die $!;
+	) or die "$sockfile: $!";
 
 	print $client $_;
 	$client->flush;
 	my $response = <$client>;
 	print "$response";
-	if ($response =~ /^RESPONSE (\d+) +(\S.*)/) {
+	if ($response =~ /^RESPONSE (\d+) *(\S.*)/) {
 		my $bytes = $1;
 		my $fname = $2;
 		my $dir = ($fname=~m#(.*)/#)[0];
@@ -33,6 +33,7 @@ while (<STDIN>) {
 		close FILE;
 		print Dumper([stat($fname)]);
 	} else {
+		print "just dumping out the rest of the response\n";
 		while (<$client>) {
 			print $_;
 		}
