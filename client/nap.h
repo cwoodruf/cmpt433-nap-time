@@ -6,13 +6,14 @@
 /* known bug that this is not defined in sys/un.h */
 #define UNIX_PATH_MAX   108
 
-#define NAPSOCK 	"./napclient.sock"
+#define NAPSOCK 	"/home/cal/cmpt433/private/myApps/cmpt433-nap-time/client/napclient.sock"
 #define NAPPWFILE 	"./nappassword"
 /* drdata.co.dd */
 #define NAPHOST		"184.71.163.218"
 #define NAPPORT		29533
 /* how long to wait before revalidating */
-#define NAPKEEPALIVE	300
+/* #define NAPKEEPALIVE	300 */
+#define NAPKEEPALIVE	30
 
 #define NAPCOMMAND_VALIDATE 		"validate"
 #define NAPRESPONSE_VALID 		"VALID"
