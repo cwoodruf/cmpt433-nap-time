@@ -68,6 +68,7 @@ my $listener = IO::Socket::INET->new(
 my $buff;
 my $buffsize = 8 * 1024;
 $SIG{CHLD} = 'IGNORE'; # automatically reap spent worker processes
+# $SIG{PIPE} = 'IGNORE'; # if pipe breaks shut it down
 
 open PIDFILE, "> $Nap::nodedir/napbridge.pid" or die "can't save pid in $Nap::nodedir/naptime.pid: $!";
 print PIDFILE $$;
@@ -88,14 +89,7 @@ while (1) {
 			exit 1;
 		} else {
 			# the validate callback will either returned what went wrong or a $node
-			my $response = &do_req($req);
-			if ($response =~ /^ERROR/) {
-				print "validate request failed: $response!\n",Dumper($req);
-				print $clientsock "$response\n";
-				exit 2;
-			}
-			$node = $response;
-			print $clientsock "VALID\n";
+			$node = &do_req($req) or die "validate error!";
 		}
 		my $fifo = $node->{fifoconn};
 		my $sel = IO::Select->new();
@@ -112,6 +106,8 @@ while (1) {
 							print "request failed!\n",Dumper($req) if $opt{v};
 							print $clientsock "FAIL\n";
 						}
+					} else {
+						print $clientsock "UNKNOWN\n";
 					}
 				} elsif ($reader == $fifo) {
 					my $fifoconn = $fifo->accept;
@@ -155,6 +151,9 @@ sub parse_req {
 sub do_req {
 	my ($req) = @_;
 	print "processing $req->{cmd}\n" if $opt{v};
-	return &{$napreq{$req->{cmd}}}($req);
+	return 0 unless defined $napreq{$req->{cmd}};
+	my $r =  &{$napreq{$req->{cmd}}}($req);
+	# print "got result $r\n";
+	return $r;
 }
 
