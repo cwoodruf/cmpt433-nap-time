@@ -1,0 +1,25 @@
+This program should be run in the background.
+
+To manually mount the usb flash drive:
+
+	1. insert usb flash into the bottom usb port(this is the slave one).
+	2. run fdisk -l on target, I have the following:
+	[root@byan-board /dev]# fdisk -l
+
+	Disk /dev/sda: 1000 MB, 1000341504 bytes
+	16 heads, 32 sectors/track, 3816 cylinders
+	Units = cylinders of 512 * 512 = 262144 bytes
+
+	   Device Boot      Start         End      Blocks  Id System
+	/dev/sda1               1        3816      976880   e Win95 FAT16 (LBA)
+
+	3. run: mount -t vfat /dev/sda1 /mnt/udisk
+	4. voila, you can cd into that folder /mnt/udisk
+
+To automatically mount the usb flash drive:
+
+	1. run the program usbAutoMount in the background
+	2. insert the usb flash drive into the bottom usb port
+	3. the usb drive would be auto mounted to /web/udisk{pcname}, in my case, it is /www/udiskbyan-board
+	4. the program will scan the root directory of the usb drive, write every mp3 file with its sha1sum,
+           size and path into a file locallist in the folder /web/musiclist/
