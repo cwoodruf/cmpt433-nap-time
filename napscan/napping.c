@@ -38,7 +38,8 @@ int main(int argc, char *argv[])
      char *napgroup = NAP_GROUP;
      char *peerdir = NAP_PEER_DIR;
      struct stat st; /* for checking if peer base directory exists */
-     char dir[UNIX_PATH_MAX];
+     char dir[UNIX_PATH_MAX],touch[UNIX_PATH_MAX];
+     FILE *fh;
      int napport = NAP_PORT;
      int alarmwait = NAP_WAIT;
      int c;
@@ -135,13 +136,23 @@ int main(int argc, char *argv[])
           printf("got %s ",responsemsg);
           if (stat(dir,&st) == 0) {
                printf("%s already exists in file system\n",dir);
-               if (!S_ISDIR(st.st_mode)) fprintf(stderr,"ERROR: %s is not a directory!\n",dir);
-               continue;
+               if (!S_ISDIR(st.st_mode)) {
+                    fprintf(stderr,"ERROR: %s is not a directory!\n",dir);
+                    continue;
+               }
+          } else {
+               printf("making directory %s\n",dir);
+               if (mkdir(dir,0777) < 0) {
+                     perror("mkdir");
+                     continue;
+               }
           }
-          printf("making directory %s\n",dir);
-          if (mkdir(dir,0777) < 0) {
-                perror("mkdir");
-          }
+          snprintf(touch,UNIX_PATH_MAX,"%s/%s",dir,"updated");
+          if ((fh = fopen(touch,"w")) < 0) {
+                perror("fopen");
+                continue;
+	  }
+          fclose(fh);
      } while (nbytes > 0);
      return 0;
 }

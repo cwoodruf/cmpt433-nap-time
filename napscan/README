@@ -20,7 +20,7 @@ other information for each of these nodes.
 	Listens for nap hosts on a local multicast group.
 	-g{mcastgroup} multicast group (225.0.0.34)
 	-p{port} port to listen on (22534)
-	-t{timeout} wait for this many seconds for responses (8)
+	-t{timeout} wait for this many seconds for responses (4)
 	-h this help.
 
 ./naplistener -g{mcastgroup} -p{port} -d{peerdir} [-h]
