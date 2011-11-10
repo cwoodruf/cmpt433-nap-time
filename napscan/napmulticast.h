@@ -9,8 +9,15 @@
 #ifndef NAPMULTICAST
 #define NAPMULTICAST
 
+#define UNIX_PATH_MAX 108
 #define NAP_PORT 22534
 #define NAP_GROUP "225.0.0.34"
+#define NAP_PEER_DIR "/tmp"
+#define NAP_ACK "ACK"
+#define PORTSTART 1024
+#define PORTEND 65535
+#define NAPMSGLEN 32
+#define NAP_WAIT 8
 
 #endif /* NAPMULTICAST */
 
