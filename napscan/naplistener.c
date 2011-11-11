@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "napmulticast.h"
+#include "my_ip.c"
 
 int main(int argc, char *argv[])
 {
@@ -33,7 +34,7 @@ int main(int argc, char *argv[])
      int fd, nbytes;
      socklen_t addrlen;
      struct ip_mreq mreq;
-     char msgbuf[NAPMSGLEN];
+     char msgbuf[NAPMSGLEN],ip[NAPMSGLEN],ack[NAPMSGLEN];
      u_int yes=1; 
      char *napgroup = NAP_GROUP;
      int napport = NAP_PORT;
@@ -112,8 +113,11 @@ int main(int argc, char *argv[])
           msgbuf[nbytes] = 0;
           printf("message from %s: %s\n",inet_ntoa(addr.sin_addr),msgbuf);
 
+	  strcpy(ip,my_ip());
+	  snprintf(ack,NAPMSGLEN,"%s %s",NAP_ACK,ip);
+
           saddr.sin_addr.s_addr=addr.sin_addr.s_addr; /* needs to be filled in with other host's ip */
-          if (sendto(fd,NAP_ACK,strlen(NAP_ACK),0,(struct sockaddr *) &saddr,
+          if (sendto(fd,ack,strlen(ack),0,(struct sockaddr *) &saddr,
                      sizeof(saddr)) < 0) {
                perror("sendto");
                return 1;

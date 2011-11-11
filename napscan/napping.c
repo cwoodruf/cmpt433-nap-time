@@ -31,7 +31,7 @@ void sig_alarm(int i)
 int main(int argc, char *argv[])
 {
      struct sockaddr_in addr,laddr;
-     socklen_t laddr_len;
+     /* socklen_t laddr_len; */
      int fd, listen_fd, nbytes;
      /* struct ip_mreq mreq; */
      char message[NAPMSGLEN]="peer", responsemsg[NAPMSGLEN]="";
@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
      char *peerdir = NAP_PEER_DIR;
      struct stat st; /* for checking if peer base directory exists */
      char dir[UNIX_PATH_MAX],touch[UNIX_PATH_MAX];
+     char *ip;
      FILE *fh;
      int napport = NAP_PORT;
      int alarmwait = NAP_WAIT;
@@ -122,17 +123,22 @@ int main(int argc, char *argv[])
      alarm(alarmwait);
      do {
           if ((nbytes=recvfrom(listen_fd,(void *)responsemsg,NAPMSGLEN,0,
-                               (struct sockaddr *)&laddr,&laddr_len)) < 0) {
+                               NULL,0)) < 0) {
+                               // (struct sockaddr *)&laddr,&laddr_len)) < 0) { // problem on board with laddr
                  perror("recvfrom");
                  return 1;
           }
           responsemsg[nbytes] = 0;
-          if (strcmp(responsemsg,NAP_ACK)) {
-               fprintf(stderr,"unexpected message %s from %s - aborting\n",
-                       responsemsg,inet_ntoa(laddr.sin_addr));
+          if (strstr(responsemsg,NAP_ACK) == NULL) {
+               fprintf(stderr,"unexpected message %s - aborting\n",
+                       responsemsg);
                continue;
           }
-          snprintf(dir,UNIX_PATH_MAX,"%s/%s",peerdir,inet_ntoa(laddr.sin_addr));
+          if ((ip = strtok(responsemsg," ")) == NULL || (ip = strtok(NULL," ")) == NULL || inet_addr(ip) == -1) {
+               fprintf(stderr,"no ip address found in response!");
+               continue;
+          }
+          snprintf(dir,UNIX_PATH_MAX,"%s/%s",peerdir,ip);
           printf("got %s ",responsemsg);
           if (stat(dir,&st) == 0) {
                printf("%s already exists in file system\n",dir);
