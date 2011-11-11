@@ -1,4 +1,5 @@
 #!/bin/sh
+# see http://www.linuxquestions.org/questions/linux-newbie-8/how-to-loop-over-text-file-lines-within-bash-script-for-loop-522355/
 shared=$1/
 idx=$shared/index.txt
 type=$2
@@ -7,7 +8,6 @@ if [ -f $idx ]
 then
 	list=`sed -e "s#[a-f0-9]* [0-9]* #\$shared#" $shared/index.txt`
 	find "$shared" -name "*.$type" |\
-	# see http://www.linuxquestions.org/questions/linux-newbie-8/how-to-loop-over-text-file-lines-within-bash-script-for-loop-522355/
 	while read file
 	do
 		# seem to get messed up by [] characters in the file names when matching
