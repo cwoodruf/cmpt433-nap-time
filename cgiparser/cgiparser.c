@@ -53,21 +53,19 @@ int main(int argc, char **argv)
 	}
 
 	/* find name in cgi string */
-	cgi = argv[optind];
-	if ((value = strstr(cgi,name)) == NULL) {
-		return 2;
-	}
-
-	value += strlen(name);
-	if (strlen(value)) {
-		if ((end = strstr(value,"&")) == NULL) {
-			cgiprintdecode(value,strlen(value));
-		} else {
-			cgiprintdecode(value,end - value);
+	value = argv[optind];
+	while ((value = strstr(value,name)) != NULL) {
+		value += strlen(name);
+		if (strlen(value)) {
+			if ((end = strstr(value,"&")) == NULL) {
+				cgiprintdecode(value,strlen(value));
+			} else {
+				cgiprintdecode(value,end - value);
+			}
 		}
+		/* note that backticks remove the \n in the resulting string */
+		printf("\n");
 	}
-	/* note that backticks remove the \n in the resulting string */
-	printf("\n");
 	return 0;
 }
 
