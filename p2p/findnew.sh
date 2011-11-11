@@ -8,7 +8,7 @@ type=$2
 if [ -f $idx ]
 then
 	list=`sed -e "s#[a-f0-9]* [0-9]* #\$shared#" $shared/index.txt`
-	find "$shared" -name "*.$type" |\
+	find "$shared" -name "*.$type" | grep -v shared/links |\
 	while read file
 	do
 		# seem to get messed up by [] characters in the file names when matching

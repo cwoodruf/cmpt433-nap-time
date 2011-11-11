@@ -8,6 +8,6 @@ do
 	then
 		path=`./canonicalize "$1/$file"`
 		ln -s "$path" shared/links/$sum.$2
-		echo $l
 	fi
+	echo $l
 done
