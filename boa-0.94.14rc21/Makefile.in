@@ -26,4 +26,5 @@ mrclean:	clean
 
 # dummy target for install
 install:
-	@echo Please read the documentation then install manually.
+	@echo run ./napinstall.sh to install
+#	@echo Please read the documentation then install manually.
