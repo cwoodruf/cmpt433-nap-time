@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include "napmulticast.h"
+#include "my_ip.c"
 
 /* exit after a certain amount of time */
 void sig_alarm(int i) 
@@ -34,7 +35,7 @@ int main(int argc, char *argv[])
      /* socklen_t laddr_len; */
      int fd, listen_fd, nbytes;
      /* struct ip_mreq mreq; */
-     char message[NAPMSGLEN]="peer", responsemsg[NAPMSGLEN]="";
+     char message[NAPMSGLEN]="peer", responsemsg[NAPMSGLEN]="", me[NAPMSGLEN];
      char *napgroup = NAP_GROUP;
      char *peerdir = NAP_PEER_DIR;
      struct stat st; /* for checking if peer base directory exists */
@@ -121,6 +122,7 @@ int main(int argc, char *argv[])
      nbytes = 0;
 
      alarm(alarmwait);
+     strcpy(me,my_ip());
      do {
           if ((nbytes=recvfrom(listen_fd,(void *)responsemsg,NAPMSGLEN,0,
                                NULL,0)) < 0) {
@@ -138,6 +140,7 @@ int main(int argc, char *argv[])
                fprintf(stderr,"no ip address found in response!");
                continue;
           }
+          if (strcmp(me,ip) == 0) continue;
           snprintf(dir,UNIX_PATH_MAX,"%s/%s",peerdir,ip);
           printf("got %s ",responsemsg);
           if (stat(dir,&st) == 0) {
