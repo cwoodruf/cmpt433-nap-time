@@ -1,0 +1,12 @@
+cgiparser is a ridiculously simple program that takes a GET cgi string and
+returns a specified value from that string decoded. 
+
+You could use it in boa cgi shell scripts this way:
+
+#!/bin/sh
+doaction.sh `cgiparser -naction= "$QUERY_STRING"` "$QUERY_STRING"
+
+This would run the script doaction.sh on the value of the action parameter 
+of the boa environment variable $QUERY_STRING and also send it the original
+query string if other variables need to be extracted.
+
