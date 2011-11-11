@@ -1,4 +1,5 @@
 #!/bin/sh
+# run this in the p2p directory
 # see http://www.linuxquestions.org/questions/linux-newbie-8/how-to-loop-over-text-file-lines-within-bash-script-for-loop-522355/
 shared=$1/
 idx=$shared/index.txt
@@ -15,12 +16,11 @@ then
 		echo "$list" |\
 		if [ `grep -c "$escaped"` = "0" ] 
 		then 
-			/p2p/indexline.sh "$file" "$shared"
+			./indexline.sh "$file" "$shared"
 		fi
 	done
 else
-	echo no list
-	find $shared -name "*.$type" -exec /p2p/indexline.sh {} $shared \;
+	find $shared -name "*.$type" -exec ./indexline.sh {} $shared \;
 fi
 
 

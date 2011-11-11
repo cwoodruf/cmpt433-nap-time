@@ -1,0 +1,4 @@
+#!/bin/sh
+# http://blog.publicobject.com/2006/06/canonical-path-of-file-in-bash.html
+cd -P "$(dirname "$1")" &&
+printf '%s\n' "$(pwd -P)/$(basename "$1")"
