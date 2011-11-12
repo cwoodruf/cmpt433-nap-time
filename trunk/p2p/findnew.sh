@@ -16,11 +16,11 @@ then
 		echo "$list" |\
 		if [ `grep -c "$escaped"` = "0" ] 
 		then 
-			./indexline.sh "$file" "$shared"
+			./indexline.sh "$file" 
 		fi
 	done
 else
-	find $shared -name "*.$type" -exec ./indexline.sh {} $shared \;
+	find $shared -name "*.$type" -exec ./indexline.sh {} \;
 fi
 
 

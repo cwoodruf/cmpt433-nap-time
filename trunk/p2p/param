@@ -1,0 +1,7 @@
+#!/bin/sh
+# this depends on $QUERY_STRING being defined so it would work as a boa cgi script but maybe not for much else
+# usage param {param name}
+# parameter should look exactly as it would in a query string (ie don't translate + to space etc)
+# this will trim the spaces from the output
+
+cgiparser -n$1\= $QUERY_STRING | sed -e 's/^ *//' -e 's/ *$//g'
