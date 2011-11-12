@@ -1,7 +1,7 @@
 #!/bin/sh
 peerdir=/tmp/peers
 ip=`../ip.sh`
-action=`cgiparser -naction\= $QUERY_STRING`
+action=`param action`
 peers=`ls $peerdir | grep -v name | sed -e s#.*/## | sed -e "s#\(.*\)#<a href=\"http://\1/config.cgi\">\1</a><br>#"`
 
 case $action in
@@ -9,7 +9,7 @@ peers*)
 	response=`napping -t1 -d$peerdir`
 ;;
 rename*)
-	echo `cgiparser -nname\= $QUERY_STRING` > $peerdir/name
+	echo `param name` > $peerdir/name
 ;;
 showname*)
 	echo content-type: text/plain
@@ -18,8 +18,8 @@ showname*)
 	return
 ;;
 theirname*)
-	theirip=`cgiparser -nip\= $QUERY_STRING | sed -e 's/ *//g'`
-	theirport=`cgiparser -nport\= $QUERY_STRING | sed -e 's/ *//g'`
+	theirip=`param ip`
+	theirport=`param port`
 	url="http://$theirip$theirport/config.cgi?action=showname"
 	theirname=`wget -q -O- $url`
 	response=`napping -t1 -d$peerdir`
@@ -53,3 +53,4 @@ $peers
 </html>
 
 HTML
+

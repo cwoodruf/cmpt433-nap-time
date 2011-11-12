@@ -1,13 +1,15 @@
 #!/bin/sh
-./findnew.sh $1 $2 |\
+cat shared/index.txt |\
 while read l
 do
+	ext=`echo "$l" | sed -e 's/.*\.//'`
 	sum=`echo "$l" | sed -e 's/ .*//'`
 	file=`echo "$l" | sed -e 's/^[a-f0-9]* [0-9]* //'`
-	if [ ! -f shared/links/$sum ] 
+	link=shared/links/$sum.$ext
+	if [ -f $link ] 
 	then
-		path=`./canonicalize "$1/$file"`
-		ln -s "$path" shared/links/$sum.$2
+		rm $link
 	fi
-	echo $l
+	path=`./canonicalize "$1/$file"`
+	ln -s "$path" $link
 done
