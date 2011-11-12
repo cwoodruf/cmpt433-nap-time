@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
      char *peerdir = NAP_PEER_DIR;
      struct stat st; /* for checking if peer base directory exists */
      char dir[UNIX_PATH_MAX],touch[UNIX_PATH_MAX];
-     char *ip;
+     char *ip, *host;
      FILE *fh;
      int napport = NAP_PORT;
      int alarmwait = NAP_WAIT;
@@ -156,11 +156,15 @@ int main(int argc, char *argv[])
                      continue;
                }
           }
-          snprintf(touch,UNIX_PATH_MAX,"%s/%s",dir,"updated");
+          snprintf(touch,UNIX_PATH_MAX,"%s/%s",dir,"hostname");
+          if ((host = strtok(NULL," ")) == NULL) {
+               host = ip;
+          }
           if ((fh = fopen(touch,"w")) < 0) {
                 perror("fopen");
                 continue;
 	  }
+	  fputs(host,fh);
           fclose(fh);
      } while (nbytes > 0);
      return 0;
