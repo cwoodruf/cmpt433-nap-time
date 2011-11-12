@@ -6,22 +6,7 @@
 static int ButtonsState[]={0,0,0,0};	
 int buttons_fd;
 
-struct ButtonState {
-	int name;
-	int state;
-};
-
-int getButtonName (int index) {
-	switch (index) {
-	case 0: return BUTTON_LEFT;
-	case 1: return BUTTON_TOP;
-	case 2: return BUTTON_DOWN;
-	case 3: return BUTTON_RIGHT;
-	default: return BUTTON_INVALID;
-	}
-}
-
-struct buttonState read_buttons()
+struct ButtonState read_buttons()
 {
 	int i;
 	char key_value[4];
@@ -54,13 +39,13 @@ struct buttonState read_buttons()
 				if(key_value[i] != 0)
 				{
 					if (key_value[i] == 49 && ButtonsState[i] != 1) {
-						buttonState.name = getButtonName (i);
+						buttonState.code = i;
 						buttonState.state = STATE_PRESS;
 						ButtonsState[i]=1;
 						//printf ("Press %s\n", ButtonNames[i]);
 					} 
 					else if (key_value[i] == 48 && ButtonsState[i] != 0) {
-						buttonState.name = getButtonName (i);
+						buttonState.code = i;
 						buttonState.state = STATE_RELEASE;
 						ButtonsState[i]=0;
 						//printf ("Release %s\n", ButtonNames[i]);
@@ -81,6 +66,7 @@ void initialize()
 		perror("buttons open failed");
 		exit(1);
 	}
+	read_buttons ();
 }
 
 
