@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
      int fd, nbytes;
      socklen_t addrlen;
      struct ip_mreq mreq;
-     char msgbuf[NAPMSGLEN],ip[NAPMSGLEN],ack[NAPMSGLEN];
+     char msgbuf[NAPMSGLEN], ip[NAPMSGLEN], ack[NAPMSGLEN], hostname[NAPMSGLEN];
      u_int yes=1; 
      char *napgroup = NAP_GROUP;
      int napport = NAP_PORT;
@@ -102,7 +102,8 @@ int main(int argc, char *argv[])
      }
 
      /* now just enter a read-print loop */
-     printf("listening for other nap hosts: send messages to %s:%d\n", napgroup, napport);
+     gethostname(hostname,NAPMSGLEN);
+     printf("%s listening for other nap hosts: send messages to %s:%d\n", hostname, napgroup, napport);
      while (1) {
           addrlen=sizeof(addr);
           if ((nbytes=recvfrom(fd,msgbuf,NAPMSGLEN,0,
@@ -111,10 +112,11 @@ int main(int argc, char *argv[])
                return 1;
           }
           msgbuf[nbytes] = 0;
-          printf("message from %s: %s\n",inet_ntoa(addr.sin_addr),msgbuf);
+          printf("message from %s: %s. ",inet_ntoa(addr.sin_addr),msgbuf);
 
 	  strcpy(ip,my_ip());
-	  snprintf(ack,NAPMSGLEN,"%s %s",NAP_ACK,ip);
+	  snprintf(ack,NAPMSGLEN,"%s %s %s",NAP_ACK,ip,hostname);
+          printf("response: %s\n", ack);
 
           saddr.sin_addr.s_addr=addr.sin_addr.s_addr; /* needs to be filled in with other host's ip */
           if (sendto(fd,ack,strlen(ack),0,(struct sockaddr *) &saddr,

@@ -16,7 +16,7 @@
 #define NAP_ACK "ACK"
 #define PORTSTART 1024
 #define PORTEND 65535
-#define NAPMSGLEN 32
+#define NAPMSGLEN 255
 #define NAP_WAIT 4 
 
 #endif /* NAPMULTICAST */
