@@ -61,35 +61,61 @@ long getFilesize(char *file){
   return st.st_size;
 }
 
+char* getOwnIP_last(){
+  char *chIP, *cmd = "ifconfig | grep 'inet addr:192'";
+  char buf[BUFSIZ];
+  int count, intret;
+  FILE *ptr;
+
+  if ((ptr = popen(cmd, "r")) != NULL){
+    while (fgets(buf, BUFSIZ, ptr) != NULL){      
+      chIP = strtok(buf, " .:");
+      count = 0;
+      while ((count != 5) && (chIP = strtok(NULL, " .:\n")) != NULL)
+        count++;       
+      
+      intret =  atoi(chIP);       
+    }  
+  }
+  return chIP;  
+}
+
 
 int main()
 {
   size_t len = 100;
-  char *cmd = "fdisk -l";
-  char buf[BUFSIZ], hostname[len], mountpt[len], musiclist[len], locallist[len], filename[len], strItem[200]; 
+  char *ip_last, *cmd = "fdisk -l";
+  char buf[BUFSIZ], mountpt[len], musiclist[len], locallist[len], filename[len], strItem[200]; 
   struct DeviceInfo devInfo;  
   FILE *ptr, *fs;  
   int linecount, prevlinecount = 0, bUSBInsert = FALSE, bUSBRemove = FALSE;
   struct stat st;
   DIR *usbDir;
-  struct dirent *entry = NULL;
+  struct dirent *entry = NULL;  
 
   // create a directory that is unique to every board
-  strcpy(mountpt, "/web/udisk");
-  gethostname(hostname, len);  
-  strcat(mountpt, hostname); 
+  strcpy(mountpt, "/web/udisk_");
+  ip_last = getOwnIP_last();  
+  strcat(mountpt, ip_last); 
 
   // check whether mount folder already exists, if not, create it.
   if (stat(mountpt, &st) != 0)
     mkdir(mountpt, 0777);
 
-  strcpy(musiclist, "/web/musiclist/");
-  strcpy(locallist, musiclist);
-  strcat(locallist, "locallist");
+  strcpy(musiclist, "/web/musiclist");
+  //strcat(musiclist, ip_last);
+  //strcpy(locallist, musiclist);
+  //strcat(locallist, "locallist");
   
   // check whether music list folder already exists, if not, create it.
-  if (stat(musiclist, &st) != 0)
-    mkdir(musiclist, 0777);
+  /*if (stat(musiclist, &st) != 0)
+    mkdir(musiclist, 0777);*/
+
+  strcpy(locallist, musiclist);
+  strcat(locallist, "/list_");
+  strcat(locallist, ip_last);
+
+  //printf("Local List is %s\n", locallist);
 
   while (TRUE){
     linecount = 0;
@@ -109,12 +135,15 @@ int main()
         }
       }else{
         bUSBInsert = bUSBRemove = FALSE;
-      }
+      }// end with if (linecount != prevlinecount)
       
+      //printf("bUSBInsert is %d, bUSBRemove is %d\n", bUSBInsert, bUSBRemove);
+
       if(bUSBInsert){
-        devInfo = getDevInfo(buf);	
+        devInfo = getDevInfo(buf);
+        //printf("Mount point is %s\n", mountpt);	
 	mount(devInfo.devType, mountpt, "vfat", MS_MGC_VAL | MS_NOSUID, "");
-	fs = fopen(locallist, "w");
+	/*fs = fopen(locallist, "w");
         if (fs == NULL){
 	  perror("File local list can not be opened for writing\n");
   	}else{
@@ -128,25 +157,25 @@ int main()
 	      strcat(filename, "/");
 	      strcat(filename, entry->d_name);              
 	      
-	      sprintf(strItem, "%s\t%ld\t%s\n", getSha1Sum(filename), getFilesize(filename), filename);
+	      sprintf(strItem, "%s %ld %s\n", getSha1Sum(filename), getFilesize(filename), filename);
 	      printf("%s\n", strItem);
 	      fwrite(strItem, strlen(strItem), 1, fs);
  	    }
-          }
+          }// end with while((entry = readdir(usbDir)))
           closedir(usbDir);
-        }
-	fclose(fs);        
+        }// end with if (fs == NULL)
+	fclose(fs);*/        
       }else if(bUSBRemove) { 
 	// if a usb flash drive is just removed, unmount the usb and clear the music list file.       
  	umount2(mountpt, MNT_FORCE);
-	fs = fopen(locallist, "w");
-	fclose(fs);	
-      }
+	//fs = fopen(locallist, "w");
+	//fclose(fs);	
+      } //end with if(bUSBRemove)
 
       prevlinecount = linecount;                      
       (void) pclose(ptr);
       sleep(10);
-    }      
-  }
+    }// end with if ((ptr = popen(cmd, "r")) != NULL)      
+  }// end with while (TRUE)
   return 0;
 }
