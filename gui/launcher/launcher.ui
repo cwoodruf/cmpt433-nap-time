@@ -25,23 +25,23 @@
     </property>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
-      <widget class="QCommandLinkButton" name="btnPlayMedia">
+      <widget class="QCommandLinkButton" name="btnPlayer">
        <property name="text">
         <string>Play Media</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QCommandLinkButton" name="btnRecord">
+      <widget class="QCommandLinkButton" name="btnMemos">
        <property name="text">
-        <string>Record a Memo</string>
+        <string>Memos</string>
        </property>
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QCommandLinkButton" name="btnIntercomm">
+      <widget class="QCommandLinkButton" name="btnIntercom">
        <property name="text">
-        <string>Intrercom</string>
+        <string>Intercom</string>
        </property>
       </widget>
      </item>
