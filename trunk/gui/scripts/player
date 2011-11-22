@@ -1,0 +1,7 @@
+#!/bin/sh
+echo player starting
+while true
+do
+	sleep 10
+	echo player running
+done

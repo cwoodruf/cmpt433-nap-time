@@ -1,0 +1,18 @@
+launcher is an application that starts other applications.
+
+To use it on the board make 3 executibles:
+
+/bin/memos
+/bin/intercom
+/bin/player
+
+Easiest is to copy the scripts in gui/scripts.
+
+Run the respective apps from these scripts. Hopefully this will work.
+
+Also, you need to either copy or link naplistener to /bin/naplistener.
+
+For the launcher.sh build script to copy your executable make a $PUBLIC 
+shell variable to your public directory and a bin directory in that 
+directory. It will make 2 executables: launcher-arm and launcher-x86.
+

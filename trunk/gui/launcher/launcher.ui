@@ -27,7 +27,7 @@
      <item row="0" column="0">
       <widget class="QCommandLinkButton" name="btnPlayer">
        <property name="text">
-        <string>Play Media</string>
+        <string>Player</string>
        </property>
       </widget>
      </item>
@@ -54,7 +54,7 @@
      <x>0</x>
      <y>0</y>
      <width>320</width>
-     <height>25</height>
+     <height>35</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuConfigure">
@@ -62,6 +62,7 @@
      <string>Configure</string>
     </property>
     <addaction name="actionConfigure"/>
+    <addaction name="actionNapListener"/>
     <addaction name="actionClose"/>
    </widget>
    <addaction name="menuConfigure"/>
@@ -70,6 +71,11 @@
   <action name="actionConfigure">
    <property name="text">
     <string>Configure</string>
+   </property>
+  </action>
+  <action name="actionNapListener">
+   <property name="text">
+    <string>Restart naplistener</string>
    </property>
   </action>
   <action name="actionClose">

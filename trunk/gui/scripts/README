@@ -1,0 +1,14 @@
+These are stub scripts that run forever and create output.
+They are run from the gui launcher application from the board.
+If you start the script you can check that it is running with ps.
+See the README in launcher for how to use them.
+
+Run the gui applications from these scripts as its similar to 
+running them from the command line and we can capture any debug
+output in the launcher via the readReadyStandardError and
+readReadyStandardOutput slots provided by QProcess.
+
+There may be strange issues with the touch screen "bleeding through" 
+but those can probably be mitigated (make the whole window active 
+for example).
+
