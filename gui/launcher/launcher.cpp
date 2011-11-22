@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
  */
 MainWindow::~MainWindow()
 {
+	restartNapListener();
 	if (naplistener->state() != QProcess::NotRunning) naplistener->terminate();
 	if (memos->state() != QProcess::NotRunning) memos->terminate();
 	if (intercom->state() != QProcess::NotRunning) intercom->terminate();
@@ -66,6 +67,7 @@ void MainWindow::restartNapListener()
 		naplistener->waitForFinished();
 		naplistener->start(napcmd);
 	}
+	ui->statusbar->showMessage("naplistener restarted");
 }
 
 /**
@@ -76,10 +78,10 @@ void MainWindow::startIntercom(void)
 {
 	if (intercom->state() == QProcess::NotRunning) {
 		intercom->start("/bin/intercom");
-		ui->btnIntercom->setText("Intercom started");
+		ui->statusbar->showMessage("intercom started");
 	} else {
 		intercom->terminate();
-		ui->btnIntercom->setText("Intercom");
+		ui->statusbar->showMessage("intercom stopped");
 	}
 }
 
@@ -91,10 +93,10 @@ void MainWindow::startMemos(void)
 {
 	if (memos->state() == QProcess::NotRunning) {
 		memos->start("/bin/memos");
-		ui->btnMemos->setText("Memos started");
+		ui->statusbar->showMessage("memos started");
 	} else {
 		memos->terminate();
-		ui->btnMemos->setText("Memos");
+		ui->statusbar->showMessage("memos stopped");
 	}
 }
 
@@ -106,10 +108,10 @@ void MainWindow::startPlayer(void)
 {
 	if (player->state() == QProcess::NotRunning) {
 		player->start("/bin/player");
-		ui->btnPlayer->setText("Player started");
+		ui->statusbar->showMessage("player started");
 	} else {
 		player->terminate();
-		ui->btnPlayer->setText("Player");
+		ui->statusbar->showMessage("player stopped");
 	}
 }
 
