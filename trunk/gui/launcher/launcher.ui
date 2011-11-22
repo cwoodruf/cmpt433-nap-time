@@ -59,9 +59,10 @@
    </property>
    <widget class="QMenu" name="menuConfigure">
     <property name="title">
-     <string>Configure</string>
+     <string>Configuration</string>
     </property>
     <addaction name="actionConfigure"/>
+    <addaction name="actionNfs"/>
     <addaction name="actionNapListener"/>
     <addaction name="actionClose"/>
    </widget>
@@ -71,6 +72,11 @@
   <action name="actionConfigure">
    <property name="text">
     <string>Configure</string>
+   </property>
+  </action>
+  <action name="actionNfs">
+   <property name="text">
+    <string>Remount /mnt/remote nfs share</string>
    </property>
   </action>
   <action name="actionNapListener">
@@ -87,6 +93,10 @@
  <resources/>
  <connections>
   <connection>
+   <sender>actionConfig</sender>
+   <signal>triggered()</signal>
+   <receiver>DialogConfig</receiver>
+   <slot>open()</slot>
    <sender>actionClose</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
