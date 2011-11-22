@@ -57,21 +57,23 @@
      <height>35</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuConfigure">
+   <widget class="QMenu" name="menuConfig">
     <property name="title">
      <string>Configuration</string>
     </property>
-    <addaction name="actionConfigure"/>
+    <addaction name="actionConfig"/>
+    <addaction name="separator" />
     <addaction name="actionNfs"/>
     <addaction name="actionNapListener"/>
+    <addaction name="separator" />
     <addaction name="actionClose"/>
    </widget>
-   <addaction name="menuConfigure"/>
+   <addaction name="menuConfig"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionConfigure">
+  <action name="actionConfig">
    <property name="text">
-    <string>Configure</string>
+    <string>Configuration</string>
    </property>
   </action>
   <action name="actionNfs">
@@ -93,10 +95,6 @@
  <resources/>
  <connections>
   <connection>
-   <sender>actionConfig</sender>
-   <signal>triggered()</signal>
-   <receiver>DialogConfig</receiver>
-   <slot>open()</slot>
    <sender>actionClose</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
