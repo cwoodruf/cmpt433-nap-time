@@ -4,6 +4,12 @@
  * references:
  * http://www.qtforum.org/article/3079/howto-start-an-external-program-from-a-qt-application.html
  * http://doc.qt.nokia.com/latest/qprocess.html
+ * 
+ * network IP stuff
+ * http://www.qtcentre.org/archive/index.php/t-14502.html
+ * http://doc.trolltech.com/4.4/qnetworkinterface.html
+ * http://doc.trolltech.com/4.4/qhostaddress.html
+ * http://doc.trolltech.com/4.4/qnetworkaddressentry.html
  *
  */
 
