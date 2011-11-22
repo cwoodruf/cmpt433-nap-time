@@ -8,8 +8,8 @@
  */
 
 #include <QProcess>
-#include <QStringList>
 #include "launcher.h"
+#include "dialogconfig.h"
 #include "ui_launcher.h"
 
 /**
@@ -32,8 +32,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	QObject::connect(ui->btnPlayer, SIGNAL(clicked()), this, SLOT(startPlayer()));
 	QObject::connect(ui->btnMemos, SIGNAL(clicked()), this, SLOT(startMemos()));
 	QObject::connect(ui->btnIntercom, SIGNAL(clicked()), this, SLOT(startIntercom()));
+	QObject::connect(ui->actionConfig, SIGNAL(triggered()), this, SLOT(showDialogConfig()));
 	QObject::connect(ui->actionNapListener, SIGNAL(triggered()), this, SLOT(restartNapListener()));
-	QStringList killcmd;
+	QObject::connect(ui->actionNfs, SIGNAL(triggered()), this, SLOT(mountNfs()));
 }
 
 /**
@@ -47,6 +48,7 @@ MainWindow::~MainWindow()
 	if (memos->state() != QProcess::NotRunning) memos->terminate();
 	if (intercom->state() != QProcess::NotRunning) intercom->terminate();
 	if (player->state() != QProcess::NotRunning) player->terminate();
+	delete dialogconfig;
 	delete ui;
 }
 
@@ -115,3 +117,29 @@ void MainWindow::startPlayer(void)
 	}
 }
 
+/**
+ * Show the configuration dialog window.
+ * This explains how to configure the system via a web browser and shows
+ * system configuration.
+ */
+void MainWindow::showDialogConfig(void)
+{
+	dialogconfig = new DialogConfig();
+	dialogconfig->showMaximized();
+}
+
+/**
+ * Run the mount command for the nfs share.
+ * This would not exist in a production deployment.
+ */
+void MainWindow::mountNfs(void) 
+{
+	QProcess mount;
+	mount.start("mount /mnt/remote");
+	mount.waitForFinished();
+	if (mount.exitStatus() == QProcess::NormalExit) {
+		ui->statusbar->showMessage("/mnt/remote available");
+	} else {
+		ui->statusbar->showMessage(mount.readAllStandardError());
+	}
+}

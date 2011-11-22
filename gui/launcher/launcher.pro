@@ -6,8 +6,9 @@ TEMPLATE = app
 TARGET = launcher
 DEPENDPATH += .
 INCLUDEPATH += .
+QT += network
 
 # Input
-FORMS += launcher.ui
-SOURCES += launcher.cpp main.cpp
-HEADERS += launcher.h 
+FORMS += dialogconfig.ui launcher.ui
+SOURCES += dialogconfig.cpp launcher.cpp main.cpp
+HEADERS += dialogconfig.h launcher.h

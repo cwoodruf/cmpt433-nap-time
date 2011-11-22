@@ -8,6 +8,7 @@
 #define LAUNCHER_H
 
 #include <QProcess>
+#include "dialogconfig.h"
 
 /* define this via make when compiling for the board */
 #ifndef EM2440
@@ -31,13 +32,16 @@ public:
 	~MainWindow();
 
 public slots:
-	void startPlayer();
-	void startMemos();
-	void startIntercom();
-	void restartNapListener();
+	void startPlayer(void);
+	void startMemos(void);
+	void startIntercom(void);
+	void showDialogConfig(void);
+	void restartNapListener(void);
+	void mountNfs(void);
 
 private:
 	Ui::MainWindow *ui;
+	DialogConfig *dialogconfig;
 	QProcess *player;
 	QProcess *memos;
 	QProcess *intercom;
