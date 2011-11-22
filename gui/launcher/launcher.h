@@ -7,6 +7,8 @@
 #ifndef LAUNCHER_H
 #define LAUNCHER_H
 
+#include <QProcess>
+
 /* define this via make when compiling for the board */
 #ifndef EM2440
 #define IS_EM2440 0
@@ -32,9 +34,14 @@ public slots:
 	void startPlayer();
 	void startMemos();
 	void startIntercom();
+	void restartNapListener();
 
 private:
 	Ui::MainWindow *ui;
+	QProcess *player;
+	QProcess *memos;
+	QProcess *intercom;
+	QProcess *naplistener;
 };
 
 #endif // LAUNCHER_H

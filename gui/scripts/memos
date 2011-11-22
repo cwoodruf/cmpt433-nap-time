@@ -1,0 +1,8 @@
+#!/bin/sh
+echo memos starting
+while true
+do
+	sleep 10
+	echo memos running
+done
+
