@@ -1,11 +1,12 @@
 #!/bin/sh
+source /etc/nap.conf
 cat shared/index.txt |\
 while read l
 do
 	ext=`echo "$l" | sed -e 's/.*\.//'`
 	sum=`echo "$l" | sed -e 's/ .*//'`
 	file=`echo "$l" | sed -e 's/^[a-f0-9]* [0-9]* //'`
-	link=shared/links/$sum.$ext
+	link=$napshared/links/$sum.$ext
 	if [ -f $link ] 
 	then
 		rm $link

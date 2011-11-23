@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>Nap player</title>
+<link rel=stylesheet type=text/css href=napstyle.css>
+</head>
+<body>
+<h3>Nap player</h3>
+<table cellpadding=5 cellspacing=0 border=0 width=600>
+<tr><td>
+Nap player is a networked media player than can
+share media files between different nodes on a local network.
+<p>
+Nap player is able to automatically detect other nap players
+on your local area network. You can share any or all of the 
+media files on your player with other nodes on the network.
+<hr>
+<h4>System set up:</h4>
+Unzip the nap player zip file in the root directory of your
+device. This will create the binaries, script files and 
+configuration file /etc/nap.conf.
+<p>
+Edit the napdata and napshared directories to suit your system.
+Make sure the napdata directory has sufficient storage for media 
+files such as memos. We recommend using an sd card for this purpose.
+<p>
+Start the nap launcher application from the command line (or 
+alternatively edit your /etc/init.d/rcS file to start it at system
+start. At the end of /etc/init.d/rcS:
+<pre>
+# wait for network to come up
+sleep 10
+/bin/launcher-arm -qws &amp;
+</pre>
+<h4>Web interface</h4>
+For some optional nap player features to work you will want to
+use the web interface to configure them. For this interface to 
+work you will need a working web server on your device. Typically
+this will be the boa web server.
+<p>
+Modify the /etc/boa/boa.conf file to make the napshared directory
+match the location of p2p/shared extracted from your zip file.
+Point the web brower to /config.cgi to change the system friendly name,
+the data directory and set a system password.
+<h4>System password</h4>
+You may optionally lock down your system so that only other password
+protected systems can see it. To do this create a password via the web
+interface. 
+<p>
+With a password only peers that know your password will be able to 
+view your system. In general a group of nodes will all use the same
+password to isolate themselves from the rest of the network.
+<p>
+Sharing media these systems will require a password if a password is set.
+<h4>Network visibility</h4>
+Nap player can only see other nap players in its local subnet. Players 
+in partitioned networks (eg networks with multiple firewalls) will only
+see those players on their side of the firewall.
+<p>
+Any linux based system can act as a node in the network. You can keep
+most of your media files on a pc and share these with other nap players.
+<p>
+For this to work you must run a x86 host based version of the 
+naplistener program so your pc can be discovered by other nap players:
+<pre>
+&gt; naplistener-host &gt;&gt; naplistener.log 2&gt;1 &amp;
+</pre>
+<p>
+You should have a working web server which can serve media from
+the p2p/shared/links directory. You should have a "/links" link
+on your web server that points to this directory. 
+<p>
+To share media run the p2p/findnew.sh script:
+<pre>
+&gt; cd p2p
+&gt; ./findnew.sh {directory name}
+</pre>
+Change the directory name to the directory name where you want to share media.
+This will create an index.txt file with a listing of all the shared media on your
+system.
+<p>
+Next run the p2p/linknew.sh script to create links to media you wish to share:
+<pre>
+&gt; ./linknew.sh
+</pre>
+This will create a set of links in the p2p/shared/links directory to the various
+media files which can then be shared with other players.
+</td></tr>
+</table>
+</body>
+</html>
+
