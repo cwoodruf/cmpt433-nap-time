@@ -1,0 +1,3 @@
+#!/bin/sh
+param=`param $1`
+echo "$param" | sha1sum

@@ -39,8 +39,16 @@ this will be the boa web server.
 <p>
 Modify the /etc/boa/boa.conf file to make the napshared directory
 match the location of p2p/shared extracted from your zip file.
+<p>
 Point the web brower to /config.cgi to change the system friendly name,
 the data directory and set a system password.
+<p>
+You will also have to change the CGIPath variable in boa.conf to
+point to the p2p directory for the config.cgi script to work.
+<pre>
+CGIPath /bin:/usr/bin:/mnt/remote/p2p
+</pre>
+Would be an example where the p2p directory is in /mnt/remote/p2p.
 <h4>System password</h4>
 You may optionally lock down your system so that only other password
 protected systems can see it. To do this create a password via the web
@@ -50,7 +58,18 @@ With a password only peers that know your password will be able to
 view your system. In general a group of nodes will all use the same
 password to isolate themselves from the rest of the network.
 <p>
-Sharing media these systems will require a password if a password is set.
+To share media these systems will require a password if a password is set.
+<p>
+For web access you will probably want to delete access keys periodically.
+On the player log in to a command shell and run:
+<pre>
+&gt; crontab -e
+(in crontab editor add this line to delete items older than 15 minutes)
+* * * * * find /etc/napdata/keys -type f -mmin +15 -exec rm {} \;
+</pre>
+<p>
+To remove the password from a player save a blank password in the web 
+interface.
 <h4>Network visibility</h4>
 Nap player can only see other nap players in its local subnet. Players 
 in partitioned networks (eg networks with multiple firewalls) will only
