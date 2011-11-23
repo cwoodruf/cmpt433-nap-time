@@ -14,7 +14,7 @@
    <string>Memos</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QListView" name="listMemos">
+   <widget class="QListWidget" name="listMemos">
     <property name="geometry">
      <rect>
       <x>90</x>
@@ -24,7 +24,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QListView" name="listPeers">
+   <widget class="QListWidget" name="listPeers">
     <property name="geometry">
      <rect>
       <x>210</x>
