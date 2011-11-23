@@ -60,6 +60,7 @@ public slots:
 	void deleteMemo(void);
 	void refreshMemos(void);
 	void refreshPeers(void);
+	void refreshAll(void);
 	void sendMemo(void);
 
 private:

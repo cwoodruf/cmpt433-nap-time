@@ -34,7 +34,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="btnRefreshPeers">
+   <widget class="QPushButton" name="btnRefreshAll">
     <property name="geometry">
      <rect>
       <x>210</x>
@@ -44,7 +44,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Refresh List</string>
+     <string>Refresh All</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btnSendMemo">

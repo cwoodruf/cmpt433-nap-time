@@ -13,6 +13,7 @@
 
 /**
  * Memo window constructor. Creates placeholders for the madplay and sendmemo processes.
+ * Needs to get configuration info from the p2p scripts to know where to put the memos.
  */
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -27,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QObject::connect(ui->btnDeleteMemo, SIGNAL(clicked()), this, SLOT(deleteMemo()));
 	QObject::connect(ui->btnRecordMemo, SIGNAL(clicked()), this, SLOT(recordMemo()));
 	QObject::connect(ui->btnSendMemo, SIGNAL(clicked()), this, SLOT(sendMemo()));
-	QObject::connect(ui->btnRefreshPeers, SIGNAL(clicked()), this, SLOT(refreshPeers()));
+	QObject::connect(ui->btnRefreshAll, SIGNAL(clicked()), this, SLOT(refreshAll()));
 	QObject::connect(ui->actionRefreshPeers, SIGNAL(triggered()), this, SLOT(refreshPeers()));
 	QObject::connect(ui->actionRefreshMemos, SIGNAL(triggered()), this, SLOT(refreshMemos()));
 }
@@ -78,6 +79,15 @@ void MainWindow::refreshMemos(void)
  */
 void MainWindow::refreshPeers(void)
 {
+}
+
+/**
+ * Update both peers and memo lists.
+ */
+void MainWindow::refreshAll(void)
+{
+	refreshMemos();
+	refreshPeers();
 }
 
 /**
