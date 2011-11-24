@@ -65,14 +65,20 @@ naplistener*)
 	if [ "$naplistenerip" != "" ]
 	then
 		echo "$naplistenerip" > "$napdata/naplistenerip"
-		ok="ip"
+		ok="set ip"
+	else 
+		rm "$napdata/naplistenerip"
+		ok="deleted ip"
 	fi
 	if [ "$naplistenerport" != "" ]
 	then
 		echo "$naplistenerport" > "$napdata/naplistenerport"
-		ok="$ok port"
+		ok="$ok set port"
+	else 
+		rm "$napdata/naplistenerport"
+		ok="$ok deleted port"
 	fi
-	if [ "$ok" != "" ] ; then ok="saved naplistener $ok"; fi
+	if [ "$ok" != "" ] ; then ok="updated naplistener: $ok"; fi
 	
 ;;
 changepassword*)
