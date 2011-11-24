@@ -56,6 +56,7 @@ public:
 
 public slots:
 	void setMemoState(void);
+	void stopMemo(void);
 	void recordMemo(void);
 	void deleteMemo(void);
 	void refreshMemos(void);

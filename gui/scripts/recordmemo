@@ -1,0 +1,10 @@
+#!/bin/sh
+. /etc/nap.conf
+if [ ! -d "$napdata/memos" ]
+then
+	mkdir -p "$napdata/memos" || return
+fi
+fname=$napdata/memos/`date +%Y%m%d-%H%M%S"`.wav
+echo $fname
+arecord -q --disable-softvol -f cd -t wav $fname
+

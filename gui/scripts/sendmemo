@@ -1,0 +1,20 @@
+#!/bin/sh
+. /etc/nap.conf
+name=`napconfig name | urlencode.tcl`
+host=`hostname | urlencode.tcl`
+
+if [ ! -d "$napshared/memos" ] 
+then
+	mkdir -p "$napshared/memos" || echo ERROR mkdir && return
+fi
+if [ ! -f "$napdata/memos/$2" ]
+then
+	echo ERROR no memo $2 found
+	return
+fi
+if [ ! -e "$napshared/memos/$2" ] 
+then
+	ln -s "$napdata/memos/$2" "$napshared/memos/$2" || echo ERROR ln && return
+fi
+wget -q -O - "http://$1/memo.cgi?name=$name&host=$host&memo=$2" 
+
