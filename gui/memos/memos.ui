@@ -90,7 +90,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
+      <y>130</y>
       <width>71</width>
       <height>27</height>
      </rect>
@@ -131,17 +131,23 @@
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
-   <widget class="QPushButton" name="btnClose">
+   <widget class="QPushButton" name="btnStop">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>130</y>
+      <y>80</y>
       <width>71</width>
       <height>27</height>
      </rect>
     </property>
     <property name="text">
-     <string>Close</string>
+     <string>Stop</string>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
     </property>
    </widget>
   </widget>
@@ -192,22 +198,6 @@
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>159</x>
-     <y>119</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btnClose</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>35</x>
-     <y>168</y>
     </hint>
     <hint type="destinationlabel">
      <x>159</x>
