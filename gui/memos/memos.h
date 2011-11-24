@@ -7,7 +7,9 @@
 #ifndef MEMOS_H
 #define MEMOS_H
 
+#include <QMainWindow>
 #include <QProcess>
+#include <QString>
 
 /* define this via make when compiling for the board */
 #ifndef EM2440
@@ -15,8 +17,6 @@
 #else
 #define IS_EM2440 1
 #endif
-
-#include <QMainWindow>
 
 enum MemoState {
 	NotStarted,
@@ -27,17 +27,17 @@ enum MemoState {
 
 class Memo {
 public:
-	Memo(QString p) 	{ setPath(p); setState(NotStarted); }
-	Memo() 			{ setState(NotStarted); }
-	~Memo();
+	Memo(QString p) 	{ setMemo(p); setState(NotStarted); }
+	Memo() 			{ setMemo(QString("")); setState(NotStarted); }
+	~Memo()			{ };
 
-	void setPath(QString p) 	{ path = p; }
-	QString getPath(void) 		{ return path; }
+	void setMemo(QString p) 	{ memo = p; }
+	QString getMemo(void) 		{ return memo; }
 	void setState(MemoState m) 	{ state = m; }
 	MemoState getState(void) 	{ return state; }
 
 private:
-	QString path;
+	QString memo;
 	MemoState state;
 };
 
@@ -66,9 +66,11 @@ public slots:
 
 private:
 	Ui::MainWindow *ui;
-	QProcess *madplay;
-	QProcess *sendmemo;
+	QProcess *playmemo;
 	Memo *currentMemo;
+	QString getMemodir(void);
+	QString getSelectedMemo(void);
+	QString getSelectedPeer(void);
 };
 
 #endif // MEMOS_H

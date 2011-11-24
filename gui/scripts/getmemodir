@@ -1,0 +1,11 @@
+#!/bin/sh
+. /etc/nap.conf
+memodir=`napconfig napdata`/memos
+if [ -d "$memodir" ]
+then
+	echo "$memodir"
+else
+	mkdir -p "$memodir" || return
+	chmod a+w "$memodir"
+	echo "$memodir"
+fi
