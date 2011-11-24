@@ -1,0 +1,5 @@
+#!/bin/sh
+. /etc/nap.conf
+echo napdata `getconf napdata`
+echo naplistener args `getipport`
+

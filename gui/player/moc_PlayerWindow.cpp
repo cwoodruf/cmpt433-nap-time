@@ -1,8 +1,8 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'PlayerWindow.h'
 **
-** Created: Mon Nov 21 23:35:46 2011
-**      by: The Qt Meta Object Compiler version 62 (Qt 4.7.4)
+** Created: Tue Nov 22 22:29:07 2011
+**      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -11,7 +11,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'PlayerWindow.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 62
-#error "This file was generated using the moc from 4.7.4. It"
+#error "This file was generated using the moc from 4.7.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
