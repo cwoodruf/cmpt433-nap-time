@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// Setup connections:
 	QObject::connect(ui->btnPlayMemo, SIGNAL(clicked()), this, SLOT(setMemoState()));
+	QObject::connect(ui->btnStopMemo, SIGNAL(clicked()), this, SLOT(stopMemo()));
 	QObject::connect(ui->btnDeleteMemo, SIGNAL(clicked()), this, SLOT(deleteMemo()));
 	QObject::connect(ui->btnRecordMemo, SIGNAL(clicked()), this, SLOT(recordMemo()));
 	QObject::connect(ui->btnSendMemo, SIGNAL(clicked()), this, SLOT(sendMemo()));
@@ -45,11 +46,21 @@ MainWindow::~MainWindow()
 }
 
 /**
- * This slot takes care of the play, pause, stop etc for the current memo.
+ * This slot takes care of the play and pause for the current memo.
  * Uses the madplay process to do the actual work of playing the memo.
  * Should pop up a dialog if no memo has been selected.
  */
 void MainWindow::setMemoState(void)
+{
+}
+
+/**
+ * This slot stops a memo from playing. What this means is that
+ * the play process is stopped entirely but we still remember which
+ * memo we are looking at. If we aren't looking at a memo then do
+ * nothing.
+ */
+void MainWindow::stopMemo(void)
 {
 }
 

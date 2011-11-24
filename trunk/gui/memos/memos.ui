@@ -131,7 +131,7 @@
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
-   <widget class="QPushButton" name="btnStop">
+   <widget class="QPushButton" name="btnStopMemo">
     <property name="geometry">
      <rect>
       <x>10</x>
