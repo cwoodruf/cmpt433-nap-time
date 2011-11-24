@@ -109,6 +109,7 @@ name=`cat $napdata/name`
 naplistenerip=`cat $napdata/naplistenerip`
 naplistenerport=`cat $napdata/naplistenerport`
 hiddenkey="<input type=hidden name=key value=\"$key\">"
+hostname=`hostname`
 
 # print out the form 
 tbwidth=500
@@ -119,7 +120,7 @@ cat <<HTML
 <link rel=stylesheet type=text/css href=napstyle.css>
 </head>
 <body>
-<h4>Nap player configuration ($SERVER_NAME $SERVER_ADDR - dir: $napdata)</h4>
+<h4>Nap player configuration ($hostname $SERVER_ADDR - dir: $napdata)</h4>
 <a href="about.html">About Nap Player</a>
 <div class="error">$error</div>
 <div class="ok">$ok</div>
