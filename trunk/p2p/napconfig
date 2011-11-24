@@ -9,10 +9,10 @@ napshared)
 	echo $napshared
 ;;
 naplistenerip)
-	ip=`cat "$napdata/naplisternerip" 2>/dev/null`
+	ip=`cat "$napdata/naplistenerip" 2>/dev/null`
 	if [ "$ip" != "" ] 
 	then
-		echo 225.0.0.`cat "$napdata/naplistenerip" 2>/dev/null`
+		echo 225.0.0.$ip
 	fi
 ;;
 naplistenerport)
