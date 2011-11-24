@@ -1,10 +1,14 @@
 launcher is an application that starts other applications.
 
-To use it on the board make 3 executibles:
+To use it on the board make these executible scripts:
 
 /bin/memos
 /bin/intercom
 /bin/player
+/bin/getparams
+/bin/getpeers
+/bin/startnaplistener
+/bin/mountnfs
 
 Easiest is to copy the scripts in gui/scripts.
 

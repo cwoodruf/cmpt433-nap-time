@@ -135,10 +135,10 @@ void MainWindow::showDialogConfig(void)
 void MainWindow::mountNfs(void) 
 {
 	QProcess mount;
-	mount.start("mount /mnt/remote");
+	mount.start("/bin/mountnfs");
 	mount.waitForFinished();
 	if (mount.exitStatus() == QProcess::NormalExit) {
-		ui->statusbar->showMessage("/mnt/remote available");
+		ui->statusbar->showMessage("nfs available");
 	} else {
 		ui->statusbar->showMessage(mount.readAllStandardError());
 	}

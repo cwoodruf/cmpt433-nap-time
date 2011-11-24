@@ -54,6 +54,7 @@ void DialogConfig::refreshConfig(QString msg)
 	QNetworkInterface iface;
 	QList<QNetworkAddressEntry> entries;
 	QHostAddress addr;
+	QProcess getparams;
 
 	if (msg.length() > 0) {
 		html.append(msg + "<br>");
@@ -64,6 +65,9 @@ void DialogConfig::refreshConfig(QString msg)
 	entries = iface.addressEntries();
 	addr = entries[0].ip();
 	html.append("Configuration link:<br>http://"+addr.toString()+"/config.cgi");
+	getparams.start("/bin/getparams");
+	getparams.waitForFinished();
+	html.append("<br>Parameters:<br><pre>"+getparams.readAllStandardOutput()+"</pre>");
 	ui->textBrowserConfig->setHtml(html);
 }
 
@@ -76,7 +80,7 @@ void DialogConfig::getNappingOutput(void)
 void DialogConfig::runNapping(void)
 {
 	if (napping->state() == QProcess::NotRunning) {
-		napping->start("/bin/napping");
+		napping->start("/bin/getpeers");
 	} 
 }
 
