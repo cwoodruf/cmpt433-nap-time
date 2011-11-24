@@ -2,8 +2,10 @@
 #define PLAYERWINDOW_H
 
 #include <QMainWindow>
-#include <QItemSelection>
-//#include "buttonthread.h"
+#include <QListWidgetItem>
+#include "buttonthread.h"
+#include "PlaylistWindow.h"
+#include "SongList.h"
 
 namespace Ui {
     class PlayerWindow;
@@ -18,12 +20,15 @@ public:
     ~PlayerWindow();
 
 public slots:
-    void musicSelected (const QItemSelection &, const QItemSelection &);
-    void printout ();
-
+    void playSong (QListWidgetItem *);
+    void setButtons (int btnMask);
+    void showAllSongs ();
 private:
     Ui::PlayerWindow *ui;
-    //ButtonThread *thread;
+    PlaylistWindow *playlistWindow;
+    SongList musicList;
+    ButtonThread *buttonThread;
+    void displaySongsList ();
 };
 
 #endif // PLAYERWINDOW_H

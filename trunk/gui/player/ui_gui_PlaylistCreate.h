@@ -1,8 +1,9 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gui_PlaylistCreate.ui'
 **
-** Created: Tue Nov 22 22:28:57 2011
-**      by: Qt User Interface Compiler version 4.7.3
+
+** Created: Thu Nov 24 01:27:21 2011
+**      by: Qt User Interface Compiler version 4.7.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -14,12 +15,11 @@
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
-#include <QtGui/QGridLayout>
+#include <QtGui/QCommandLinkButton>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
-#include <QtGui/QListView>
+#include <QtGui/QListWidget>
 #include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QPushButton>
 #include <QtGui/QStatusBar>
@@ -27,97 +27,62 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_MainWindow
+class Ui_PlaylistWindow
 {
 public:
     QWidget *centralwidget;
-    QGridLayout *gridLayout_2;
     QLabel *label;
-    QListView *listView;
     QPushButton *pushButton;
-    QPushButton *pushButton_2;
-    QListView *listView_2;
-    QLabel *label_2;
+    QListWidget *listWidget;
+    QCommandLinkButton *backButton;
     QMenuBar *menubar;
-    QMenu *menuNaptime_Music_Player;
-    QMenu *menuPlaylists;
     QStatusBar *statusbar;
 
-    void setupUi(QMainWindow *MainWindow)
+    void setupUi(QMainWindow *PlaylistWindow)
     {
-        if (MainWindow->objectName().isEmpty())
-            MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(320, 240);
-        centralwidget = new QWidget(MainWindow);
+        if (PlaylistWindow->objectName().isEmpty())
+            PlaylistWindow->setObjectName(QString::fromUtf8("PlaylistWindow"));
+        PlaylistWindow->resize(395, 220);
+        centralwidget = new QWidget(PlaylistWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        gridLayout_2 = new QGridLayout(centralwidget);
-        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
         label = new QLabel(centralwidget);
         label->setObjectName(QString::fromUtf8("label"));
-
-        gridLayout_2->addWidget(label, 0, 0, 1, 2);
-
-        listView = new QListView(centralwidget);
-        listView->setObjectName(QString::fromUtf8("listView"));
-
-        gridLayout_2->addWidget(listView, 1, 0, 1, 2);
-
+        label->setGeometry(QRect(9, 9, 231, 17));
         pushButton = new QPushButton(centralwidget);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
-
-        gridLayout_2->addWidget(pushButton, 2, 0, 1, 1);
-
-        pushButton_2 = new QPushButton(centralwidget);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
-
-        gridLayout_2->addWidget(pushButton_2, 2, 1, 1, 1);
-
-        listView_2 = new QListView(centralwidget);
-        listView_2->setObjectName(QString::fromUtf8("listView_2"));
-
-        gridLayout_2->addWidget(listView_2, 3, 0, 1, 2);
-
-        label_2 = new QLabel(centralwidget);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
-
-        gridLayout_2->addWidget(label_2, 4, 0, 1, 1);
-
-        MainWindow->setCentralWidget(centralwidget);
-        menubar = new QMenuBar(MainWindow);
+        pushButton->setGeometry(QRect(11, 135, 85, 27));
+        listWidget = new QListWidget(centralwidget);
+        listWidget->setObjectName(QString::fromUtf8("listWidget"));
+        listWidget->setGeometry(QRect(10, 30, 301, 101));
+        backButton = new QCommandLinkButton(centralwidget);
+        backButton->setObjectName(QString::fromUtf8("backButton"));
+        backButton->setGeometry(QRect(250, 0, 61, 31));
+        PlaylistWindow->setCentralWidget(centralwidget);
+        menubar = new QMenuBar(PlaylistWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 320, 25));
-        menuNaptime_Music_Player = new QMenu(menubar);
-        menuNaptime_Music_Player->setObjectName(QString::fromUtf8("menuNaptime_Music_Player"));
-        menuPlaylists = new QMenu(menubar);
-        menuPlaylists->setObjectName(QString::fromUtf8("menuPlaylists"));
-        MainWindow->setMenuBar(menubar);
-        statusbar = new QStatusBar(MainWindow);
+        menubar->setGeometry(QRect(0, 0, 395, 25));
+        PlaylistWindow->setMenuBar(menubar);
+        statusbar = new QStatusBar(PlaylistWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
-        MainWindow->setStatusBar(statusbar);
+        PlaylistWindow->setStatusBar(statusbar);
 
-        menubar->addAction(menuNaptime_Music_Player->menuAction());
-        menubar->addAction(menuPlaylists->menuAction());
+        retranslateUi(PlaylistWindow);
 
-        retranslateUi(MainWindow);
-
-        QMetaObject::connectSlotsByName(MainWindow);
+        QMetaObject::connectSlotsByName(PlaylistWindow);
     } // setupUi
 
-    void retranslateUi(QMainWindow *MainWindow)
+    void retranslateUi(QMainWindow *PlaylistWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
-        label->setText(QApplication::translate("MainWindow", "Available Music", 0, QApplication::UnicodeUTF8));
-        pushButton->setText(QApplication::translate("MainWindow", "Add", 0, QApplication::UnicodeUTF8));
-        pushButton_2->setText(QApplication::translate("MainWindow", "Remove", 0, QApplication::UnicodeUTF8));
-        label_2->setText(QApplication::translate("MainWindow", "Playlist", 0, QApplication::UnicodeUTF8));
-        menuNaptime_Music_Player->setTitle(QApplication::translate("MainWindow", "Naptime Music Player", 0, QApplication::UnicodeUTF8));
-        menuPlaylists->setTitle(QApplication::translate("MainWindow", "Playlists", 0, QApplication::UnicodeUTF8));
+        PlaylistWindow->setWindowTitle(QApplication::translate("PlaylistWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
+        label->setText(QApplication::translate("PlaylistWindow", "Check to add to playlist", 0, QApplication::UnicodeUTF8));
+        pushButton->setText(QApplication::translate("PlaylistWindow", "Save", 0, QApplication::UnicodeUTF8));
+        backButton->setText(QApplication::translate("PlaylistWindow", "Back", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
 
 namespace Ui {
-    class MainWindow: public Ui_MainWindow {};
+    class PlaylistWindow: public Ui_PlaylistWindow {};
 } // namespace Ui
 
 QT_END_NAMESPACE
