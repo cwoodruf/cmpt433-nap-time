@@ -18,6 +18,7 @@ class PlayerWindow : public QMainWindow
 public:
     explicit PlayerWindow(QWidget *parent = 0);
     ~PlayerWindow();
+    void toggleVisibility (int row);
 
 public slots:
     void playSong (QListWidgetItem *);

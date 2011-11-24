@@ -78,6 +78,7 @@ bool SongList::readFileInfo (QFileInfo& fileInfo) {
     song->filename = fileInfo.fileName ();
     song->title = "no title";
     song->artist = "no artist";
+    song->inPlaylist = true;
     songs.push_back (song);
     
     QProcess madplay;

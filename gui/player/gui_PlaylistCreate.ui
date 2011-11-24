@@ -27,7 +27,7 @@
      <string>Check to add to playlist</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="saveButton">
     <property name="geometry">
      <rect>
       <x>11</x>

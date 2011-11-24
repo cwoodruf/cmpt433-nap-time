@@ -1,8 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gui_PlaylistCreate.ui'
 **
-
-** Created: Thu Nov 24 01:27:21 2011
+** Created: Thu Nov 24 03:40:33 2011
 **      by: Qt User Interface Compiler version 4.7.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -32,7 +31,7 @@ class Ui_PlaylistWindow
 public:
     QWidget *centralwidget;
     QLabel *label;
-    QPushButton *pushButton;
+    QPushButton *saveButton;
     QListWidget *listWidget;
     QCommandLinkButton *backButton;
     QMenuBar *menubar;
@@ -48,9 +47,9 @@ public:
         label = new QLabel(centralwidget);
         label->setObjectName(QString::fromUtf8("label"));
         label->setGeometry(QRect(9, 9, 231, 17));
-        pushButton = new QPushButton(centralwidget);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setGeometry(QRect(11, 135, 85, 27));
+        saveButton = new QPushButton(centralwidget);
+        saveButton->setObjectName(QString::fromUtf8("saveButton"));
+        saveButton->setGeometry(QRect(11, 135, 85, 27));
         listWidget = new QListWidget(centralwidget);
         listWidget->setObjectName(QString::fromUtf8("listWidget"));
         listWidget->setGeometry(QRect(10, 30, 301, 101));
@@ -75,7 +74,7 @@ public:
     {
         PlaylistWindow->setWindowTitle(QApplication::translate("PlaylistWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("PlaylistWindow", "Check to add to playlist", 0, QApplication::UnicodeUTF8));
-        pushButton->setText(QApplication::translate("PlaylistWindow", "Save", 0, QApplication::UnicodeUTF8));
+        saveButton->setText(QApplication::translate("PlaylistWindow", "Save", 0, QApplication::UnicodeUTF8));
         backButton->setText(QApplication::translate("PlaylistWindow", "Back", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

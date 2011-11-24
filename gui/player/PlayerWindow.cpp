@@ -21,7 +21,7 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
 
     displaySongsList ();
 
-    playlistWindow = new PlaylistWindow (this);
+    playlistWindow = new PlaylistWindow (&musicList, this);
 
     connect(ui->listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
         this, SLOT(playSong(QListWidgetItem *)));
@@ -50,6 +50,8 @@ void PlayerWindow::playSong (QListWidgetItem* item) {
 }
 
 void PlayerWindow::displaySongsList () {
+    ui->listWidget->clear ();
+
     int size = musicList.getSize ();
     if (size == 0) {
         qDebug () << "no songs found";
@@ -66,6 +68,9 @@ void PlayerWindow::displaySongsList () {
             }
             QListWidgetItem *tmp = new QListWidgetItem (icon, fileName);
             ui->listWidget->addItem(tmp);
+            if (song->inPlaylist == false) {
+                tmp->setHidden (true);
+            }
         }
         ui->listWidget->setCurrentRow (0);
     }
@@ -98,4 +103,9 @@ void PlayerWindow::showAllSongs () {
     QObject::disconnect(buttonThread, SIGNAL(buttonsChanged(int)), this, SLOT(setButtons(int)));
     playlistWindow->setButtonThread (buttonThread);
     playlistWindow->showMaximized();
+}
+
+void PlayerWindow::toggleVisibility (int row) {
+    QListWidgetItem* tmp = ui->listWidget->item (row);
+    tmp->setHidden (!tmp->isHidden ());
 }
