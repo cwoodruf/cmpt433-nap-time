@@ -58,17 +58,11 @@ MainWindow::~MainWindow()
 void MainWindow::restartNapListener() 
 {
 	QProcess killnaplistener;
-	QString napcmd("/bin/naplistener >> /var/log/naplistener 2>&1");
+	QString napcmd("/bin/startnaplistener");
 
-	if (naplistener->state() == QProcess::NotRunning) {
-		killnaplistener.start("killall naplistener");
-		killnaplistener.waitForFinished();
-		naplistener->start(napcmd);
-	} else {
-		naplistener->terminate();
-		naplistener->waitForFinished();
-		naplistener->start(napcmd);
-	}
+	killnaplistener.start("killall naplistener");
+	killnaplistener.waitForFinished();
+	naplistener->start(napcmd);
 	ui->statusbar->showMessage("naplistener restarted");
 }
 
