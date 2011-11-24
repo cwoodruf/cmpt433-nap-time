@@ -1,18 +1,17 @@
 #include "PlayerWindow.h"
 #include "ui_gui_MainPlay.h"
 #include <QDebug>
-#include <QStringListModel>
-#include <QAbstractItemModel>
-#include <QStringList>
-#include <QItemSelectionModel>
-#include <QItemSelection>
-#include "MusicList.h"
 #include <stdio.h>
-#include <QModelIndex>
+#include <QStringList>
+#include <QString>
+#include <QIcon>
+#include <QListWidgetItem>
+#include <QCheckBox>
+#include "PlaylistWindow.h"
 
-//extern "C" {
-//    #include "buttondrv.h"
-//}
+extern "C" {
+    #include "buttondrv.h"
+}
 
 PlayerWindow::PlayerWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -20,67 +19,83 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    displaySongsList ();
+
+    playlistWindow = new PlaylistWindow (this);
+
+    connect(ui->listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
+        this, SLOT(playSong(QListWidgetItem *)));
+    QObject::connect(ui->allSongsButton, SIGNAL(clicked (bool)), this, SLOT(showAllSongs()));
     // display music list
-    MusicList musicList;
-    musicList.setReadSource ("music.txt");
-    QStringList music;
-    if (musicList.isEmpty ()) {
-        music << "No music available";
-    } else {
-        music = musicList.getMusicList ();
-    }
-    QAbstractItemModel *model = new QStringListModel(music);
-    ui->listView->setModel (model);
-
-    // signal handling
-    // click on the music list
-    connect(ui->listView->selectionModel (), SIGNAL(selectionChanged (const QItemSelection &, const QItemSelection &)),
-            this, SLOT(musicSelected (const QItemSelection &, const QItemSelection &)));
-    connect(ui->listView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(printout()));
-
-    //qDebug()<<"Starting thread...";
-    //thread = new ButtonThread();
-    //QObject::connect(thread, SIGNAL(buttonsChanged(int)), this, SLOT(setButtons(int)));
-    //thread->start();
+    qDebug()<<"Starting thread...";
+    buttonThread = new ButtonThread();
+    QObject::connect(buttonThread, SIGNAL(buttonsChanged(int)), this, SLOT(setButtons(int)));
+    buttonThread->start();
 }
 
 PlayerWindow::~PlayerWindow()
 {
     delete ui;
-/*    if (thread) {
+    if (buttonThread) {
         qDebug()<<"Deleting thread...";
-        thread->wait(1);
-        thread->terminate();
-        delete thread;
-    }*/
+        buttonThread->wait(1);
+        buttonThread->terminate();
+        delete buttonThread;
+    }
 }
 
-void PlayerWindow::musicSelected (const QItemSelection &, const QItemSelection &) {
-    printf ("music selected:");
+void PlayerWindow::playSong (QListWidgetItem* item) {
+    QString text = item->text ();
+    qDebug () << text;
 }
 
-void PlayerWindow::printout () {
-    printf ("music selected:");
-}
-/*
-void ButtonWindow::setButtons(int btnMask)
-{
-    QString str = "";
-    if (btnMask == -1) {
-        str = "Unable to open buttons.";
-    } else if (btnMask == 0) {
-        str = "None";
+void PlayerWindow::displaySongsList () {
+    int size = musicList.getSize ();
+    if (size == 0) {
+        qDebug () << "no songs found";
     } else {
-        if (btnMask & (1<<BTN_BIT_UP))
-            str += "Up ";
-        if (btnMask & (1<<BTN_BIT_DOWN))
-            str += "Down ";
+        for (int i = 0; i < size; i++) {
+            const Song* song = musicList.getSongInfo (i);
+            QIcon icon = QIcon::fromTheme("edit-cut");
+            QString fileName = song->title;
+            if (song->title == "no title") {
+                fileName = song->filename;
+            }
+            if (song->artist != "no artist") {
+                fileName += " - " + song->artist;
+            }
+            QListWidgetItem *tmp = new QListWidgetItem (icon, fileName);
+            ui->listWidget->addItem(tmp);
+        }
+        ui->listWidget->setCurrentRow (0);
+    }
+}
+
+void PlayerWindow::setButtons(int btnMask)
+{
+    if (btnMask > 0) {
+        if (btnMask & (1<<BTN_BIT_UP)) {
+            int currentRow = ui->listWidget->currentRow ();
+            if (currentRow > 0) {
+                ui->listWidget->setCurrentRow (currentRow - 1);
+            }
+        }
+        if (btnMask & (1<<BTN_BIT_DOWN)) {
+            int currentRow = ui->listWidget->currentRow ();
+            if (currentRow < ui->listWidget->count () - 1) {
+                ui->listWidget->setCurrentRow (currentRow + 1);
+            }
+        }
+/*
         if (btnMask & (1<<BTN_BIT_LEFT))
             str += "Left ";
         if (btnMask & (1<<BTN_BIT_RIGHT))
-            str += "Right ";
+            str += "Right ";*/
     }
-    qDebug() << "ButtonWindow::setButtons() Data =" << btnMask << " = " << str;
-    ui->lblDisplay->setText(str);
+}
 
-}*/
+void PlayerWindow::showAllSongs () {
+    QObject::disconnect(buttonThread, SIGNAL(buttonsChanged(int)), this, SLOT(setButtons(int)));
+    playlistWindow->setButtonThread (buttonThread);
+    playlistWindow->showMaximized();
+}

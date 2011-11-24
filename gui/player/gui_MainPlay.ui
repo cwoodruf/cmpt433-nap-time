@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>395</width>
-    <height>240</height>
+    <height>220</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,109 +24,73 @@
      </rect>
     </property>
     <property name="text">
-     <string>Available Music</string>
+     <string>Playlist Songs</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="radioButton">
+   <widget class="QCommandLinkButton" name="allSongsButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>110</y>
-      <width>60</width>
-      <height>22</height>
+      <x>200</x>
+      <y>0</y>
+      <width>121</width>
+      <height>29</height>
      </rect>
     </property>
     <property name="text">
-     <string>Play</string>
+     <string>List All Songs</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="radioButton_2">
-    <property name="geometry">
-     <rect>
-      <x>75</x>
-      <y>110</y>
-      <width>71</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Pause</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButton_3">
-    <property name="geometry">
-     <rect>
-      <x>152</x>
-      <y>110</y>
-      <width>79</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Rewind</string>
-    </property>
-   </widget>
-   <widget class="QCommandLinkButton" name="commandLinkButton">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>130</y>
-      <width>151</width>
-      <height>36</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Download To Local</string>
-    </property>
-   </widget>
-   <widget class="QCommandLinkButton" name="commandLinkButton_2">
-    <property name="geometry">
-     <rect>
-      <x>168</x>
-      <y>130</y>
-      <width>131</width>
-      <height>36</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Playlists</string>
-    </property>
-   </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>291</width>
-      <height>71</height>
+      <width>311</width>
+      <height>111</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
-      <widget class="QListView" name="listView">
-       <property name="cursor" stdset="0">
-        <cursorShape>PointingHandCursor</cursorShape>
-       </property>
-       <property name="whatsThis">
-        <string/>
-       </property>
-      </widget>
+      <widget class="QListWidget" name="listWidget"/>
      </item>
      <item row="0" column="1">
       <widget class="QDial" name="dial"/>
      </item>
     </layout>
    </widget>
-   <zorder>label</zorder>
-   <zorder>listView</zorder>
-   <zorder>dial</zorder>
-   <zorder>radioButton</zorder>
-   <zorder>radioButton_2</zorder>
-   <zorder>radioButton_3</zorder>
-   <zorder>commandLinkButton</zorder>
-   <zorder>commandLinkButton_2</zorder>
-   <zorder>listView</zorder>
-   <zorder>listView</zorder>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>311</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
+      <widget class="QRadioButton" name="radioButton">
+       <property name="text">
+        <string>Play</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QRadioButton" name="radioButton_2">
+       <property name="text">
+        <string>Pause</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QRadioButton" name="radioButton_3">
+       <property name="text">
+        <string>Rewind</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
