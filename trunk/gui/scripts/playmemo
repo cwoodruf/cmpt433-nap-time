@@ -1,0 +1,7 @@
+#!/bin/sh
+. /etc/nap.conf
+memodir=`getmemodir`
+if [ -f "$memodir/$1" ] 
+then 
+	aplay --disable-softvol "$memodir/$1"
+fi

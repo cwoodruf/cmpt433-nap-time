@@ -1,0 +1,4 @@
+#!/bin/sh
+. getipport
+naplistener $ip $port >> $napdata/naplistener.log 2>&1 &
+

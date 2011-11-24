@@ -57,7 +57,7 @@ void DialogConfig::refreshConfig(QString msg)
 	QProcess getparams;
 
 	if (msg.length() > 0) {
-		html.append(msg);
+		html.append("<pre>"+msg+"</pre>");
 	}
 
 	html.append("<h4>Configuration</h4>");
@@ -67,7 +67,7 @@ void DialogConfig::refreshConfig(QString msg)
 	html.append("Configuration link:<br>http://"+addr.toString()+"/config.cgi");
 	getparams.start("/bin/getparams");
 	getparams.waitForFinished();
-	html.append("<br>Parameters:<pre>"+getparams.readAllStandardOutput()+"</pre>");
+	html.append("<br>Parameters:<pre>"+QString(getparams.readAllStandardOutput())+"</pre>");
 	ui->textBrowserConfig->setHtml(html);
 }
 

@@ -8,6 +8,8 @@
  */
 
 #include <QProcess>
+#include <QDir>
+#include <QMessageBox>
 #include "memos.h"
 #include "ui_memos.h"
 
@@ -18,20 +20,22 @@
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
-	madplay(new QProcess()),
-	sendmemo(new QProcess())
+	playmemo(new QProcess),
+	currentMemo(new Memo)
 {
 	ui->setupUi(this);
 
 	// Setup connections:
 	QObject::connect(ui->btnPlayMemo, SIGNAL(clicked()), this, SLOT(setMemoState()));
-	QObject::connect(ui->btnStopMemo, SIGNAL(clicked()), this, SLOT(stopMemo()));
 	QObject::connect(ui->btnDeleteMemo, SIGNAL(clicked()), this, SLOT(deleteMemo()));
 	QObject::connect(ui->btnRecordMemo, SIGNAL(clicked()), this, SLOT(recordMemo()));
 	QObject::connect(ui->btnSendMemo, SIGNAL(clicked()), this, SLOT(sendMemo()));
 	QObject::connect(ui->btnRefreshAll, SIGNAL(clicked()), this, SLOT(refreshAll()));
 	QObject::connect(ui->actionRefreshPeers, SIGNAL(triggered()), this, SLOT(refreshPeers()));
 	QObject::connect(ui->actionRefreshMemos, SIGNAL(triggered()), this, SLOT(refreshMemos()));
+
+	refreshPeers();
+	refreshMemos();
 }
 
 /**
@@ -40,9 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :
  */
 MainWindow::~MainWindow()
 {
-	if (madplay->state() != QProcess::NotRunning) madplay->terminate();
-	if (sendmemo->state() != QProcess::NotRunning) sendmemo->terminate();
 	delete ui;
+	delete currentMemo;
 }
 
 /**
@@ -52,6 +55,27 @@ MainWindow::~MainWindow()
  */
 void MainWindow::setMemoState(void)
 {
+	QString memo;
+
+	memo = getSelectedMemo();
+	if (memo.length() == 0) return;
+
+	if (currentMemo->getMemo() != memo) {
+		currentMemo->setMemo(memo);
+		currentMemo->setState(NotStarted);
+		if (playmemo->state() != QProcess::NotRunning) playmemo->terminate();
+	}
+	if (currentMemo->getState() == Playing) {
+		ui->btnPlayMemo->setText("Play");
+		currentMemo->setState(Stopped);
+		playmemo->terminate();
+		QProcess::execute("killall aplay");
+	} else {
+		ui->btnPlayMemo->setText("Stop");
+		currentMemo->setState(Playing);
+		currentMemo->setMemo(memo);
+		playmemo->start("/bin/playmemo",QStringList() << memo);
+	}
 }
 
 /**
@@ -69,6 +93,24 @@ void MainWindow::stopMemo(void)
  */
 void MainWindow::recordMemo(void)
 {
+	int ret;
+	QProcess recordmemo;
+	QString message;
+
+	ret = QMessageBox::question(this,"Record a Memo","Click OK to start recording.",QMessageBox::Cancel|QMessageBox::Ok);
+
+	if (ret == QMessageBox::Cancel) return;
+
+	recordmemo.start("/bin/recordmemo");
+	QMessageBox::information(this,"Recording Message","Click OK to stop recording");
+	message = recordmemo.readAllStandardOutput();
+
+	// doesn't seem to be getting stopped?
+	recordmemo.terminate();
+	QProcess::execute("killall arecord");
+
+	QMessageBox::information(this,"Saved Message","Saved "+message);
+	refreshMemos();
 }
 
 /**
@@ -76,6 +118,25 @@ void MainWindow::recordMemo(void)
  */
 void MainWindow::deleteMemo(void)
 {
+	QString memodir, memo;
+	int ret;
+	
+	memodir = getMemodir();
+	if (memodir.length() == 0) return;
+
+	memo = getSelectedMemo();
+	if (memo.length() == 0) return;
+
+	ret = QMessageBox::question(this,"Delete Memo","Delete memo "+memo+"?",QMessageBox::Cancel|QMessageBox::Ok);
+
+	if (ret == QMessageBox::Ok) {
+		if (!QFile::remove(memodir+"/"+memo)) {
+			QMessageBox::warning(this,"Error","Couldn't delete "+memodir+"/"+memo);
+			return;
+		}
+		refreshMemos();
+	}
+		
 }
 
 /**
@@ -83,6 +144,18 @@ void MainWindow::deleteMemo(void)
  */
 void MainWindow::refreshMemos(void)
 {
+	QDir memos;
+	QProcess getmemodir;
+	QString memodir;
+
+	memodir = getMemodir();
+	memos = QDir(memodir,QString("*.wav"),QDir::Name,QDir::Files);
+	if (memos.exists() == false) {
+		QMessageBox::critical(this,"ERROR","directory "+memodir+" does not exist!");
+		return;
+	}
+	ui->listMemos->clear();
+	ui->listMemos->addItems(memos.entryList());
 }
 
 /**
@@ -90,6 +163,14 @@ void MainWindow::refreshMemos(void)
  */
 void MainWindow::refreshPeers(void)
 {
+	QProcess getpeers;
+	QString peers;
+
+	getpeers.start("/bin/getpeers");
+	getpeers.waitForFinished();
+	peers = QString(getpeers.readAllStandardOutput());
+	ui->listPeers->clear();
+	ui->listPeers->addItems(peers.split("\n",QString::SkipEmptyParts));
 }
 
 /**
@@ -107,5 +188,67 @@ void MainWindow::refreshAll(void)
  */
 void MainWindow::sendMemo(void)
 {
+	QProcess sendmemo;
+	QString peer,memo,res;
+	int ret;
+
+	peer = getSelectedPeer();
+	if (peer.length() == 0) return;
+	memo = getSelectedMemo();
+	if (memo.length() == 0) return;
+
+	ret = QMessageBox::question(this,"Send memo?","Send memo "+memo+" to peer "+peer+"?",QMessageBox::Cancel|QMessageBox::Ok);
+
+	if (ret == QMessageBox::Ok) {
+		sendmemo.start("/bin/sendmemo",QStringList() << peer << memo);
+		sendmemo.waitForFinished();
+		res = QString(sendmemo.readAllStandardOutput());
+		QMessageBox::information(this,"Memo Send","Send result:\n"+res);
+	}
+	refreshAll();
+}
+
+/**
+ * Get the current memo directory from the napconfig script.
+ */
+QString MainWindow::getMemodir(void) 
+{
+	QString dir;
+	QProcess getmemodir;
+
+	getmemodir.start("/bin/getmemodir");
+	getmemodir.waitForFinished();
+	dir = QString(getmemodir.readAllStandardOutput());
+	return dir.trimmed();
+}
+
+/**
+ * Get the first memo selected from the gui.
+ */
+QString MainWindow::getSelectedMemo(void)
+{
+	QList<QListWidgetItem *> selectedMemos;
+
+	selectedMemos = ui->listMemos->selectedItems();
+	if (selectedMemos.count() == 0) {
+		QMessageBox::warning(this,"Error","Please select a memo!");
+		return QString("");
+	} 
+	return selectedMemos[0]->text();
+}
+
+/**
+ * Get the first peer selected from the gui.
+ */
+QString MainWindow::getSelectedPeer(void)
+{
+	QList<QListWidgetItem *> selectedPeers;
+
+	selectedPeers = ui->listPeers->selectedItems();
+	if (selectedPeers.count() == 0) {
+		QMessageBox::warning(this,"Error","Please select a peer!");
+		return QString("");
+	} 
+	return selectedPeers[0]->text();
 }
 

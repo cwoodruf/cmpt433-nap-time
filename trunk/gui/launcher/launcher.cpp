@@ -48,6 +48,10 @@ MainWindow::~MainWindow()
 	if (memos->state() != QProcess::NotRunning) memos->terminate();
 	if (intercom->state() != QProcess::NotRunning) intercom->terminate();
 	if (player->state() != QProcess::NotRunning) player->terminate();
+	delete player;
+	delete memos;
+	delete intercom;
+	delete naplistener;
 	delete dialogconfig;
 	delete ui;
 }
