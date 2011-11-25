@@ -33,6 +33,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	QObject::connect(ui->btnRefreshAll, SIGNAL(clicked()), this, SLOT(refreshAll()));
 	QObject::connect(ui->actionRefreshPeers, SIGNAL(triggered()), this, SLOT(refreshPeers()));
 	QObject::connect(ui->actionRefreshMemos, SIGNAL(triggered()), this, SLOT(refreshMemos()));
+	QObject::connect(playmemo, SIGNAL(finished()), this, SLOT(stopMemo()));
+	QObject::connect(playmemo, SIGNAL(error(QProcess::ProcessError)), 
+					this, SLOT(crashMemo(QProcess::ProcessError)));
 
 	refreshPeers();
 	refreshMemos();
@@ -66,12 +69,10 @@ void MainWindow::setMemoState(void)
 		if (playmemo->state() != QProcess::NotRunning) playmemo->terminate();
 	}
 	if (currentMemo->getState() == Playing) {
-		ui->btnPlayMemo->setText("Play");
-		currentMemo->setState(Stopped);
-		playmemo->terminate();
-		QProcess::execute("killall aplay");
+		stopMemo();
 	} else {
 		ui->btnPlayMemo->setText("Stop");
+		ui->listMemos->setDisabled(true);
 		currentMemo->setState(Playing);
 		currentMemo->setMemo(memo);
 		playmemo->start("/bin/playmemo",QStringList() << memo);
@@ -81,11 +82,35 @@ void MainWindow::setMemoState(void)
 /**
  * This slot stops a memo from playing. What this means is that
  * the play process is stopped entirely but we still remember which
- * memo we are looking at. If we aren't looking at a memo then do
- * nothing.
+ * memo we are looking at. 
  */
 void MainWindow::stopMemo(void)
 {
+	currentMemo->setState(Stopped);
+	playmemo->terminate();
+	QProcess::execute("/bin/stopplaymemo");
+	ui->btnPlayMemo->setText("Play");
+	refreshMemos();
+	ui->listMemos->setEnabled(true);
+}
+
+/**
+ * If the memo crashed while playing pop up an alert.
+ */
+void MainWindow::crashMemo(QProcess::ProcessError e)
+{
+	QString msg;
+	switch (e) {
+	case QProcess::FailedToStart: msg = QString("FailedToStart"); break;
+	case QProcess::Crashed: msg = QString("Crashed"); break;
+	case QProcess::Timedout: msg = QString("Timedout"); break;
+	case QProcess::WriteError: msg = QString("WriteError"); break;
+	case QProcess::ReadError: msg = QString("ReadError"); break;
+	case QProcess::UnknownError: msg = QString("UnknownError"); break;
+	default: msg = QString("Unknown error code: "+e);
+	}
+	QMessageBox::critical(this,"Error",msg);
+	stopMemo();
 }
 
 /**
@@ -97,7 +122,8 @@ void MainWindow::recordMemo(void)
 	QProcess recordmemo;
 	QString message;
 
-	ret = QMessageBox::question(this,"Record a Memo","Click OK to start recording.",QMessageBox::Cancel|QMessageBox::Ok);
+	ret = QMessageBox::question(this,"Record a Memo",
+		"Click OK to start recording.",QMessageBox::Cancel|QMessageBox::Ok);
 
 	if (ret == QMessageBox::Cancel) return;
 
@@ -107,9 +133,7 @@ void MainWindow::recordMemo(void)
 
 	// doesn't seem to be getting stopped?
 	recordmemo.terminate();
-	QProcess::execute("killall arecord");
-
-	QMessageBox::information(this,"Saved Message","Saved "+message);
+	QProcess::execute("/bin/stoprecordmemo");
 	refreshMemos();
 }
 
@@ -197,7 +221,8 @@ void MainWindow::sendMemo(void)
 	memo = getSelectedMemo();
 	if (memo.length() == 0) return;
 
-	ret = QMessageBox::question(this,"Send memo?","Send memo "+memo+" to peer "+peer+"?",QMessageBox::Cancel|QMessageBox::Ok);
+	ret = QMessageBox::question(this,"Send memo?",
+		"Send memo "+memo+" to peer "+peer+"?",QMessageBox::Cancel|QMessageBox::Ok);
 
 	if (ret == QMessageBox::Ok) {
 		sendmemo.start("/bin/sendmemo",QStringList() << peer << memo);

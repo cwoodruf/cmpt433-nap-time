@@ -57,6 +57,7 @@ public:
 public slots:
 	void setMemoState(void);
 	void stopMemo(void);
+	void crashMemo(QProcess::ProcessError);
 	void recordMemo(void);
 	void deleteMemo(void);
 	void refreshMemos(void);

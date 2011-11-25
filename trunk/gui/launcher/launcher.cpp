@@ -62,11 +62,10 @@ MainWindow::~MainWindow()
 void MainWindow::restartNapListener() 
 {
 	QProcess killnaplistener;
-	QString napcmd("/bin/startnaplistener");
 
-	killnaplistener.start("killall naplistener");
+	killnaplistener.start("/bin/stopnaplistener");
 	killnaplistener.waitForFinished();
-	naplistener->start(napcmd);
+	naplistener->start("/bin/startnaplistener");
 	ui->statusbar->showMessage("naplistener restarted");
 }
 
