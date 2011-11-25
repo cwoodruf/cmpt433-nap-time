@@ -1,7 +1,14 @@
 #!/bin/sh
 . /etc/nap.conf
 memodir=`getmemodir`
+memo=$1
 if [ -f "$memodir/$1" ] 
 then 
-	aplay --disable-softvol "$memodir/$1"
+	aplay -q -T0 "$memodir/$memo"
 fi
+memounticked=`echo "$memo" | sed 's/^+//'`
+if [ "$memo" != "$memounticked" ]
+then
+	mv "$memodir/$memo" "$memodir/$memounticked"
+fi
+
