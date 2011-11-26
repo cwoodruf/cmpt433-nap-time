@@ -66,6 +66,7 @@ void MainWindow::restartNapListener()
 	killnaplistener.start("/bin/stopnaplistener");
 	killnaplistener.waitForFinished();
 	naplistener->start("/bin/startnaplistener");
+	naplistener->waitForStarted();
 	ui->statusbar->showMessage("naplistener restarted");
 }
 
@@ -77,6 +78,7 @@ void MainWindow::startIntercom(void)
 {
 	if (intercom->state() == QProcess::NotRunning) {
 		intercom->start("/bin/intercom");
+		intercom->waitForStarted();
 		ui->statusbar->showMessage("intercom started");
 	} else {
 		intercom->terminate();
@@ -92,6 +94,7 @@ void MainWindow::startMemos(void)
 {
 	if (memos->state() == QProcess::NotRunning) {
 		memos->start("/bin/memos");
+		memos->waitForStarted();
 		ui->statusbar->showMessage("memos started");
 	} else {
 		memos->terminate();
@@ -107,6 +110,7 @@ void MainWindow::startPlayer(void)
 {
 	if (player->state() == QProcess::NotRunning) {
 		player->start("/bin/player");
+		player->waitForStarted();
 		ui->statusbar->showMessage("player started");
 	} else {
 		player->terminate();
