@@ -91,7 +91,6 @@ void MainWindow::stopMemo(void)
 	QProcess::execute("/bin/stopplaymemo");
 	ui->btnPlayMemo->setText("Play");
 	refreshMemos();
-	ui->listMemos->setEnabled(true);
 }
 
 /**
@@ -168,18 +167,16 @@ void MainWindow::deleteMemo(void)
  */
 void MainWindow::refreshMemos(void)
 {
-	QDir memos;
-	QProcess getmemodir;
-	QString memodir;
-
-	memodir = getMemodir();
-	memos = QDir(memodir,QString("*.wav"),QDir::Name,QDir::Files);
-	if (memos.exists() == false) {
-		QMessageBox::critical(this,"ERROR","directory "+memodir+" does not exist!");
-		return;
-	}
+	QProcess getmemos;
+	QString memos;
+	QStringList memolist;
+	
+	getmemos.start("/bin/getmemos");
+	getmemos.waitForFinished();
+	memos = QString(getmemos.readAllStandardOutput());
 	ui->listMemos->clear();
-	ui->listMemos->addItems(memos.entryList());
+	ui->listMemos->addItems(memos.split("\n"));
+	ui->listMemos->setEnabled(true);
 }
 
 /**
