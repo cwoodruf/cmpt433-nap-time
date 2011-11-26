@@ -11,8 +11,8 @@ napping: napping.c napmulticast.h
 	$(ALCC) $(ALCFLAGS) napping.c -o napping
 	cp napping $(OUTDIR)
 
-naplistener: naplistener.c napmulticast.h
+naplistener: naplistener.c napmulticast.h buzzer.c buzzer.h
 	$(CC) $(CFLAGS) naplistener.c -o naplistener-host
-	$(ALCC) $(ALCFLAGS) naplistener.c -o naplistener
+	$(ALCC) $(ALCFLAGS) naplistener.c buzzer.c -DIS_EM2440=1 -o naplistener
 	cp naplistener $(OUTDIR)
 
