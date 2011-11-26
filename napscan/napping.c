@@ -37,8 +37,6 @@ int main(int argc, char *argv[])
 	/* struct ip_mreq mreq; */
 	char message[NAPMSGLEN]="peer", responsemsg[NAPMSGLEN]="", me[NAPMSGLEN];
 	char *napgroup = NAP_GROUP;
-	char *peerdir = NAP_PEER_DIR;
-	struct stat st; /* for checking if peer base directory exists */
 	char *ip, *host;
 	int napport = NAP_PORT;
 	int alarmwait = NAP_WAIT;
@@ -46,15 +44,16 @@ int main(int argc, char *argv[])
 
 	signal(SIGALRM,sig_alarm);
 
-	while ((c = getopt(argc,argv,"d:g:p:t:h")) > 0) {
+	while ((c = getopt(argc,argv,"d:g:m:t:h")) > 0) {
 		switch(c) {
-		case 'h': printf("%s -g{mcastgroup} -p{port} -t{timeout} -d{peerdir} [-h]\n"
+		case 'h': printf("%s -g{mcastgroup} -p{port} -t{timeout} -m{message} [-h]\n"
 					  "\tListens for nap hosts on a local multicast group.\n"
 					  "\t-g{mcastgroup} multicast group (%s)\n"
 					  "\t-p{port} port to listen on (%d)\n"
 					  "\t-t{timeout} wait for this many seconds for responses (%d)\n"
+					  "\t-m{message} message to send (%s)\n"
 					  "\t-h this help.\n",
-					  argv[0],napgroup,napport,alarmwait
+					  argv[0],napgroup,napport,alarmwait,message
 				); 
 		return 0;
 		case 'g': napgroup = optarg; 
@@ -65,15 +64,7 @@ int main(int argc, char *argv[])
 					return 1;
 				}
 		break;
-		case 'd': peerdir = optarg;
-				if (stat(peerdir,&st) < 0) {
-					 perror("peerdir stat");
-					 return 1;
-				}
-				if (!S_ISDIR(st.st_mode)) {
-					 fprintf(stderr,"peer dir %s is not a directory!\n",peerdir);
-					 return 1;
-				}
+		case 'm': strncpy(message,optarg,NAPMSGLEN);
 		break;
 		case 't': alarmwait = atoi(optarg); 
 				if (alarmwait < 0) {

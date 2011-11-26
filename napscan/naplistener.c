@@ -25,8 +25,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 #include "napmulticast.h"
 #include "my_ip.c"
+
+#ifndef IS_EM2440
+#define IS_EM2440 0
+#endif
+#include "buzzer.h"
+
+void *interrupt(int sig)
+{
+     if (IS_EM2440) {
+          buzzer_cleanup();
+     }
+     return NULL;
+}
 
 int main(int argc, char *argv[])
 {
@@ -100,9 +114,13 @@ int main(int argc, char *argv[])
           perror("setsockopt");
           return 1;
      }
-
+     
      /* now just enter a read-print loop */
      gethostname(hostname,NAPMSGLEN);
+     if (IS_EM2440) {
+          buzzer_init();
+          signal(SIGINT,interrupt(SIGINT));
+     }
      printf("%s listening for other nap hosts: send messages to %s:%d\n", hostname, napgroup, napport);
      while (1) {
           addrlen=sizeof(addr);
@@ -113,9 +131,8 @@ int main(int argc, char *argv[])
           }
           msgbuf[nbytes] = 0;
           printf("message from %s: %s. ",inet_ntoa(addr.sin_addr),msgbuf);
-
-	  strcpy(ip,my_ip());
-	  snprintf(ack,NAPMSGLEN,"%s %s %s",NAP_ACK,ip,hostname);
+          strcpy(ip,my_ip());
+          snprintf(ack,NAPMSGLEN,"%s %s %s",NAP_ACK,ip,hostname);
           printf("response: %s\n", ack);
 
           saddr.sin_addr.s_addr=addr.sin_addr.s_addr; /* needs to be filled in with other host's ip */
@@ -124,6 +141,12 @@ int main(int argc, char *argv[])
                perror("sendto");
                return 1;
           }
+          if (strstr(msgbuf,"chime") != NULL) {
+               if (IS_EM2440) buzzer_buzz(100000,200);
+               else execv("/usr/bin/chime",NULL);
+               printf("chime\n");
+          }
+
      }
 }
 
