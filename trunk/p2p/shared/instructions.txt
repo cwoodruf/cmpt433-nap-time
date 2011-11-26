@@ -1,0 +1,110 @@
+I'm noticing that there are a fair number of steps to setting up nodes
+to work.
+
+1) get everything from the subversion repo (see code.google.com/p/
+cmpt433-nap-time)
+
+2) on your build host prior to building the gui do this (in your
+~/.bashrc or equivalent)
+export $PUBLIC={your public directory}
+
+save the file and use source to run it or relog in.
+Next make a $PUBLIC/bin directory:
+
+> mkdir $PUBLIC/bin
+
+3) next make everything (in the main svn directory):
+cd napscan
+make
+cd ../cgiparser
+make
+cd ../gui/launcher
+./launcher.sh
+cd ../player
+./player.sh
+cd ../memos
+./memos.sh
+
+4) the binaries for those programs above should be in $PUBLIC/bin now.
+Copy the contents of p2p in the main svn directory to $PUBLIC/p2p.
+Copy the contents of gui/scripts in the main svn directory to /bin on
+the board. The launcher and memos programs expect the scripts to be in
+this directory (for the moment).
+
+5) build or otherwise acquire:
+qt-4.7.3 (see guide)
+alsa (see guide)
+common errors: test alsa by trying to run /bin/recordmemo
+make sure to do the device creation step in the linux sound guide
+
+tcl 8.4 (other versions will work as well probably)
+I'd suggest put them in $PUBLIC/qt-arm-4.7.3 (and remove the opt/
+qtlibs directory on the board to conserve space) $PUBLIC/tcl and
+$PUBLIC/alsa. You won't have enough space for this stuff qt is 27MB
+alone. Tcl must be in this particular directory or you'll have to
+change the urlencode.tcl script's #! line to match where it is (either
+is fine).
+
+6) set up the environment:
+Make an /etc/nap.conf (see configs/examples.nap.conf)
+export napdata=/var/napdata
+export napshared=/mnt/remote/p2p/shared
+
+Change your /etc/profile so it has:
+PATH="/mnt/remote/bin:/mnt/remote/p2p:/mnt/remote/tcl/bin:/mnt/remote/
+alsa/bin:$PATH"
+LD_LIBRARY_PATH="/mnt/remote/alsa/lib:/mnt/remote/qt-arm-4.7.3/lib:/
+mnt/remote/tcl/lib:/mnt/remote/lib:$LD_LIBRARY_PATH"
+
+Change the /etc/boa/boa.conf so that:
+
+DocumentRoot /mnt/remote/p2p/shared
+CGIPath /bin:/mnt/remote/bin:/mnt/remote/p2p:/usr/bin
+ErrorLog /etc/boa/error_log
+
+Maybe change the machine name in there. Make a directory p2p/shared/
+memos and make it world writable. You may need to make the /var/
+napdata directory world writable.
+
+You may want to change your  system to automatically mount the nfs
+share /mnt/remote if you have everything stored there. Edit /etc/fstab
+on the board:
+
+{nfs server ip}:/path/to/nfs/share/on/server /mnt/remote nfs
+tcp,nolock 0 0
+
+You can then edit /etc/init.d/rcS to run the launcher-arm application:
+...
+# wait for network to come up
+source /etc/qt_env.sh
+sleep 10
+mount /mnt/remote
+# you may want to source /etc/profile here if things don't work
+/mnt/remote/bin/launcher-arm -qws &
+
+This should start up the gui when the board starts. You may want to
+put everything on an sd card. If so change all the /mnt/remote to /mnt/
+sd (or whatever the mount point is for your sd card). Copy the
+contents of the public folder to the sd card. You may have problems
+with symbolic links if the sd card uses fat32. You can mitigate this
+by using rsync instead
+
+> rsync -rczLtpv $PUBLIC/ /path/to/your/sd/public
+
+What has been tested so far:
+- complete build and setup
+- Benny can mount ext file systems and sd cards I can't
+- memo record and memo send
+- player application starts
+- websites work
+
+Because all the launcher and memo stuff works through external scripts
+its easy to test individual parts of the system and see what is going
+wrong.
+
+Unsolved problems:
+record levels very low (alsa)
+playing a memo won't stop or indicate an error (alsa)
+sending a memo works most of the time - why is it failing some of the
+time? (wget) 
+
