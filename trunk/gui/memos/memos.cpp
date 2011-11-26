@@ -75,7 +75,7 @@ void MainWindow::setMemoState(void)
 		ui->listMemos->setDisabled(true);
 		currentMemo->setState(Playing);
 		currentMemo->setMemo(memo);
-		playmemo->start("/bin/playmemo",QStringList() << memo);
+		playmemo->start("playmemo",QStringList() << memo);
 	}
 }
 
@@ -88,7 +88,7 @@ void MainWindow::stopMemo(void)
 {
 	currentMemo->setState(Stopped);
 	playmemo->terminate();
-	QProcess::execute("/bin/stopplaymemo");
+	QProcess::execute("stopplaymemo");
 	ui->btnPlayMemo->setText("Play");
 	refreshMemos();
 }
@@ -126,13 +126,13 @@ void MainWindow::recordMemo(void)
 
 	if (ret == QMessageBox::Cancel) return;
 
-	recordmemo.start("/bin/recordmemo");
+	recordmemo.start("recordmemo");
 	QMessageBox::information(this,"Recording Message","Click OK to stop recording");
 	message = recordmemo.readAllStandardOutput();
 
 	// doesn't seem to be getting stopped?
 	recordmemo.terminate();
-	QProcess::execute("/bin/stoprecordmemo");
+	QProcess::execute("stoprecordmemo");
 	refreshMemos();
 }
 
@@ -171,7 +171,7 @@ void MainWindow::refreshMemos(void)
 	QString memos;
 	QStringList memolist;
 	
-	getmemos.start("/bin/getmemos");
+	getmemos.start("getmemos");
 	getmemos.waitForFinished();
 	memos = QString(getmemos.readAllStandardOutput());
 	ui->listMemos->clear();
@@ -187,7 +187,7 @@ void MainWindow::refreshPeers(void)
 	QProcess getpeers;
 	QString peers;
 
-	getpeers.start("/bin/getpeers");
+	getpeers.start("getpeers");
 	getpeers.waitForFinished();
 	peers = QString(getpeers.readAllStandardOutput());
 	ui->listPeers->clear();
@@ -222,7 +222,7 @@ void MainWindow::sendMemo(void)
 		"Send memo "+memo+" to peer "+peer+"?",QMessageBox::Cancel|QMessageBox::Ok);
 
 	if (ret == QMessageBox::Ok) {
-		sendmemo.start("/bin/sendmemo",QStringList() << peer << memo);
+		sendmemo.start("sendmemo",QStringList() << peer << memo);
 		sendmemo.waitForFinished();
 		res = QString(sendmemo.readAllStandardOutput());
 		QMessageBox::information(this,"Memo Send","Send result:\n"+res);
@@ -238,7 +238,7 @@ QString MainWindow::getMemodir(void)
 	QString dir;
 	QProcess getmemodir;
 
-	getmemodir.start("/bin/getmemodir");
+	getmemodir.start("getmemodir");
 	getmemodir.waitForFinished();
 	dir = QString(getmemodir.readAllStandardOutput());
 	return dir.trimmed();

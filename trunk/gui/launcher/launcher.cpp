@@ -63,9 +63,9 @@ void MainWindow::restartNapListener()
 {
 	QProcess killnaplistener;
 
-	killnaplistener.start("/bin/stopnaplistener");
+	killnaplistener.start("stopnaplistener");
 	killnaplistener.waitForFinished();
-	naplistener->start("/bin/startnaplistener");
+	naplistener->start("startnaplistener");
 	naplistener->waitForStarted();
 	ui->statusbar->showMessage("naplistener restarted");
 }
@@ -77,7 +77,7 @@ void MainWindow::restartNapListener()
 void MainWindow::startIntercom(void)
 {
 	if (intercom->state() == QProcess::NotRunning) {
-		intercom->start("/bin/intercom");
+		intercom->start("intercom");
 		intercom->waitForStarted();
 		ui->statusbar->showMessage("intercom started");
 	} else {
@@ -93,7 +93,7 @@ void MainWindow::startIntercom(void)
 void MainWindow::startMemos(void)
 {
 	if (memos->state() == QProcess::NotRunning) {
-		memos->start("/bin/memos");
+		memos->start("memos");
 		memos->waitForStarted();
 		ui->statusbar->showMessage("memos started");
 	} else {
@@ -109,7 +109,7 @@ void MainWindow::startMemos(void)
 void MainWindow::startPlayer(void)
 {
 	if (player->state() == QProcess::NotRunning) {
-		player->start("/bin/player");
+		player->start("player");
 		player->waitForStarted();
 		ui->statusbar->showMessage("player started");
 	} else {
@@ -136,7 +136,7 @@ void MainWindow::showDialogConfig(void)
 void MainWindow::mountNfs(void) 
 {
 	QProcess mount;
-	mount.start("/bin/mountnfs");
+	mount.start("mountnfs");
 	mount.waitForFinished();
 	if (mount.exitStatus() == QProcess::NormalExit) {
 		ui->statusbar->showMessage("nfs available");

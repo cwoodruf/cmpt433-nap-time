@@ -65,7 +65,7 @@ void DialogConfig::refreshConfig(QString msg)
 	entries = iface.addressEntries();
 	addr = entries[0].ip();
 	html.append("Configuration link:<br>http://"+addr.toString()+"/config.cgi");
-	getparams.start("/bin/getparams");
+	getparams.start("getparams");
 	getparams.waitForFinished();
 	html.append("<br>Parameters:<pre>"+QString(getparams.readAllStandardOutput())+"</pre>");
 	ui->textBrowserConfig->setHtml(html);
@@ -80,7 +80,7 @@ void DialogConfig::getNappingOutput(void)
 void DialogConfig::runNapping(void)
 {
 	if (napping->state() == QProcess::NotRunning) {
-		napping->start("/bin/getpeers");
+		napping->start("getpeers");
 	} 
 }
 

@@ -20,7 +20,7 @@
       <x>10</x>
       <y>0</y>
       <width>221</width>
-      <height>81</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="toolTip">
@@ -31,9 +31,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
+      <y>90</y>
       <width>191</width>
-      <height>61</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="toolTip">
@@ -109,7 +109,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
+      <y>70</y>
       <width>31</width>
       <height>17</height>
      </rect>
@@ -131,7 +131,7 @@
      <x>0</x>
      <y>0</y>
      <width>319</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMemos">
