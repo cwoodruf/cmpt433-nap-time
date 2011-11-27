@@ -10,5 +10,5 @@ QT += network
 
 # Input
 FORMS += dialogconfig.ui launcher.ui
-SOURCES += dialogconfig.cpp launcher.cpp main.cpp
-HEADERS += dialogconfig.h launcher.h
+SOURCES += periodicthread.cpp dialogconfig.cpp launcher.cpp main.cpp
+HEADERS += periodicthread.h dialogconfig.h launcher.h
