@@ -7,17 +7,16 @@
 #ifndef LAUNCHER_H
 #define LAUNCHER_H
 
-#include <QProcess>
-#include "dialogconfig.h"
-
-/* define this via make when compiling for the board */
-#ifndef EM2440
-#define IS_EM2440 0
-#else
+#ifdef EM2440
 #define IS_EM2440 1
+#else
+#define IS_EM2440 0
 #endif
 
+#include <QProcess>
 #include <QMainWindow>
+#include "periodicthread.h"
+#include "dialogconfig.h"
 
 namespace Ui {
 	class MainWindow;
@@ -46,6 +45,8 @@ private:
 	QProcess *memos;
 	QProcess *intercom;
 	QProcess *naplistener;
+	// blinks leds when we have new memos
+	PeriodicThread *memoblink;
 };
 
 #endif // LAUNCHER_H

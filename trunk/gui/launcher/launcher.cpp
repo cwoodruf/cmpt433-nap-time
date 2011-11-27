@@ -10,6 +10,7 @@
 #include <QProcess>
 #include "launcher.h"
 #include "dialogconfig.h"
+#include "periodicthread.h"
 #include "ui_launcher.h"
 
 /**
@@ -23,10 +24,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	player(new QProcess()),
 	memos(new QProcess()),
 	intercom(new QProcess()),
-	naplistener(new QProcess())
+	naplistener(new QProcess()),
+	memoblink(new PeriodicThread())
 {
 	ui->setupUi(this);
-	restartNapListener();
 
 	// Setup connections:
 	QObject::connect(ui->btnPlayer, SIGNAL(clicked()), this, SLOT(startPlayer()));
@@ -35,6 +36,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	QObject::connect(ui->actionConfig, SIGNAL(triggered()), this, SLOT(showDialogConfig()));
 	QObject::connect(ui->actionNapListener, SIGNAL(triggered()), this, SLOT(restartNapListener()));
 	QObject::connect(ui->actionNfs, SIGNAL(triggered()), this, SLOT(mountNfs()));
+
+	restartNapListener();
+	memoblink->setAll(5,"memoblink",QStringList());
+	memoblink->start();
 }
 
 /**
@@ -48,6 +53,9 @@ MainWindow::~MainWindow()
 	if (memos->state() != QProcess::NotRunning) memos->terminate();
 	if (intercom->state() != QProcess::NotRunning) intercom->terminate();
 	if (player->state() != QProcess::NotRunning) player->terminate();
+	memoblink->wait(1);
+	memoblink->terminate();
+	delete memoblink;
 	delete player;
 	delete memos;
 	delete intercom;
