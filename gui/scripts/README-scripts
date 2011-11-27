@@ -8,7 +8,8 @@ running them from the command line and we can capture any debug
 output in the launcher via the readReadyStandardError and
 readReadyStandardOutput slots provided by QProcess.
 
-There may be strange issues with the touch screen "bleeding through" 
-but those can probably be mitigated (make the whole window active 
-for example).
+When starting a second touch screen application on top of the
+first touch screen application do not use the -qws command line
+option as there will be issues with the touch screen 
+"bleeding through".
 

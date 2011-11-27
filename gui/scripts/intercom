@@ -1,8 +1,4 @@
 #!/bin/sh
 echo intercom starting
-while true
-do
-	sleep 10
-	echo intercom running
-done
+intercom-arm
 
