@@ -1,0 +1,215 @@
+player.o: player.c config.h global.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/stdio.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/features.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/predefs.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/cdefs.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/wordsize.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/gnu/stubs.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include/stddef.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/types.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/typesizes.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/libio.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/_G_config.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/wchar.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include/stdarg.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/stdio_lim.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/sys_errlist.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/stdlib.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/types.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/time.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/endian.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/endian.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/select.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/select.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/sigset.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/time.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/sysmacros.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/pthreadtypes.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/alloca.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/stat.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/stat.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/fcntl.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/fcntl.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/unistd.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/posix_opt.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/confname.h \
+  getopt.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/string.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/errno.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/errno.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/linux/errno.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/asm/errno.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/asm-generic/errno.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/asm-generic/errno-base.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/locale.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/locale.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/math.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/huge_val.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/mathdef.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/mathcalls.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/termios.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/termios.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/ttydefaults.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/signal.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/signum.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/siginfo.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/sigaction.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/sigcontext.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/asm/sigcontext.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/sigstack.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/sigthread.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/assert.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/mman.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/mman.h \
+  /home/benny/cmpt433/private/mad/include/mad.h \
+  /home/benny/cmpt433/private/mad/include/id3tag.h gettext.h \
+  /home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/libintl.h \
+  player.h audio.h resample.h filter.h tag.h rgain.h
+
+config.h:
+
+global.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/stdio.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/features.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/predefs.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/cdefs.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/wordsize.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/gnu/stubs.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include/stddef.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/types.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/typesizes.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/libio.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/_G_config.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/wchar.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include/stdarg.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/stdio_lim.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/sys_errlist.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/stdlib.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/types.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/time.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/endian.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/endian.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/select.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/select.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/sigset.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/time.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/sysmacros.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/pthreadtypes.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/alloca.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/stat.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/stat.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/fcntl.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/fcntl.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/unistd.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/posix_opt.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/confname.h:
+
+getopt.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/string.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/errno.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/errno.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/linux/errno.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/asm/errno.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/asm-generic/errno.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/asm-generic/errno-base.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/locale.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/locale.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/math.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/huge_val.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/mathdef.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/mathcalls.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/termios.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/termios.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/ttydefaults.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/signal.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/signum.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/siginfo.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/sigaction.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/sigcontext.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/asm/sigcontext.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/sigstack.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/sigthread.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/assert.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/sys/mman.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/bits/mman.h:
+
+/home/benny/cmpt433/private/mad/include/mad.h:
+
+/home/benny/cmpt433/private/mad/include/id3tag.h:
+
+gettext.h:
+
+/home/benny/cmpt433/private/4.3.3/bin/../arm-none-linux-gnueabi/libc/usr/include/libintl.h:
+
+player.h:
+
+audio.h:
+
+resample.h:
+
+filter.h:
+
+tag.h:
+
+rgain.h:
