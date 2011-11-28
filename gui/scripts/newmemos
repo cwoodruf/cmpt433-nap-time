@@ -3,5 +3,5 @@
 # also used by memoblink
 
 . /etc/nap.conf
-ls "$napdata/memos/+"* 2>&1 | wc -l
+ls "$napdata/memos/+"* 2>/dev/null | wc -l
 

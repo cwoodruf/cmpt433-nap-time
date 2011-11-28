@@ -10,6 +10,8 @@
 #include <QProcess>
 #include <QDir>
 #include <QMessageBox>
+#include <QTimer>
+#include <QDebug>
 #include "memos.h"
 #include "ui_memos.h"
 
@@ -21,7 +23,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
 	playmemo(new QProcess),
-	currentMemo(new Memo)
+	currentMemo(new Memo),
+	refreshtimer(new QTimer)
 {
 	ui->setupUi(this);
 
@@ -36,9 +39,13 @@ MainWindow::MainWindow(QWidget *parent) :
 	QObject::connect(playmemo, SIGNAL(finished()), this, SLOT(stopMemo()));
 	QObject::connect(playmemo, SIGNAL(error(QProcess::ProcessError)), 
 					this, SLOT(crashMemo(QProcess::ProcessError)));
+	QObject::connect(refreshtimer, SIGNAL(timeout()), this, SLOT(refreshNewMemos()));
 
+	ui->listPeers->setSortingEnabled(true);
+	ui->listMemos->setSortingEnabled(true);
 	refreshPeers();
 	refreshMemos();
+	refreshtimer->start(10000);
 }
 
 /**
@@ -47,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
  */
 MainWindow::~MainWindow()
 {
+	delete refreshtimer;
 	delete ui;
 	delete currentMemo;
 }
@@ -163,19 +171,60 @@ void MainWindow::deleteMemo(void)
 }
 
 /**
+ * refresh the memos window if we have new memos
+ */
+void MainWindow::refreshNewMemos(void)
+{
+	QString memos;
+	QStringList memolist;
+	int i;
+	bool different = false;
+
+	if (currentMemo->getState() == Playing) return;
+
+	memolist = QStringList(getMemos());
+	if (memolist.count() == ui->listMemos->count()) {
+		for (i = 0; i < ui->listMemos->count(); ++i) {
+			QListWidgetItem *it = ui->listMemos->item(i);
+			if ( ! memolist.contains(it->text())) {
+				different = true;
+				break;
+			}
+		}
+	} else {
+		different = true;
+	}
+	if (different) {
+		refreshMemos();
+	}
+}
+
+/**
+ * returns a list of memos
+ */
+QStringList MainWindow::getMemos(void) 
+{
+	QString memos;
+	QProcess getmemos;
+
+	getmemos.start("getmemos");
+	getmemos.waitForFinished();
+	memos = QString(getmemos.readAllStandardOutput());
+	memos = QString(memos.trimmed());
+	return memos.split("\n");
+}
+
+/**
  * Scan the memos directory for any new memos.
  */
 void MainWindow::refreshMemos(void)
 {
-	QProcess getmemos;
-	QString memos;
-	QStringList memolist;
+	QStringList memos;
 	
-	getmemos.start("getmemos");
-	getmemos.waitForFinished();
-	memos = QString(getmemos.readAllStandardOutput());
+	memos = QStringList(getMemos());
+qDebug() << memos.join(" ; ");
 	ui->listMemos->clear();
-	ui->listMemos->addItems(memos.split("\n"));
+	ui->listMemos->addItems(memos);
 	ui->listMemos->setEnabled(true);
 }
 
