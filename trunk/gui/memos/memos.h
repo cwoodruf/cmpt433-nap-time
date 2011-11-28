@@ -61,6 +61,7 @@ public slots:
 	void recordMemo(void);
 	void deleteMemo(void);
 	void refreshMemos(void);
+	void refreshNewMemos(void);
 	void refreshPeers(void);
 	void refreshAll(void);
 	void sendMemo(void);
@@ -69,7 +70,9 @@ private:
 	Ui::MainWindow *ui;
 	QProcess *playmemo;
 	Memo *currentMemo;
+	QTimer *refreshtimer;
 	QString getMemodir(void);
+	QStringList getMemos(void);
 	QString getSelectedMemo(void);
 	QString getSelectedPeer(void);
 };
