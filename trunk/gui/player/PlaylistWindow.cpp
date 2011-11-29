@@ -117,6 +117,7 @@ void PlaylistWindow::savePlaylist () {
     for (QList<int>::const_iterator it = toggled.begin (); it != toggled.end (); it++) {
         parent->toggleVisibility (*it);
     }
+    parent->fixCurrentSelection ();
     toggled.clear ();
     close ();
 }

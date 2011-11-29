@@ -8,6 +8,11 @@
 #include <QListWidgetItem>
 #include <QCheckBox>
 #include "PlaylistWindow.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 extern "C" {
     #include "buttondrv.h"
@@ -23,13 +28,20 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
 
     playlistWindow = new PlaylistWindow (&musicList, this);
 
+    connect(ui->listWidget, SIGNAL(currentRowChanged (int)),
+        this, SLOT(currentSongChanged(int)));
     connect(ui->listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
-        this, SLOT(playSong(QListWidgetItem *)));
+        this, SLOT(playSongDoubleClick(QListWidgetItem *)));
     QObject::connect(ui->allSongsButton, SIGNAL(clicked (bool)), this, SLOT(showAllSongs()));
+    connect(ui->prevButton, SIGNAL(pressed ()), this, SLOT(prevSong()));
+    connect(ui->nextButton, SIGNAL(pressed ()), this, SLOT(nextSong()));
     // display music list
     qDebug()<<"Starting thread...";
     buttonThread = new ButtonThread();
     QObject::connect(buttonThread, SIGNAL(buttonsChanged(int)), this, SLOT(setButtons(int)));
+    QObject::connect(ui->playButton, SIGNAL(clicked(bool)), this, SLOT(playSong()));
+    //QObject::connect(ui->pauseButton, SIGNAL(pressed()), this, SLOT(pauseSong()));
+    QObject::connect(ui->pauseButton, SIGNAL(pressed()), this, SLOT(stopSong()));
     buttonThread->start();
 }
 
@@ -44,13 +56,150 @@ PlayerWindow::~PlayerWindow()
     }
 }
 
-void PlayerWindow::playSong (QListWidgetItem* item) {
-    QString text = item->text ();
-    qDebug () << text;
+void PlayerWindow::playSongDoubleClick (QListWidgetItem* item) {
+    playSong ();
+}
+
+void PlayerWindow::currentSongChanged (int current) {
+    prevSongIndex = currentSongIndex;
+    currentSongIndex = current;
+}
+
+void PlayerWindow::prevSong () {
+    if (currentSongIndex == -1) {
+        return;
+    }
+    printf ("1\n");
+    int next, i;
+    for (i = 1; i < musicList.getSize (); i++) {
+        next = currentSongIndex - i;
+        if (next < 0) {
+            next += musicList.getSize ();
+        }
+        QListWidgetItem* tmp = ui->listWidget->item (next);
+        if (tmp->isHidden () == false) {
+            break;
+        }
+    }
+    printf ("%d, %d\n", i, next);
+    if (i != musicList.getSize ()) {
+        disconnect(ui->listWidget, SIGNAL(currentRowChanged (int)),
+        this, SLOT(currentSongChanged(int)));
+        ui->listWidget->setCurrentRow (next);
+        currentSongChanged (next);
+        connect(ui->listWidget, SIGNAL(currentRowChanged (int)),
+        this, SLOT(currentSongChanged(int)));
+        playSong ();
+    }
+}
+
+void PlayerWindow::nextSong () {
+    if (currentSongIndex == -1) {
+        return;
+    }
+    printf ("1\n");
+    int next, i;
+    for (i = 1; i < musicList.getSize (); i++) {
+        next = currentSongIndex + i;
+        if (next >= musicList.getSize ()) {
+            next -= musicList.getSize ();
+        }
+        QListWidgetItem* tmp = ui->listWidget->item (next);
+        if (tmp->isHidden () == false) {
+            break;
+        }
+    }
+    printf ("%d, %d\n", i, next);
+    if (i != musicList.getSize ()) {
+        disconnect(ui->listWidget, SIGNAL(currentRowChanged (int)),
+        this, SLOT(currentSongChanged(int)));
+        ui->listWidget->setCurrentRow (next);
+        currentSongChanged (next);
+        connect(ui->listWidget, SIGNAL(currentRowChanged (int)),
+        this, SLOT(currentSongChanged(int)));
+        playSong ();
+    } else {
+        QListWidgetItem* tmp = ui->listWidget->item (currentSongIndex);
+        if (tmp->isHidden () == true) {
+            stopSong ();
+        }
+    }
+}
+
+void PlayerWindow::fixCurrentSelection () {
+    if (currentSongIndex == -1) {
+        currentSongIndex = 0;
+    } else {
+        QListWidgetItem* tmp = ui->listWidget->item (currentSongIndex);
+        if (tmp->isHidden () == true) {
+            nextSong ();
+        }
+    }
+}
+    
+
+void PlayerWindow::playSong () {
+    //QString text = item->text ();
+    //qDebug () << text;
+    if (currentSongIndex == -1) {
+        return;
+    }
+    if ((currentSongIndex == prevSongIndex) && (isPlay == true)) {
+        return;
+    }
+    if (isPlay == true) {
+        stopSong ();
+    }
+    prevSongIndex = currentSongIndex;
+    isPlay = true;
+    const Song* song = musicList.getSongInfo (currentSongIndex);
+    QStringList arguments;
+    arguments << "--tty-control" << song->path;
+    qDebug () << song->path;
+    madplay.start("madplay", arguments);
+    if (!madplay.waitForStarted())
+        qDebug () << "cannot start madplay process";
+
+    madplay.closeWriteChannel ();
+    /*if (!madplay.waitForFinished())
+        return false;*/
+
+    QByteArray returnValue = madplay.readAllStandardError();
+    qDebug () << returnValue;
+}
+
+void writeToPipe () {
+    int fd = open ("/tmp/madplayFIFO", O_WRONLY);
+    char pause[2] = {'p', 0};
+    write (fd, pause, 1);
+    close (fd);
+    printf ("opened madplayFIFIO");
+    
+}
+
+void PlayerWindow::pauseSong () {
+    //QString text = item->text ();
+    //qDebug () << text;
+    QProcess pause;
+    QStringList arguments;
+    arguments << "./pause.sh";
+    if (system("sh ./pause.sh") == -1) {
+        qDebug () << "cannot start pause.sh";
+    }
+    printf ("done\n");
+}
+
+void PlayerWindow::stopSong () {
+    madplay.kill ();
+    if (!madplay.waitForFinished())
+        qDebug () << "cannot kill madplay process";
+    isPlay = false;
 }
 
 void PlayerWindow::displaySongsList () {
     ui->listWidget->clear ();
+    currentSongIndex = prevSongIndex = -1;
+    isPlay = false;
 
     int size = musicList.getSize ();
     if (size == 0) {
@@ -73,6 +222,7 @@ void PlayerWindow::displaySongsList () {
             }
         }
         ui->listWidget->setCurrentRow (0);
+        currentSongIndex = 0;
     }
 }
 

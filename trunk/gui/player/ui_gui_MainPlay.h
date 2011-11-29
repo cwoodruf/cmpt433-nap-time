@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gui_MainPlay.ui'
 **
-** Created: Thu Nov 24 20:45:20 2011
-**      by: Qt User Interface Compiler version 4.7.3
+** Created: Mon Nov 28 20:56:35 2011
+**      by: Qt User Interface Compiler version 4.7.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -16,14 +16,11 @@
 #include <QtGui/QButtonGroup>
 #include <QtGui/QCommandLinkButton>
 #include <QtGui/QDial>
-#include <QtGui/QGridLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QListWidget>
 #include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
-#include <QtGui/QRadioButton>
+#include <QtGui/QPushButton>
 #include <QtGui/QStatusBar>
 #include <QtGui/QWidget>
 
@@ -36,88 +33,74 @@ public:
     QWidget *centralwidget;
     QLabel *label;
     QCommandLinkButton *allSongsButton;
-    QWidget *layoutWidget;
-    QGridLayout *gridLayout;
+    QLabel *label_2;
+    QLabel *label_3;
+    QLabel *label_4;
     QListWidget *listWidget;
     QDial *dial;
-    QWidget *layoutWidget1;
-    QGridLayout *gridLayout_2;
-    QRadioButton *radioButton;
-    QRadioButton *radioButton_2;
-    QRadioButton *radioButton_3;
-    QMenuBar *menubar;
-    QMenu *menuNaptime_Music_Player;
-    QMenu *menuListen_and_Enjoy;
+    QPushButton *playButton;
+    QPushButton *prevButton;
+    QPushButton *pauseButton;
+    QPushButton *nextButton;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *PlayerWindow)
     {
         if (PlayerWindow->objectName().isEmpty())
             PlayerWindow->setObjectName(QString::fromUtf8("PlayerWindow"));
-        PlayerWindow->resize(395, 220);
+        PlayerWindow->resize(319, 240);
         actionGreat_Music = new QAction(PlayerWindow);
         actionGreat_Music->setObjectName(QString::fromUtf8("actionGreat_Music"));
         centralwidget = new QWidget(PlayerWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         label = new QLabel(centralwidget);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(9, 9, 105, 17));
+        label->setGeometry(QRect(9, 9, 181, 17));
         allSongsButton = new QCommandLinkButton(centralwidget);
         allSongsButton->setObjectName(QString::fromUtf8("allSongsButton"));
         allSongsButton->setGeometry(QRect(200, 0, 121, 29));
-        layoutWidget = new QWidget(centralwidget);
-        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(10, 30, 311, 111));
-        gridLayout = new QGridLayout(layoutWidget);
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-        gridLayout->setContentsMargins(0, 0, 0, 0);
-        listWidget = new QListWidget(layoutWidget);
+        label_2 = new QLabel(centralwidget);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setGeometry(QRect(250, 130, 67, 17));
+        label_3 = new QLabel(centralwidget);
+        label_3->setObjectName(QString::fromUtf8("label_3"));
+        label_3->setGeometry(QRect(242, 100, 16, 21));
+        label_4 = new QLabel(centralwidget);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
+        label_4->setGeometry(QRect(296, 100, 21, 21));
+        listWidget = new QListWidget(centralwidget);
         listWidget->setObjectName(QString::fromUtf8("listWidget"));
-
-        gridLayout->addWidget(listWidget, 0, 0, 1, 1);
-
-        dial = new QDial(layoutWidget);
+        listWidget->setGeometry(QRect(11, 31, 221, 111));
+        dial = new QDial(centralwidget);
         dial->setObjectName(QString::fromUtf8("dial"));
-
-        gridLayout->addWidget(dial, 0, 1, 1, 1);
-
-        layoutWidget1 = new QWidget(centralwidget);
-        layoutWidget1->setObjectName(QString::fromUtf8("layoutWidget1"));
-        layoutWidget1->setGeometry(QRect(10, 140, 311, 31));
-        gridLayout_2 = new QGridLayout(layoutWidget1);
-        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
-        gridLayout_2->setContentsMargins(0, 0, 0, 0);
-        radioButton = new QRadioButton(layoutWidget1);
-        radioButton->setObjectName(QString::fromUtf8("radioButton"));
-
-        gridLayout_2->addWidget(radioButton, 0, 0, 1, 1);
-
-        radioButton_2 = new QRadioButton(layoutWidget1);
-        radioButton_2->setObjectName(QString::fromUtf8("radioButton_2"));
-
-        gridLayout_2->addWidget(radioButton_2, 0, 1, 1, 1);
-
-        radioButton_3 = new QRadioButton(layoutWidget1);
-        radioButton_3->setObjectName(QString::fromUtf8("radioButton_3"));
-
-        gridLayout_2->addWidget(radioButton_3, 0, 2, 1, 1);
-
+        dial->setGeometry(QRect(240, 50, 71, 71));
+        playButton = new QPushButton(centralwidget);
+        playButton->setObjectName(QString::fromUtf8("playButton"));
+        playButton->setGeometry(QRect(11, 151, 41, 27));
+        prevButton = new QPushButton(centralwidget);
+        prevButton->setObjectName(QString::fromUtf8("prevButton"));
+        prevButton->setGeometry(QRect(120, 151, 81, 27));
+        pauseButton = new QPushButton(centralwidget);
+        pauseButton->setObjectName(QString::fromUtf8("pauseButton"));
+        pauseButton->setGeometry(QRect(60, 151, 51, 27));
+        nextButton = new QPushButton(centralwidget);
+        nextButton->setObjectName(QString::fromUtf8("nextButton"));
+        nextButton->setGeometry(QRect(210, 151, 85, 27));
         PlayerWindow->setCentralWidget(centralwidget);
-        menubar = new QMenuBar(PlayerWindow);
-        menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 395, 25));
-        menuNaptime_Music_Player = new QMenu(menubar);
-        menuNaptime_Music_Player->setObjectName(QString::fromUtf8("menuNaptime_Music_Player"));
-        menuListen_and_Enjoy = new QMenu(menubar);
-        menuListen_and_Enjoy->setObjectName(QString::fromUtf8("menuListen_and_Enjoy"));
-        PlayerWindow->setMenuBar(menubar);
+        playButton->raise();
+        prevButton->raise();
+        nextButton->raise();
+        label->raise();
+        allSongsButton->raise();
+        label_2->raise();
+        label_3->raise();
+        label_4->raise();
+        listWidget->raise();
+        dial->raise();
+        pauseButton->raise();
         statusbar = new QStatusBar(PlayerWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         PlayerWindow->setStatusBar(statusbar);
-
-        menubar->addAction(menuNaptime_Music_Player->menuAction());
-        menubar->addAction(menuListen_and_Enjoy->menuAction());
-        menuListen_and_Enjoy->addAction(actionGreat_Music);
 
         retranslateUi(PlayerWindow);
 
@@ -130,11 +113,13 @@ public:
         actionGreat_Music->setText(QApplication::translate("PlayerWindow", "Great Music", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("PlayerWindow", "Playlist Songs", 0, QApplication::UnicodeUTF8));
         allSongsButton->setText(QApplication::translate("PlayerWindow", "List All Songs", 0, QApplication::UnicodeUTF8));
-        radioButton->setText(QApplication::translate("PlayerWindow", "Play", 0, QApplication::UnicodeUTF8));
-        radioButton_2->setText(QApplication::translate("PlayerWindow", "Pause", 0, QApplication::UnicodeUTF8));
-        radioButton_3->setText(QApplication::translate("PlayerWindow", "Rewind", 0, QApplication::UnicodeUTF8));
-        menuNaptime_Music_Player->setTitle(QApplication::translate("PlayerWindow", "Naptime Music Player", 0, QApplication::UnicodeUTF8));
-        menuListen_and_Enjoy->setTitle(QApplication::translate("PlayerWindow", "Listen and Enjoy", 0, QApplication::UnicodeUTF8));
+        label_2->setText(QApplication::translate("PlayerWindow", "Volume", 0, QApplication::UnicodeUTF8));
+        label_3->setText(QApplication::translate("PlayerWindow", "0", 0, QApplication::UnicodeUTF8));
+        label_4->setText(QApplication::translate("PlayerWindow", "10", 0, QApplication::UnicodeUTF8));
+        playButton->setText(QApplication::translate("PlayerWindow", "Play", 0, QApplication::UnicodeUTF8));
+        prevButton->setText(QApplication::translate("PlayerWindow", "Previous", 0, QApplication::UnicodeUTF8));
+        pauseButton->setText(QApplication::translate("PlayerWindow", "Pause", 0, QApplication::UnicodeUTF8));
+        nextButton->setText(QApplication::translate("PlayerWindow", "Next", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>346</width>
-    <height>224</height>
+    <width>319</width>
+    <height>240</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <rect>
       <x>9</x>
       <y>9</y>
-      <width>105</width>
+      <width>181</width>
       <height>17</height>
      </rect>
     </property>
@@ -40,80 +40,128 @@
      <string>List All Songs</string>
     </property>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>30</y>
-      <width>321</width>
+      <x>250</x>
+      <y>130</y>
+      <width>67</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Volume</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>242</x>
+      <y>100</y>
+      <width>16</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>296</x>
+      <y>100</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>10</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listWidget">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>31</y>
+      <width>221</width>
       <height>111</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QListWidget" name="listWidget"/>
-     </item>
-     <item row="0" column="1">
-      <widget class="QDial" name="dial"/>
-     </item>
-    </layout>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QDial" name="dial">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>140</y>
-      <width>321</width>
-      <height>31</height>
+      <x>240</x>
+      <y>50</y>
+      <width>71</width>
+      <height>71</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <widget class="QRadioButton" name="radioButton">
-       <property name="text">
-        <string>Play</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QRadioButton" name="radioButton_2">
-       <property name="text">
-        <string>Pause</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QRadioButton" name="radioButton_3">
-       <property name="text">
-        <string>Rewind</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </widget>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>346</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuNaptime_Music_Player">
-    <property name="title">
-     <string>Naptime Music Player</string>
+   <widget class="QPushButton" name="playButton">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>151</y>
+      <width>41</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Play</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuListen_and_Enjoy">
-    <property name="title">
-     <string>Listen and Enjoy</string>
+   <widget class="QPushButton" name="prevButton">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>151</y>
+      <width>81</width>
+      <height>27</height>
+     </rect>
     </property>
-    <addaction name="actionGreat_Music"/>
+    <property name="text">
+     <string>Previous</string>
+    </property>
    </widget>
-   <addaction name="menuNaptime_Music_Player"/>
-   <addaction name="menuListen_and_Enjoy"/>
+   <widget class="QPushButton" name="pauseButton">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>151</y>
+      <width>51</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Pause</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="nextButton">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>151</y>
+      <width>85</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Next</string>
+    </property>
+   </widget>
+   <zorder>playButton</zorder>
+   <zorder>prevButton</zorder>
+   <zorder>nextButton</zorder>
+   <zorder>label</zorder>
+   <zorder>allSongsButton</zorder>
+   <zorder>label_2</zorder>
+   <zorder>label_3</zorder>
+   <zorder>label_4</zorder>
+   <zorder>listWidget</zorder>
+   <zorder>dial</zorder>
+   <zorder>pauseButton</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionGreat_Music">
