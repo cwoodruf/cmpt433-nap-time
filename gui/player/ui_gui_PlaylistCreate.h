@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gui_PlaylistCreate.ui'
 **
-** Created: Thu Nov 24 20:45:20 2011
-**      by: Qt User Interface Compiler version 4.7.3
+** Created: Mon Nov 28 20:56:35 2011
+**      by: Qt User Interface Compiler version 4.7.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -41,7 +41,7 @@ public:
     {
         if (PlaylistWindow->objectName().isEmpty())
             PlaylistWindow->setObjectName(QString::fromUtf8("PlaylistWindow"));
-        PlaylistWindow->resize(395, 220);
+        PlaylistWindow->resize(319, 240);
         centralwidget = new QWidget(PlaylistWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         label = new QLabel(centralwidget);
@@ -59,7 +59,7 @@ public:
         PlaylistWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(PlaylistWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 395, 25));
+        menubar->setGeometry(QRect(0, 0, 319, 25));
         PlaylistWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(PlaylistWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
