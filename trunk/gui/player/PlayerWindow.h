@@ -42,6 +42,7 @@ private:
     int currentSongIndex;
     int prevSongIndex;
     bool isPlay;
+    void downloadSong (Song* song);
 };
 
 #endif // PLAYERWINDOW_H

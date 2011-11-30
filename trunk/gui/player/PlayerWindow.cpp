@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <QMessageBox>
 
 extern "C" {
     #include "buttondrv.h"
@@ -152,7 +153,11 @@ void PlayerWindow::playSong () {
     }
     prevSongIndex = currentSongIndex;
     isPlay = true;
-    const Song* song = musicList.getSongInfo (currentSongIndex);
+    Song* song = musicList.getSongInfo (currentSongIndex);
+
+    if (song->path[0] != '/') {
+        downloadSong (song);
+    }
     QStringList arguments;
     arguments << "--tty-control" << song->path;
     qDebug () << song->path;
@@ -175,6 +180,39 @@ void writeToPipe () {
     close (fd);
     printf ("opened madplayFIFIO");
     
+}
+
+void PlayerWindow::downloadSong (Song* song) {
+    QMessageBox message (QMessageBox::Information, "Download",
+                         "Downloading" + song->filename,
+                         QMessageBox::NoButton, this);
+    message.setDisabled (true);
+    message.open ();
+    /*QProcess download = (this);
+    download.setWorkingDirectory ("/mnt/sd/cache");
+    QStringList arguments;
+    arguments << "\"http://" + song->path + "\"" << "-O" << "-";
+    download.start ("wget", arguments);
+    qDebug () << arguments;
+
+    if (!download.waitForStarted())
+        qDebug () << "cannot start download process";
+    sleep (3);
+    download.closeWriteChannel ();
+    if (download.exitCode())
+        qDebug () << "something is wrong when downloading";
+    qDebug () << "started";
+
+    if (download.waitForFinished () == false) {
+        qDebug () << "can't finish download process";
+    }
+    QByteArray returnValue = download.readAllStandardOutput();
+    qDebug () << "return value: " << returnValue;*/
+    QString params = "wget -O /mnt/sd/cache/" + song->filename + " \"http://" + song->path + "\"";
+    system (params.toLocal8Bit().data());
+
+    song->path = "/mnt/sd/cache/" + song->filename;
+    message.close ();
 }
 
 void PlayerWindow::pauseSong () {

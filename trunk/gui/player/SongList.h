@@ -21,7 +21,7 @@ public:
     bool setReadSource (const char* filename);
     bool isEmpty ();
     int getSize ();
-    const Song* getSongInfo (int index);
+    Song* getSongInfo (int index);
 private:
     void clear ();
     void refresh ();
