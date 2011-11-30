@@ -1,0 +1,8 @@
+These programs are modified test programs from the ortp suite.
+
+http://www.linphone.org/eng/documentation/dev/ortp.html
+
+copy the files from this directory to $PUBLIC/bin to use them on the board.
+
+They are needed by the intercom application.
+

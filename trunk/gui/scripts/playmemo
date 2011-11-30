@@ -4,7 +4,7 @@ memodir=`getmemodir`
 memo=$1
 if [ -f "$memodir/$1" ] 
 then 
-	aplay -q -T0 "$memodir/$memo"
+	aplay -q -f cd "$memodir/$memo"
 fi
 memounticked=`echo "$memo" | sed 's/^+//'`
 if [ "$memo" != "$memounticked" ]
@@ -12,3 +12,4 @@ then
 	mv "$memodir/$memo" "$memodir/$memounticked"
 fi
 
+true

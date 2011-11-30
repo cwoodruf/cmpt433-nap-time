@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QObject::connect(ui->actionNfs, SIGNAL(triggered()), this, SLOT(mountNfs()));
 
 	restartNapListener();
-	memoblink->setAll(5,"memoblink",QStringList());
+	memoblink->setAll(2,"memoblink",QStringList());
 	memoblink->start();
 }
 
