@@ -3,6 +3,8 @@
 //#include <QTextStream>
 #include <QProcess>
 #include <QDebug>
+#include <string>
+void getMusicList (const char* server, QString& musicList);
 
 SongList::SongList () {
     refresh ();
@@ -69,6 +71,44 @@ void SongList::readFiles (QDir& dir) {
             ui->listWidget->addItem(tmp);
         } */
     }
+
+    QProcess getpeers;
+    QString peers;
+
+    getpeers.start("getpeers");
+    getpeers.waitForFinished();
+    peers = QString(getpeers.readAllStandardOutput());
+    QStringList peersList = peers.split("\n",QString::SkipEmptyParts);
+    //qDebug () << peersList;
+
+    QString musicFromPeers;
+    for (QStringList::iterator it = peersList.begin (); it != peersList.end (); it++) {
+        musicFromPeers.clear ();
+        QString peer = peers.split(" ",QString::SkipEmptyParts).at(0);
+        //qDebug () << peer;
+        getMusicList (peer.toLocal8Bit().data(), musicFromPeers);
+        if (musicFromPeers.length () != 0) {
+            QStringList musics = musicFromPeers.split ('\n');
+            for (QStringList::const_iterator it = musics.begin (); it != musics.end (); it++) {
+                if ((*it).contains (".mp3")) {
+                    Song* song = new Song;
+                    song->path = peer.toLocal8Bit().data() + *it;
+                    QStringList parts = (*it).split ("/", QString::SkipEmptyParts);
+                    if (parts.count () == 0) {
+                        song->filename = *it;
+                    } else {
+                        qDebug () << parts[parts.count () - 1];
+                        qDebug () << parts[0];
+                        song->filename = parts[parts.count () - 1];
+                    }
+                    song->title = "no title";
+                    song->artist = "no artist";
+                    song->inPlaylist = true;
+                    songs.push_back (song);
+                }
+            }
+        }
+    }
 }
 
 bool SongList::readFileInfo (QFileInfo& fileInfo) {
@@ -116,7 +156,7 @@ int SongList::getSize () {
     return songs.count ();
 }
 
-const Song* SongList::getSongInfo (int index) {
+Song* SongList::getSongInfo (int index) {
     return songs.at (index);
 }
 
