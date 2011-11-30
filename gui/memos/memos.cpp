@@ -4,6 +4,7 @@
  * references:
  * http://www.qtforum.org/article/3079/howto-start-an-external-program-from-a-qt-application.html
  * http://doc.qt.nokia.com/latest/qprocess.html
+ * http://thesmithfam.org/blog/2010/02/07/talking-to-qt-threads/ - timers
  *
  */
 
@@ -84,6 +85,10 @@ void MainWindow::setMemoState(void)
 		currentMemo->setState(Playing);
 		currentMemo->setMemo(memo);
 		playmemo->start("playmemo",QStringList() << memo);
+		QMessageBox::information(this,"Play Memo",
+			"Click OK to stop play.",QMessageBox::Ok);
+		QProcess::execute("killmemo");
+		stopMemo();
 	}
 }
 
@@ -103,6 +108,7 @@ void MainWindow::stopMemo(void)
 
 /**
  * If the memo crashed while playing pop up an alert.
+ * Only way to get memo to stop seems to report the result as a crash.
  */
 void MainWindow::crashMemo(QProcess::ProcessError e)
 {
@@ -116,7 +122,7 @@ void MainWindow::crashMemo(QProcess::ProcessError e)
 	case QProcess::UnknownError: msg = QString("UnknownError"); break;
 	default: msg = QString("Unknown error code: "+e);
 	}
-	QMessageBox::critical(this,"Error",msg);
+	// QMessageBox::critical(this,"Error",msg);
 	stopMemo();
 }
 
@@ -222,7 +228,6 @@ void MainWindow::refreshMemos(void)
 	QStringList memos;
 	
 	memos = QStringList(getMemos());
-qDebug() << memos.join(" ; ");
 	ui->listMemos->clear();
 	ui->listMemos->addItems(memos);
 	ui->listMemos->setEnabled(true);

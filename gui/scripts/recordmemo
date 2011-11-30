@@ -7,5 +7,5 @@ then
 fi
 fname=$napdata/memos/`date +%Y%m%d-%H%M%S"`.wav
 echo $fname
-arecord -q -f cd -t wav $fname
+arecord -q -f cd -t wav "$fname"
 
