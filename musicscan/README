@@ -1,0 +1,3 @@
+For music scan to work, the musicScanServer has to be running on the node. The getmusiclist.sh should be in the same directory as the musicScanServer
+
+The GUI on the board is the musicScanClient, it sends request to the server. musicScanServer will call getmusiclist.sh and get a list of mp3 files in ~/cmpt433/public/p2p/shared and send the list to the client
