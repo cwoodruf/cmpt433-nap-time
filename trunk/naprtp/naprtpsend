@@ -1,0 +1,5 @@
+#!/bin/sh
+# usage naprtpsend {ip} {port}
+# must be careful to avoid overruns 
+arecord -f cd -r 4000 --buffer-time=20000000 -t raw | rtpsend-arm - $1 $2
+

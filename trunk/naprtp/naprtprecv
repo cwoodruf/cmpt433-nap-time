@@ -1,0 +1,4 @@
+#!/bin/sh
+# usage naprtprecv {port}
+rtprecv-arm - $1 | aplay -f cd -r 4000 --buffer-time=20000000 -t raw | rtpsend-arm - $1 $2
+
