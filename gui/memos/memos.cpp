@@ -277,9 +277,9 @@ void MainWindow::sendMemo(void)
 		sendmemo.start("sendmemo",QStringList() << peer << memo);
 		sendmemo.waitForFinished();
 		res = QString(sendmemo.readAllStandardOutput());
-		QMessageBox::information(this,"Memo Send","Send result:\n"+res);
+		if (res.length()) QMessageBox::information(this,"Memo Send","Send result:\n"+res);
+		else QMessageBox::warning(this,"Memo Send Error","No send result. Try sending again.");
 	}
-	refreshAll();
 }
 
 /**

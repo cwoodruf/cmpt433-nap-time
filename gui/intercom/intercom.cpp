@@ -55,7 +55,6 @@ void MainWindow::chimeTest(void)
 	if (ret == QMessageBox::Ok) {
 		chimetest.start("chimetest");
 		chimetest.waitForFinished();
-		QMessageBox::information(this,"Chime Test","Chime test finished",QMessageBox::Ok);
 	}
 }
 /**
