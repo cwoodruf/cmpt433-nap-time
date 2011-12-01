@@ -1,0 +1,24 @@
+#!/bin/sh
+. /etc/nap.conf
+ip=`echo $1 | sed -e 's/[^0-9\.]*//g'`
+if [ "$ip" = "" ]
+then
+	echo error no ip address
+	return
+fi
+if [ "$sendport" = "" ] || [ "$recvport" = "" ] || [ $sendport -lte 0 ] || [ $recvport -lte 0 ]
+then
+	echo error missing send or receive port
+	return
+fi
+
+name=`napconfig name | urlencode.tcl`
+host=`hostname | urlencode.tcl`
+response=`wget -q -O - "http://$ip/connect.cgi?send=$sendport&recv=$recvport&name=$name&host=$host"`
+if [ "$response" = "CONNECTED" ]
+	naprtpsend $sendport &
+	naprtprecv $recvport &
+	echo connected to $ip sendport $sendport recvport $recvport
+else
+	echo error connecting $response
+fi

@@ -1,0 +1,9 @@
+#!/bin/sh
+# this is a very crude way to do this which assumes we aplay and arecord are only
+# being used for this purpose
+killall rtpsend
+killall rtprecv
+killall aplay
+killall arecord
+killall naprtpsend
+killall naprtprecv
