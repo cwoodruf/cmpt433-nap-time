@@ -14,7 +14,7 @@ if [ "$sendport" -gt 1024 ] && [ "$recvport" -gt 1024 ]
 then
 	chime
 	naprtprecv $sendport &
-	naprtpsend $recvport &
+	naprtpsend "$REMOTE_ADDR" $recvport &
 	echo CONNECTED
 else
 	echo ERROR missing ports
