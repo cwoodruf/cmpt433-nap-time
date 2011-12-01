@@ -1,5 +1,7 @@
 #!/bin/sh
 # usage naprtprecv {port} [x86]
+. /etc/profile
+. /etc/nap.conf
 PATH=".:$PATH"
 if [ "$2" = "" ] 
 then

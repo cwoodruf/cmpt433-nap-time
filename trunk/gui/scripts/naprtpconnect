@@ -6,16 +6,17 @@ then
 	echo error no ip address
 	return
 fi
-if [ "$sendport" = "" ] || [ "$recvport" = "" ] || [ $sendport -lte 0 ] || [ $recvport -lte 0 ]
+if [ "$sendport" = "" ] || [ "$recvport" = "" ] || [ "$sendport" -lt 1024 ] || [ "$recvport" -lt 1024 ]
 then
 	echo error missing send or receive port
 	return
 fi
 
-response=`wget -q -O - "http://$ip/connect.cgi?sendport=$sendport&recvport=$recvport"`
+response=`wget -q -O - "http://$ip/connect.cgi?sendport=$sendport\&recvport=$recvport"`
 if [ "$response" = "CONNECTED" ]
-	naprtpsend $sendport &
-	naprtprecv $recvport &
+then
+	naprtprecv $recvport >> $napdata/naprtprecv.log 2>&1 &
+	naprtpsend $ip $sendport >> $napdata/naprtpsend.log 2>&1 &
 	echo connected to $ip sendport $sendport recvport $recvport
 else
 	echo error connecting $response
