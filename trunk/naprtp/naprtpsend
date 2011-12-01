@@ -1,5 +1,17 @@
 #!/bin/sh
-# usage naprtpsend {ip} {port}
+# usage naprtpsend {ip} {port} [x86]
 # must be careful to avoid overruns 
-arecord -f cd -r 4000 --buffer-time=20000000 -t raw | rtpsend-arm - $1 $2
+PATH=".:$PATH"
+if [ "$3" = "" ] 
+then
+	ext=arm
+else 
+	ext=$3
+fi
+if [ "$1" = "" ] || [ "$2" = "" ]
+then
+	echo need ip and port
+	return
+fi
+arecord -f cd -r 4000 --buffer-time=20000000 -t raw | rtpsend-$ext - $1 $2
 

@@ -1,4 +1,16 @@
 #!/bin/sh
-# usage naprtprecv {port}
-rtprecv-arm - $1 | aplay -f cd -r 4000 --buffer-time=20000000 -t raw
+# usage naprtprecv {port} [x86]
+PATH=".:$PATH"
+if [ "$2" = "" ] 
+then
+	ext=arm
+else 
+	ext=$2
+fi
+if [ "$1" = "" ]
+then
+	echo need port
+	return
+fi
+rtprecv-$ext - $1 | aplay -f cd -r 4000 --buffer-time=20000000 -t raw
 
