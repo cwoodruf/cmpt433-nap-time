@@ -1,6 +1,8 @@
 #!/bin/sh
 # usage naprtpsend {ip} {port} [x86]
 # must be careful to avoid overruns 
+. /etc/profile
+. /etc/nap.conf
 PATH=".:$PATH"
 if [ "$3" = "" ] 
 then
