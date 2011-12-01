@@ -1,4 +1,7 @@
  /*
+Slightly modified by nap time systems Cal Woodruff <cwoodruf@sfu.ca> 301013983
+See comments below for locations of modifications
+
   The oRTP library is an RTP (Realtime Transport Protocol - rfc3550) stack..
   Copyright (C) 2001  Simon MORLAT simon.morlat@linphone.org
 
@@ -36,7 +39,8 @@ void stop_handler(int signum)
 
 void ssrc_cb(RtpSession *session)
 {
-	printf("hey, the ssrc has changed !\n");
+/** modification by Cal Woodruff */
+	fprintf(stderr,"hey, the ssrc has changed !\n");
 }
 
 static char *help="usage: rtprecv  filename loc_port [--format format] [--soundcard] [--noadapt] [--with-jitter <milliseconds>]\n";
@@ -90,12 +94,14 @@ int main(int argc, char*argv[])
 	
 	/* init the lib */
 	if (argc<3){
-		printf("%s",help);
+/** modification by Cal Woodruff */
+		fprintf(stderr,"%s",help);
 		return -1;
 	}
 	local_port=atoi(argv[2]);
 	if (local_port<=0) {
-		printf("%s",help);
+/** modification by Cal Woodruff */
+		fprintf(stderr,"%s",help);
 		return -1;
 	}
 	for (i=3;i<argc;i++)
@@ -110,7 +116,8 @@ int main(int argc, char*argv[])
 				if (strcmp(argv[i],"alaw")==0){
 					format=ALAW;
 				}else{
-					printf("Unsupported format %s\n",argv[i]);
+/** modification by Cal Woodruff */
+					fprintf(stderr,"Unsupported format %s\n",argv[i]);
 					return -1;
 				}
 			}
@@ -122,18 +129,27 @@ int main(int argc, char*argv[])
 			i++;
 			if (i<argc){
 				jittcomp=atoi(argv[i]);
-				printf("Using a jitter buffer of %i milliseconds.\n",jittcomp);
+/** modification by Cal Woodruff */
+				fprintf(stderr,"Using a jitter buffer of %i milliseconds.\n",jittcomp);
 			}
 		}
 	}
-	
-	outfile=fopen(argv[1],"wb");
-	if (outfile==NULL) {
-		perror("Cannot open file for writing");
-		return -1;
+/**
+ * modification by Cal Woodruff
+ * allow ourselves to optionally open standard output 
+ */
+	if (strcmp(argv[1],"-") == 0) {
+		outfile = stdout;
+	} else {
+		outfile=fopen(argv[1],"wb");
+		if (outfile==NULL) {
+			perror("Cannot open file for writing");
+			return -1;
+		}
 	}
-	
-	
+/**
+ * Cal: this does not seemt to work on our boards
+ */
 	if (soundcard){
 		sound_fd=sound_init(format);
 	}
