@@ -2,7 +2,7 @@
  * cmpt433 nap time systems Cal Woodruff <cwoodruf@sfu.ca> 301013983 
  */
 #include <QtGui/QApplication>
-#include "intercom-confirm.h"
+#include "intercom-control.h"
 
 int main(int argc, char *argv[])
 {

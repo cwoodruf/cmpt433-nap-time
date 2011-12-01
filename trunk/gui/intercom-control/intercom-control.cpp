@@ -1,17 +1,14 @@
 /**
  * cmpt433 nap time systems Cal Woodruff <cwoodruf@sfu.ca> 301013983
  * 
- * Intercom application: respond to request for an intercom connection
+ * Intercom application: window that lets a receiver close the connection
  * this program is started from a web request
  *
  */
 
-#include "intercom-confirm.h"
-#include "ui_intercom-confirm.h"
-
-extern "C" {
-	#include <stdio.h>
-}
+#include <QProcess>
+#include "intercom-control.h"
+#include "ui_intercom-control.h"
 
 /**
  * Intercom window constructor. 
@@ -23,8 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->setupUi(this);
 
 	// Setup connections:
-	QObject::connect(ui->btnConnect, SIGNAL(clicked()), this, SLOT(connectPeer()));
-	QObject::connect(ui->btnCancel, SIGNAL(clicked()), this, SLOT(cancelPeer()));
+	QObject::connect(ui->btnClose, SIGNAL(clicked()), this, SLOT(closePeer()));
 }
 
 /**
@@ -46,22 +42,13 @@ void MainWindow::setNameHostIp(char *name, char *host, char *ip)
 }
 
 /**
- * Send confirmation to finish the connect process
- * the OK should get picked up by the calling application 
+ * Shut down the rtp applications
  */
-void MainWindow::connectPeer(void)
+void MainWindow::closePeer(void)
 {
-	printf("OK");
-	close();
-}
-
-
-/**
- * Send confirmation to finish the connect process
- */
-void MainWindow::cancelPeer(void)
-{
-	printf("connection refused");
+	QProcess naprtpstop;
+	naprtpstop.start("naprtpstop");
+	naprtpstop.waitForFinished();
 	close();
 }
 

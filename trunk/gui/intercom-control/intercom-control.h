@@ -3,8 +3,8 @@
  * 
  * Defines the user interface for the intercom window
  */
-#ifndef INTERCOMCONFIRM_H
-#define INTERCOMCONFIRM_H
+#ifndef INTERCOMCONTROL_H
+#define INTERCOMCONTROL_H
 
 #include <QMainWindow>
 
@@ -29,12 +29,11 @@ public:
 	void setNameHostIp(char *name, char *host, char *ip);
 
 public slots:
-	void connectPeer();
-	void cancelPeer();
+	void closePeer();
 
 private:
 	Ui::MainWindow *ui;
 };
 
-#endif // INTERCOMCONFIRM_H
+#endif // INTERCOMCONTROL_H
 
