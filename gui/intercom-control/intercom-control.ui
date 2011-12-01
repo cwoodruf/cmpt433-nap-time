@@ -17,8 +17,8 @@
    <widget class="QPushButton" name="btnClose">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>120</y>
+      <x>110</x>
+      <y>100</y>
       <width>97</width>
       <height>27</height>
      </rect>
