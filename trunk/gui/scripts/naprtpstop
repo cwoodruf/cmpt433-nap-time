@@ -9,7 +9,9 @@ killall aplay
 killall arecord
 killall naprtpsend
 killall naprtprecv
-if [ "$1" != "" ] 
+
+ip=`extractip "$1"`
+if [ "$ip" != "" ] 
 then
-	wget -q -O - "http://$1/disconnect.cgi"
+	wget -q -O - "http://$ip/disconnect.cgi"
 fi

@@ -118,7 +118,7 @@ void MainWindow::connectPeer(void)
 		res = QString(naprtpconnect->readAllStandardOutput());
 		QMessageBox::information(this,"Intercom",
 			"Connection result: "+res+"\nClick OK to end session",QMessageBox::Ok);
-		naprtpconnect->start("naprtpstop");
+		naprtpconnect->start("naprtpstop", QStringList() << peer);
 		naprtpconnect->waitForFinished();
 	}
 }
