@@ -6,33 +6,46 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>319</width>
+    <width>320</width>
     <height>240</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Memos</string>
+   <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QListWidget" name="listMemos">
+   <widget class="QPushButton" name="btnRefreshPeers">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>0</y>
-      <width>221</width>
-      <height>71</height>
+      <x>20</x>
+      <y>140</y>
+      <width>121</width>
+      <height>27</height>
      </rect>
     </property>
-    <property name="toolTip">
-     <string>Memos</string>
+    <property name="text">
+     <string>Refresh Peers</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnConnect">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>140</y>
+      <width>151</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Connect</string>
     </property>
    </widget>
    <widget class="QListWidget" name="listPeers">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>90</y>
-      <width>191</width>
+      <x>60</x>
+      <y>60</y>
+      <width>241</width>
       <height>71</height>
      </rect>
     </property>
@@ -40,76 +53,11 @@
      <string>Peers</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="btnRefreshAll">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>130</y>
-      <width>101</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Refresh All</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnSendMemo">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>100</y>
-      <width>101</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Send Memo</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnRecordMemo">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>0</y>
-      <width>71</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Record</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnPlayMemo">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>30</y>
-      <width>71</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Play</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnDeleteMemo">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>60</y>
-      <width>71</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Delete</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="labelPeers">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>70</y>
+      <x>20</x>
+      <y>50</y>
       <width>31</width>
       <height>17</height>
      </rect>
@@ -124,30 +72,50 @@
      <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
     </property>
    </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>271</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Select a peer and click Connect to start the intercom</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>319</width>
+     <width>320</width>
      <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuMemos">
+   <widget class="QMenu" name="menuIntercom">
     <property name="title">
-     <string>Memos</string>
+     <string>Intercom</string>
     </property>
-    <addaction name="actionRefreshMemos"/>
     <addaction name="actionRefreshPeers"/>
+    <addaction name="actionChime_test"/>
     <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
-   <addaction name="menuMemos"/>
+   <addaction name="menuIntercom"/>
   </widget>
-  <action name="actionRefreshMemos">
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionRefreshPeers">
    <property name="text">
-    <string>Refresh Memos</string>
+    <string>Refresh Peers</string>
    </property>
   </action>
   <action name="actionClose">
@@ -155,9 +123,9 @@
     <string>Close</string>
    </property>
   </action>
-  <action name="actionRefreshPeers">
+  <action name="actionChime_test">
    <property name="text">
-    <string>Refresh Peers</string>
+    <string>Chime test</string>
    </property>
   </action>
  </widget>
