@@ -3,19 +3,22 @@
 . /etc/nap.conf
 
 ip=$REMOTE_ADDR
-sendport=`param sendport`
-recvport=`param recvport`
+sendport=`param sendport | sed -e 's/[^0-9]*//g'`
+recvport=`param recvport | sed -e 's/[^0-9]*//g'`
 
 echo content-type: text/plain
-echo
-echo send $sendport recv $recvport
 
 if [ "$sendport" -gt 1024 ] && [ "$recvport" -gt 1024 ]
 then
-	chime
-	naprtprecv $sendport &
-	naprtpsend "$REMOTE_ADDR" $recvport &
+	chime > /dev/null 2>&1
+	naprtprecv $sendport >> "$napdata/naprtprecv.log" 2>&1 &
+	naprtpsend "$REMOTE_ADDR" $recvport >> "$napdata/naprtpsend.log" 2>&1 &
+	# for some reason wget on the board is getting stuck
+	echo content-length: 9
+	echo
 	echo CONNECTED
 else
-	echo ERROR missing ports
+	echo content-length: 11
+	echo
+	echo ERROR ports
 fi
