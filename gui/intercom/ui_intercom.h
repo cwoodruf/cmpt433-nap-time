@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'intercom.ui'
 **
-** Created: Wed Nov 30 21:22:20 2011
+** Created: Thu Dec 1 05:49:57 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -57,13 +57,13 @@ public:
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         btnRefreshPeers = new QPushButton(centralwidget);
         btnRefreshPeers->setObjectName(QString::fromUtf8("btnRefreshPeers"));
-        btnRefreshPeers->setGeometry(QRect(20, 140, 121, 27));
+        btnRefreshPeers->setGeometry(QRect(20, 130, 121, 27));
         btnConnect = new QPushButton(centralwidget);
         btnConnect->setObjectName(QString::fromUtf8("btnConnect"));
-        btnConnect->setGeometry(QRect(150, 140, 151, 27));
+        btnConnect->setGeometry(QRect(150, 130, 151, 27));
         listPeers = new QListWidget(centralwidget);
         listPeers->setObjectName(QString::fromUtf8("listPeers"));
-        listPeers->setGeometry(QRect(60, 60, 241, 71));
+        listPeers->setGeometry(QRect(50, 50, 241, 71));
         labelPeers = new QLabel(centralwidget);
         labelPeers->setObjectName(QString::fromUtf8("labelPeers"));
         labelPeers->setGeometry(QRect(20, 50, 31, 17));
