@@ -1,8 +1,7 @@
 /**
  * cmpt433 nap time systems Cal Woodruff <cwoodruf@sfu.ca> 301013983
  * 
- * Defines the user interface for the launcher window.
- * As the name suggests this simply runs other programs.
+ * Defines the user interface for the memos window.
  */
 #ifndef MEMOS_H
 #define MEMOS_H

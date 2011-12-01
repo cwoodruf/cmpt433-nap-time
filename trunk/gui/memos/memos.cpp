@@ -17,7 +17,7 @@
 #include "ui_memos.h"
 
 /**
- * Memo window constructor. Creates placeholders for the madplay and sendmemo processes.
+ * Memo window constructor. 
  * Needs to get configuration info from the p2p scripts to know where to put the memos.
  */
 MainWindow::MainWindow(QWidget *parent) :
@@ -50,8 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 /**
- * Memo window destructor. Cleans up ui. 
- * Shuts down the madplay and sendmemo processes if they are still running.
+ * Memo window destructor. Cleans up ui and deletes the refreshtimer and currentMemo placeholder. 
  */
 MainWindow::~MainWindow()
 {
@@ -107,8 +106,7 @@ void MainWindow::stopMemo(void)
 }
 
 /**
- * If the memo crashed while playing pop up an alert.
- * Only way to get memo to stop seems to report the result as a crash.
+ * If the memo crashed while playing optionally pop up an alert - mainly for debug.
  */
 void MainWindow::crashMemo(QProcess::ProcessError e)
 {

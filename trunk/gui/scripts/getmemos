@@ -1,5 +1,4 @@
 #!/bin/sh
 . /etc/nap.conf
 cd $napdata/memos || return
-ls *.wav 2>/dev/null
-ls *.au 2>/dev/null
+ls -t *.au *.wav 2>/dev/null
