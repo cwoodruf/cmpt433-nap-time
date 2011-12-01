@@ -1,21 +1,21 @@
 #!/bin/sh
 # get the connection parameters and ask the end user for confirmation from the gui
+. /etc/nap.conf
+
 ip=$REMOTE_ADDR
-name=`param name`
-host=`param host`
 sendport=`param sendport`
 recvport=`param recvport`
 
 echo content-type: text/plain
 echo
+echo send $sendport recv $recvport
 
-res=`intercom-confirm-arm "$ip" "$host" "$name"`
-if [ "$res" = "OK" ]
+if [ "$sendport" -gt 1024 ] && [ "$recvport" -gt 1024 ]
 then
+	chime
 	naprtprecv $sendport &
 	naprtpsend $recvport &
 	echo CONNECTED
-else 
-	echo refused connection
+else
+	echo ERROR missing ports
 fi
-
