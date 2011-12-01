@@ -1,3 +1,14 @@
+0.1
 For music scan to work, the musicScanServer has to be running on the node. The getmusiclist.sh should be in the same directory as the musicScanServer
 
 The GUI on the board is the musicScanClient, it sends request to the server. musicScanServer will call getmusiclist.sh and get a list of mp3 files in ~/cmpt433/public/p2p/shared and send the list to the client
+
+
+0.2
+The binary file "musicScanServer-arm" and the script file "getmusiclist.sh" should be placed in the p2p directory on the board. If using a PC instead of the board, use "musicScanServer-host" (I do this on a netbook on my local network I've set up for testing).
+
+I am assuming an SD card mounted at /mnt/sd.
+
+When you launch player-arm, it will populate the view with songs located on remote nodes, looking in the p2p/shared (recursive), and locally at the root level of the SD card. 
+
+A song selected for play that's remote gets downloaded first to a directory named cache, then played from there. 
