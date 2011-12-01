@@ -2,7 +2,7 @@
 echo content-type: text/html
 echo
 
-source /etc/nap.conf
+. /etc/nap.conf
 
 if [ ! -d "$napdata/keys" ]
 then
