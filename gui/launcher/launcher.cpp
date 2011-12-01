@@ -87,7 +87,7 @@ void MainWindow::startIntercom(void)
 	if (intercom->state() == QProcess::NotRunning) {
 		intercom->start("intercom");
 		intercom->waitForStarted();
-		ui->statusbar->showMessage("intercom started");
+		ui->statusbar->showMessage("intercom starting: searching for peers");
 	} else {
 		intercom->terminate();
 		ui->statusbar->showMessage("intercom stopped");
@@ -103,7 +103,7 @@ void MainWindow::startMemos(void)
 	if (memos->state() == QProcess::NotRunning) {
 		memos->start("memos");
 		memos->waitForStarted();
-		ui->statusbar->showMessage("memos started");
+		ui->statusbar->showMessage("memos starting: searching for peers");
 	} else {
 		memos->terminate();
 		ui->statusbar->showMessage("memos stopped");

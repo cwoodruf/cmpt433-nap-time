@@ -1,8 +1,0 @@
-#!/bin/sh
-# kill rtp related processes - this is crude and assumes we are only doing one thing at a time
-# might be better to use pid files in the future to allow for parallel actions
-# then again we may not need to use this script and QProcess' terminate() will work
-killall rtpsend-arm
-killall rtprecv-arm
-killall aplay
-killall arecord
