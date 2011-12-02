@@ -62,10 +62,10 @@
      <string>Configuration</string>
     </property>
     <addaction name="actionConfig"/>
-    <addaction name="separator" />
-    <addaction name="actionNfs"/>
+    <addaction name="separator"/>
+    <addaction name="actionChime_test"/>
     <addaction name="actionNapListener"/>
-    <addaction name="separator" />
+    <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
    <addaction name="menuConfig"/>
@@ -89,6 +89,11 @@
   <action name="actionClose">
    <property name="text">
     <string>Close</string>
+   </property>
+  </action>
+  <action name="actionChime_test">
+   <property name="text">
+    <string>Chime test</string>
    </property>
   </action>
  </widget>

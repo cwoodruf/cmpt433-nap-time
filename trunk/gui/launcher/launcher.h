@@ -36,7 +36,7 @@ public slots:
 	void startIntercom(void);
 	void showDialogConfig(void);
 	void restartNapListener(void);
-	void mountNfs(void);
+	void chimeTest(void);
 
 private:
 	Ui::MainWindow *ui;

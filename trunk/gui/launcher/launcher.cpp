@@ -35,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QObject::connect(ui->btnIntercom, SIGNAL(clicked()), this, SLOT(startIntercom()));
 	QObject::connect(ui->actionConfig, SIGNAL(triggered()), this, SLOT(showDialogConfig()));
 	QObject::connect(ui->actionNapListener, SIGNAL(triggered()), this, SLOT(restartNapListener()));
+	QObject::connect(ui->actionChime_test, SIGNAL(triggered()), this, SLOT(chimeTest()));
 	QObject::connect(ui->actionNfs, SIGNAL(triggered()), this, SLOT(mountNfs()));
 
 	restartNapListener();
@@ -138,17 +139,17 @@ void MainWindow::showDialogConfig(void)
 }
 
 /**
- * Run the mount command for the nfs share.
- * This would not exist in a production deployment.
+ * Ring the chime on all active nodes: more for demonstrating the peering.
  */
-void MainWindow::mountNfs(void) 
+void MainWindow::chimeTest(void) 
 {
-	QProcess mount;
-	mount.start("mountnfs");
-	mount.waitForFinished();
-	if (mount.exitStatus() == QProcess::NormalExit) {
-		ui->statusbar->showMessage("nfs available");
-	} else {
-		ui->statusbar->showMessage(mount.readAllStandardError());
+	QProcess chimetest;
+	int ret;
+
+	ret = QMessageBox::question(this,"Chime Test","Click Ok to chime all active peers.",
+		QMessageBox::Cancel|QMessageBox::Ok);
+	if (ret == QMessageBox::Ok) {
+		chimetest.start("chimetest");
+		chimetest.waitForFinished();
 	}
 }
