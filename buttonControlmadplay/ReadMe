@@ -1,0 +1,7 @@
+left button press: move backward
+right button press: move forward
+up button press: increase volume
+down button press: reduce volume
+left and right button press: quit madplay
+up and down button press: pause
+up and down button press when madplay in pause mode: resume play
