@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gui_PlaylistCreate.ui'
 **
-** Created: Wed Nov 30 19:00:09 2011
-**      by: Qt User Interface Compiler version 4.7.3
+** Created: Thu Dec 1 22:12:25 2011
+**      by: Qt User Interface Compiler version 4.7.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -19,7 +19,6 @@
 #include <QtGui/QLabel>
 #include <QtGui/QListWidget>
 #include <QtGui/QMainWindow>
-#include <QtGui/QMenuBar>
 #include <QtGui/QPushButton>
 #include <QtGui/QStatusBar>
 #include <QtGui/QWidget>
@@ -34,8 +33,7 @@ public:
     QPushButton *saveButton;
     QListWidget *listWidget;
     QCommandLinkButton *backButton;
-    QPushButton *pushButton;
-    QMenuBar *menubar;
+    QPushButton *refreshButton;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *PlaylistWindow)
@@ -57,14 +55,10 @@ public:
         backButton = new QCommandLinkButton(centralwidget);
         backButton->setObjectName(QString::fromUtf8("backButton"));
         backButton->setGeometry(QRect(244, 135, 61, 27));
-        pushButton = new QPushButton(centralwidget);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setGeometry(QRect(10, 1, 191, 27));
+        refreshButton = new QPushButton(centralwidget);
+        refreshButton->setObjectName(QString::fromUtf8("refreshButton"));
+        refreshButton->setGeometry(QRect(10, 1, 191, 27));
         PlaylistWindow->setCentralWidget(centralwidget);
-        menubar = new QMenuBar(PlaylistWindow);
-        menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 319, 25));
-        PlaylistWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(PlaylistWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         PlaylistWindow->setStatusBar(statusbar);
@@ -80,7 +74,7 @@ public:
         label->setText(QApplication::translate("PlaylistWindow", "Check selections", 0, QApplication::UnicodeUTF8));
         saveButton->setText(QApplication::translate("PlaylistWindow", "Save", 0, QApplication::UnicodeUTF8));
         backButton->setText(QApplication::translate("PlaylistWindow", "Back", 0, QApplication::UnicodeUTF8));
-        pushButton->setText(QApplication::translate("PlaylistWindow", "Refresh Available Music", 0, QApplication::UnicodeUTF8));
+        refreshButton->setText(QApplication::translate("PlaylistWindow", "Refresh Available Music", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

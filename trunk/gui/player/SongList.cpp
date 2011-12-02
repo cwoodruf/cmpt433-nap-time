@@ -34,7 +34,8 @@ bool SongList::setReadSource (const char* f) {
 
 void SongList::refresh () {
     clear ();
-    QString dir ("/mnt/udisk");
+    songs.clear ();
+    QString dir ("/mnt/sd/public/p2p/shared/");
     readDir (dir);
 }
 

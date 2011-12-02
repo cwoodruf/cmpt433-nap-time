@@ -27,6 +27,7 @@ public slots:
     void setButtons (int btnMask);
     void savePlaylist ();
     void changePlaylist (QListWidgetItem* item);
+    void refresh ();
 private:
     Ui::PlaylistWindow *ui;
     ButtonThread *buttonThread;

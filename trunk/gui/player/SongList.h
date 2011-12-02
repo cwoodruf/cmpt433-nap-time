@@ -22,9 +22,9 @@ public:
     bool isEmpty ();
     int getSize ();
     Song* getSongInfo (int index);
+    void refresh ();
 private:
     void clear ();
-    void refresh ();
     void readDir (QString& str);
     void readFiles (QDir& dir);
     bool readFileInfo (QFileInfo& fileInfo);
