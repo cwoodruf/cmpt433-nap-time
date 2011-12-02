@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>140</y>
+      <y>170</y>
       <width>141</width>
       <height>16</height>
      </rect>
@@ -30,8 +30,8 @@
    <widget class="QPushButton" name="saveButton">
     <property name="geometry">
      <rect>
-      <x>155</x>
-      <y>135</y>
+      <x>140</x>
+      <y>161</y>
       <width>85</width>
       <height>27</height>
      </rect>
@@ -46,16 +46,16 @@
       <x>10</x>
       <y>30</y>
       <width>301</width>
-      <height>101</height>
+      <height>130</height>
      </rect>
     </property>
    </widget>
    <widget class="QCommandLinkButton" name="backButton">
     <property name="geometry">
      <rect>
-      <x>244</x>
-      <y>135</y>
-      <width>61</width>
+      <x>230</x>
+      <y>161</y>
+      <width>81</width>
       <height>27</height>
      </rect>
     </property>
@@ -67,7 +67,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>1</y>
+      <y>2</y>
       <width>191</width>
       <height>27</height>
      </rect>

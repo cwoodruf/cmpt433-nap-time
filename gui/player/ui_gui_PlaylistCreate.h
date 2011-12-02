@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gui_PlaylistCreate.ui'
 **
-** Created: Thu Dec 1 22:12:25 2011
+** Created: Fri Dec 2 03:02:48 2011
 **      by: Qt User Interface Compiler version 4.7.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -45,19 +45,19 @@ public:
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         label = new QLabel(centralwidget);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(10, 140, 141, 16));
+        label->setGeometry(QRect(10, 170, 141, 16));
         saveButton = new QPushButton(centralwidget);
         saveButton->setObjectName(QString::fromUtf8("saveButton"));
-        saveButton->setGeometry(QRect(155, 135, 85, 27));
+        saveButton->setGeometry(QRect(140, 161, 85, 27));
         listWidget = new QListWidget(centralwidget);
         listWidget->setObjectName(QString::fromUtf8("listWidget"));
-        listWidget->setGeometry(QRect(10, 30, 301, 101));
+        listWidget->setGeometry(QRect(10, 30, 301, 130));
         backButton = new QCommandLinkButton(centralwidget);
         backButton->setObjectName(QString::fromUtf8("backButton"));
-        backButton->setGeometry(QRect(244, 135, 61, 27));
+        backButton->setGeometry(QRect(230, 161, 81, 27));
         refreshButton = new QPushButton(centralwidget);
         refreshButton->setObjectName(QString::fromUtf8("refreshButton"));
-        refreshButton->setGeometry(QRect(10, 1, 191, 27));
+        refreshButton->setGeometry(QRect(10, 2, 191, 27));
         PlaylistWindow->setCentralWidget(centralwidget);
         statusbar = new QStatusBar(PlaylistWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
