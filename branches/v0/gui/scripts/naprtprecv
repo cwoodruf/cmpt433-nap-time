@@ -1,0 +1,18 @@
+#!/bin/sh
+# usage naprtprecv {port} [x86]
+. /etc/profile
+. /etc/nap.conf
+PATH=".:$PATH"
+if [ "$2" = "" ] 
+then
+	ext=arm
+else 
+	ext=$2
+fi
+if [ "$1" = "" ]
+then
+	echo need port
+	return
+fi
+rtprecv-$ext - $1 | aplay -f cd -c 1 -r 4000 -t raw
+

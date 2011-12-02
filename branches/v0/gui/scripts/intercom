@@ -1,0 +1,4 @@
+#!/bin/sh
+echo intercom starting
+intercom-arm
+

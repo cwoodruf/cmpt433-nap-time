@@ -1,0 +1,7 @@
+#!/bin/sh
+# typically this would be run from the memos app
+# also used by memoblink
+
+. /etc/nap.conf
+ls "$napdata/memos/+"* 2>/dev/null | wc -l
+

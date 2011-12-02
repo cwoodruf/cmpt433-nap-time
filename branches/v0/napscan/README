@@ -1,0 +1,34 @@
+These programs work together to let us find nap hosts on a local subnet.
+They use multicast to find hosts that another nap host can talk to.
+
+There are two programs napping and naplistener. Any nap host should run
+naplistener in the background as a daemon process:
+
+$ naplistener >> /var/log/naplistener.log 2>&1 &
+
+Any nap host that wants to find other nap hosts on their local subnet
+can do so by running napping:
+
+$ napping
+got ACK making directory /tmp/192.168.0.93
+got ACK making directory /tmp/192.168.0.90
+
+The end result will be directories where we can then save the indexes and
+other information for each of these nodes.
+
+./napping -g{mcastgroup} -p{port} -t{timeout} -d{peerdir} [-h]
+	Listens for nap hosts on a local multicast group.
+	-g{mcastgroup} multicast group (225.0.0.34)
+	-p{port} port to listen on (22534)
+	-t{timeout} wait for this many seconds for responses (4)
+	-h this help.
+
+./naplistener -g{mcastgroup} -p{port} -d{peerdir} [-h]
+	Listens for nap hosts on a local multicast group.
+	-g{mcastgroup} multicast group (225.0.0.34)
+	-p{port} port to listen on (22534)
+	-h this help.
+
+The build process should make 2 copies of each program the *-host can be run
+on the host and the others will run on the board.
+

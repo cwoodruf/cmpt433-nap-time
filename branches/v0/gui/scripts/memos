@@ -1,0 +1,3 @@
+#!/bin/sh
+echo memos starting
+memos-arm

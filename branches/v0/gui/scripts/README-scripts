@@ -1,0 +1,27 @@
+This is a collection of scripts that define the behavior of the
+media player.
+
+Mostly they are run from the gui launcher application from the board.
+If you start the script you can check that it is running with ps.
+See the README in launcher for how to use them. 
+
+Run the gui applications from these scripts as its similar to 
+running them from the command line and we can capture any debug
+output in the launcher via the readReadyStandardError and
+readReadyStandardOutput slots provided by QProcess.
+
+Many of these scripts depend on the napdata and napshared directories
+to be defined in a file called /etc/nap.conf.
+
+See also the scripts in p2p and p2p/shared as wellas the README.
+
+Note on scripts that started Qt applications:
+
+When starting a second touch screen application on top of the
+first touch screen application do not use the -qws command line
+option as there will be issues with the touch screen 
+"bleeding through".
+
+Note on the rtp scripts:
+
+naprtpconnect depends on 2 port variables that should be set in /etc/nap.conf

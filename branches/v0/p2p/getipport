@@ -1,0 +1,6 @@
+#!/bin/sh
+. /etc/nap.conf
+ip=`napconfig naplistenerip`
+port=`napconfig naplistenerport`
+if [ "$ip" != "" ] ; then ip=-g$ip; fi
+if [ "$port" != "" ] ; then port=-p$port; fi

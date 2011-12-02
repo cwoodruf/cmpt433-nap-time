@@ -1,0 +1,41 @@
+This is the area for gui applications.
+
+Use the build.sh script to simplify the build process.
+See the launcher/launcher.sh script for an example.
+
+To get the build.sh script to copy your arm binary to
+public. Make a bin directory there and define a shell 
+variable PUBLIC that is the path to your public directory.
+Not having these is not harmful. build.sh makes 2 binaries:
+
+$1-arm 
+$1-x86
+
+where $1 is the name of the target. 
+
+It also defines the EM2440 c define which you can use 
+like this:
+
+#ifdef EM2440
+// board specific stuff
+#else
+// host stuff
+#endif
+
+or 
+
+#ifdef EM2440
+#define IS_EM2440 1
+#else
+#define IS_EM2440 0
+#endif
+
+and then you can do this
+
+if (IS_EM2440) {
+	// board specific code
+	// this can be easier to debug
+}
+
+in your source code.
+

@@ -1,0 +1,11 @@
+#!/bin/sh
+. /etc/nap.conf
+if [ ! -d "$napdata/memos" ]
+then
+	mkdir -p "$napdata/memos" || return
+	chmod a+w "$napdata/memos"
+fi
+fname=$napdata/memos/`date +%Y%m%d-%H%M%S"`.wav
+echo $fname
+arecord -q -f cd -t wav "$fname"
+

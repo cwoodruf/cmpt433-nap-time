@@ -1,0 +1,25 @@
+0.3
+MusicScan README (corresponds to Player README, since they work in tandem)
+
+1.) Configure BOA to have Document Root at /mnt/sd/public/p2p/shared for the boards, or at ~/cmpt433/public/p2p/shared for a PC node, and run BOA as a background process. Place mp3 files in the shared directory to make them available for sharing. 
+
+2.) Naplistener and napping should both be installed, and naplistener running.
+
+3.) Copy the player binary into /bin. It will be launched by the laucher.
+
+4.) Copy the binary file musicScanServer-arm or -host version, as appropriate, to p2p/bin/ along with the appropriate getmusiclist.sh script (i.e. board script or PC node script). The p2p/bin/ has to be globally writable because the script creates a temp file here. Also, make sure p2p/bin is in the PATH.
+
+0.2
+The binary file "musicScanServer-arm" and the script file "getmusiclist.sh" should be placed in the p2p directory on the board. If using a PC instead of the board, use "musicScanServer-host" (I do this on a netbook on my local network I've set up for testing).
+
+I am assuming an SD card mounted at /mnt/sd.
+
+When you launch player-arm, it will populate the view with songs located on remote nodes, looking in the p2p/shared (recursive), and locally at the root level of the SD card. 
+
+A song selected for play that's remote gets downloaded first to a directory named cache, then played from there. 
+
+0.1
+For music scan to work, the musicScanServer has to be running on the node. The getmusiclist.sh should be in the same directory as the musicScanServer
+
+The GUI on the board is the musicScanClient, it sends request to the server. musicScanServer will call getmusiclist.sh and get a list of mp3 files in ~/cmpt433/public/p2p/shared and send the list to the client
+

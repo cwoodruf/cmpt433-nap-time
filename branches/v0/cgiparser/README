@@ -1,0 +1,30 @@
+cgiparser is a ridiculously simple program that takes a GET cgi string and
+returns a specified value from that string decoded. 
+
+You could use it in boa cgi shell scripts this way:
+
+#!/bin/sh
+doaction.sh `cgiparser -naction\= "$QUERY_STRING"` "$QUERY_STRING"
+
+This would run the script doaction.sh on the value of the action parameter 
+of the boa environment variable $QUERY_STRING and also send it the original
+query string if other variables need to be extracted.
+
+cginames is another very simple program which can extract names
+from cgi string should you want to read each variable with cgiparser
+
+#!/bin/sh
+for name in `cginames "$QUERY_STRING"`
+do
+	echo $name
+	echo cgiparser -n$name\= "$QUERY_STRING"
+done
+
+They both return one value per line of output. cginames will return repeated
+names in an input. You can supress this:
+
+cginames "$QUERY_STRING" | sort | uniq
+
+If cgiparser finds more than one instance of a name in a cgi string it will
+print each value out one per line.
+

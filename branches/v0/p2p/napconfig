@@ -1,0 +1,27 @@
+#!/bin/sh
+# use this script to get nap configuration paramters in other programs
+source /etc/nap.conf
+case $1 in
+napdata)
+	echo $napdata
+;;
+napshared)
+	echo $napshared
+;;
+naplistenerip)
+	ip=`cat "$napdata/naplistenerip" 2>/dev/null`
+	if [ "$ip" != "" ] 
+	then
+		echo 225.0.0.$ip
+	fi
+;;
+naplistenerport)
+	cat "$napdata/naplistenerport" 2>/dev/null
+;;
+name)
+	cat "$napdata/name" 2>/dev/null
+;;
+password)
+	cat "$napdata/password" 2>/dev/null
+;;
+esac
