@@ -1,0 +1,13 @@
+Cmpt433 Nap Time Systems Media player
+
+Use the makeworld.sh script to make all the components for the nap time media player.
+You will want to define a PUBLIC shell variable that points to where the build products will go.
+
+When running makeworld.sh give it a directory where the prebuilt alsa, oRTP and speex libraries are.
+On the distribution media this is in the public directory.
+
+Note that the code and libraries for this product are too big for the EM2440 nand memory.
+To run make an nfs mount or copy the files to an sd card mounted on the board.
+
+You will need to configure the PATH and LD_LIBRARY_DIR variables to find these. See the
+example scripts in configs for how this was done on our demo / test systems.
