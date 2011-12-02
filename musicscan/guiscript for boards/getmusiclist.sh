@@ -1,4 +1,4 @@
 #!/bin/sh
-
-cd /mnt/sd/public/p2p/shared/
+. /etc/nap.conf
+cd $napshared
 find . -name "*.mp3"
