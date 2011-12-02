@@ -1,4 +1,4 @@
 #!/bin/sh
 . /etc/nap.conf
-cd $napshared
+cd "$napshared"
 find . -name "*.mp3"

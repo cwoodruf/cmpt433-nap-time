@@ -1,4 +1,4 @@
 #!/bin/sh
-
-cd $HOME/cmpt433/public/p2p/shared/
+. /etc/nap.conf
+cd "$napshared"
 find . -name "*.mp3"
