@@ -8,6 +8,7 @@
  */
 
 #include <QProcess>
+#include <QMessageBox>
 #include "launcher.h"
 #include "dialogconfig.h"
 #include "periodicthread.h"
@@ -36,7 +37,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	QObject::connect(ui->actionConfig, SIGNAL(triggered()), this, SLOT(showDialogConfig()));
 	QObject::connect(ui->actionNapListener, SIGNAL(triggered()), this, SLOT(restartNapListener()));
 	QObject::connect(ui->actionChime_test, SIGNAL(triggered()), this, SLOT(chimeTest()));
-	QObject::connect(ui->actionNfs, SIGNAL(triggered()), this, SLOT(mountNfs()));
 
 	restartNapListener();
 	memoblink->setAll(2,"memoblink",QStringList());

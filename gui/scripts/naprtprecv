@@ -14,5 +14,5 @@ then
 	echo need port
 	return
 fi
-rtprecv-$ext - $1 | aplay -f cd -r 4000 --buffer-time=20000000 -t raw
+rtprecv-$ext - $1 | aplay -f cd -c 1 -r 4000 -t raw
 
