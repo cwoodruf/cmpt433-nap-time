@@ -12,12 +12,14 @@ then
 	return
 fi
 
+naprtpstop 2>/dev/null
+naprtprecv $recvport >> $napdata/naprtprecv.log 2>&1 &
 response=`wget -q -O - "http://$ip/connect.cgi?sendport=$sendport\&recvport=$recvport"`
 if [ "$response" = "CONNECTED" ]
 then
-	naprtprecv $recvport >> $napdata/naprtprecv.log 2>&1 &
 	naprtpsend $ip $sendport >> $napdata/naprtpsend.log 2>&1 &
 	echo connected to $ip sendport $sendport recvport $recvport
 else
+	naprtpstop
 	echo error connecting $response
 fi
