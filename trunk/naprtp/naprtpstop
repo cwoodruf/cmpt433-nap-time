@@ -1,0 +1,17 @@
+#!/bin/sh
+# this is a very crude way to do this which assumes we aplay and arecord are only
+# being used for this purpose
+killall naprtpsend
+killall naprtprecv
+killall rtpsend-arm
+killall rtpsend-x86
+killall rtprecv-arm
+killall rtprecv-x86
+killall aplay
+killall arecord
+
+ip=`extractip "$1"`
+if [ "$ip" != "" ] 
+then
+	wget -q -O - "http://$ip/disconnect.cgi"
+fi
