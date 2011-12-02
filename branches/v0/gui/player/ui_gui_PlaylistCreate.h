@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gui_PlaylistCreate.ui'
 **
-** Created: Fri Dec 2 03:02:48 2011
-**      by: Qt User Interface Compiler version 4.7.4
+** Created: Fri Dec 2 12:59:23 2011
+**      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
