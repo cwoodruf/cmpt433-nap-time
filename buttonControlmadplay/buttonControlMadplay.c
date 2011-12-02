@@ -11,6 +11,7 @@
 #define FIFO_NAME "/tmp/madplayFIFO"
 #define FALSE 0
 #define TRUE 1
+#define DEBUG 0
 
 int pipe1;
 
@@ -18,7 +19,7 @@ void pause1()
 {
   pipe1 = open(FIFO_NAME, O_WRONLY);     
   write(pipe1, "p", 1);  
-  printf("pause\n");
+  if (DEBUG) printf("pause\n");
   //sleep(10);
   close(pipe1);
 }
@@ -27,7 +28,7 @@ void resume()
 {
   pipe1 = open(FIFO_NAME, O_WRONLY);    
   write(pipe1, "o", 1);
-  printf("resume\n");
+  if (DEBUG) printf("resume\n");
   //sleep(10);
   close(pipe1);
 
@@ -37,7 +38,7 @@ void stop()
 {
    pipe1 = open(FIFO_NAME, O_WRONLY);    
    write(pipe1, "s", 1);
-   printf("stop\n");
+   if (DEBUG) printf("stop\n");
    //sleep(10);
    close(pipe1);
 
@@ -47,7 +48,7 @@ void forward()
 {
    pipe1 = open(FIFO_NAME, O_WRONLY);    
    write(pipe1, "f", 1);
-   printf("forward\n");
+   if (DEBUG) printf("forward\n");
    //sleep(20);
    close(pipe1); 
 }
@@ -56,7 +57,7 @@ void backward()
 {
    pipe1 = open(FIFO_NAME, O_WRONLY);    
    write(pipe1, "b", 1);
-   printf("backward\n");
+   if (DEBUG) printf("backward\n");
    //sleep(20);
    close(pipe1);
 }
@@ -65,7 +66,7 @@ void increasevolume()
 {
   pipe1 = open(FIFO_NAME, O_WRONLY);
   write(pipe1, "+", 1);
-  printf("increase volume\n");
+  if (DEBUG) printf("increase volume\n");
   close(pipe1);
 }
 
@@ -73,7 +74,7 @@ void reducevolume()
 {
   pipe1 = open(FIFO_NAME, O_WRONLY);
   write(pipe1, "-", 1);
-  printf("reduce volume\n");
+  if (DEBUG) printf("reduce volume\n");
   close(pipe1);
 }
 
@@ -81,7 +82,7 @@ void quit()
 {
   pipe1 = open(FIFO_NAME, O_WRONLY);    
   write(pipe1, "q", 1);
-  printf("quit\n");
+  if (DEBUG) printf("quit\n");
   close(pipe1);
 }
 
@@ -92,10 +93,10 @@ int main()
   PUSHBUTTONDrv_init();
 
   while(1){
-    //printf("converted pressed code is %d\n", PUSHBUTTONDrv_detect());
+    //if (DEBUG) printf("converted pressed code is %d\n", PUSHBUTTONDrv_detect());
     
     buttonPressed = PUSHBUTTONDrv_detect();
-    printf("button pressed is %d\n", buttonPressed);
+    if (DEBUG) printf("button pressed is %d\n", buttonPressed);
     if (!paused){
       if (buttonPressed == 9)
 	quit();

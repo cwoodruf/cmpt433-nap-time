@@ -8,7 +8,7 @@ OBJS:=$(patsubst %.c, %.o, $(SRCS))
 
 $(EXECUTABLE):$(OBJS)
 	$(CC) -o $(EXECUTABLE) $(OBJS)
-	-cp $(EXECUTABLE) /home/benny/cmpt433/public/
+	-cp $(EXECUTABLE) ${PUBLIC}/bin
 
 %.o: %.c
 	$(COMPILE) -o $@ $< 
