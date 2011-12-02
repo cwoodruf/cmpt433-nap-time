@@ -40,62 +40,13 @@
      <string>List All Songs</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>250</x>
-      <y>130</y>
-      <width>67</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Volume</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>242</x>
-      <y>100</y>
-      <width>16</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>0</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>296</x>
-      <y>100</y>
-      <width>21</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>10</string>
-    </property>
-   </widget>
    <widget class="QListWidget" name="listWidget">
     <property name="geometry">
      <rect>
       <x>11</x>
       <y>31</y>
-      <width>221</width>
+      <width>291</width>
       <height>111</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QDial" name="dial">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>50</y>
-      <width>71</width>
-      <height>71</height>
      </rect>
     </property>
    </widget>
@@ -135,7 +86,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Pause</string>
+     <string>Stop</string>
     </property>
    </widget>
    <widget class="QPushButton" name="nextButton">
@@ -156,11 +107,7 @@
    <zorder>nextButton</zorder>
    <zorder>label</zorder>
    <zorder>allSongsButton</zorder>
-   <zorder>label_2</zorder>
-   <zorder>label_3</zorder>
-   <zorder>label_4</zorder>
    <zorder>listWidget</zorder>
-   <zorder>dial</zorder>
    <zorder>pauseButton</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

@@ -18,6 +18,7 @@ PlaylistWindow::PlaylistWindow(SongList* songList, QWidget *parent) :
 
     QObject::connect(ui->backButton, SIGNAL(clicked(bool)), this, SLOT(close()));
     QObject::connect(ui->saveButton, SIGNAL(clicked(bool)), this, SLOT(savePlaylist()));
+    QObject::connect(ui->refreshButton, SIGNAL(pressed()), this, SLOT(refresh()));
     connect(ui->listWidget, SIGNAL(itemChanged (QListWidgetItem*)),
         this, SLOT(changePlaylist(QListWidgetItem*)));
 }
@@ -25,6 +26,14 @@ PlaylistWindow::PlaylistWindow(SongList* songList, QWidget *parent) :
 PlaylistWindow::~PlaylistWindow()
 {
     delete ui;
+}
+
+void PlaylistWindow::refresh()
+{
+    songList->refresh ();
+    displaySongList ();
+    PlayerWindow* parent = static_cast<PlayerWindow*>(parentWidget ());
+    parent->displaySongsList ();
 }
 
 void PlaylistWindow::setButtonThread (ButtonThread* thread) {

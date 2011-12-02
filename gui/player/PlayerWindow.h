@@ -21,7 +21,7 @@ public:
     ~PlayerWindow();
     void toggleVisibility (int row);
     void fixCurrentSelection ();
-
+    void displaySongsList ();
 public slots:
     void playSong ();
     void pauseSong ();
@@ -37,7 +37,6 @@ private:
     PlaylistWindow *playlistWindow;
     SongList musicList;
     ButtonThread *buttonThread;
-    void displaySongsList ();
     QProcess madplay;
     int currentSongIndex;
     int prevSongIndex;
