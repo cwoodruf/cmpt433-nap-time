@@ -1,0 +1,8 @@
+#!/bin/sh
+. /etc/nap.conf
+ip=`echo $1 | sed 's/[^0-9\.]//g'`
+if [ "$ip" != "" ]
+then
+	wget -q -O - "http://$ip/getmusiclist.cgi" 2>/dev/null
+fi
+
