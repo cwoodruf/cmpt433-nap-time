@@ -10,17 +10,21 @@ echo content-type: text/plain
 
 if [ "$sendport" -gt 1024 ] && [ "$recvport" -gt 1024 ]
 then
-	chime > /dev/null 2>&1
 	sendlog=$napdata/naprtpsend.log
 	recvlog=$napdata/naprtprecv.log
 	touch "$sendlog" "$recvlog"
 	chmod a+rw "$sendlog" "$recvlog"
+	echo START `date` >> $sendlog
+	echo START `date` >> $recvlog
+
+	naprtpstop 2>/dev/null
 	naprtprecv $sendport >> "$recvlog" 2>&1 &
-	naprtpsend "$REMOTE_ADDR" $recvport >> "$sendlog" 2>&1 &
+
 	# for some reason wget on the board is getting stuck
 	echo content-length: 9
 	echo
 	echo CONNECTED
+	chime > /dev/null 2>&1
 else
 	echo content-length: 11
 	echo
