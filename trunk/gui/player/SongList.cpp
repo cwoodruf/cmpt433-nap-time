@@ -4,7 +4,13 @@
 #include <QProcess>
 #include <QDebug>
 #include <string>
-void getMusicList (const char* server, QString& musicList);
+void getMusicList (QString peer, QString& musicList)
+{
+	QProcess getmusiclist;
+	getmusiclist.start("getmusiclist",QStringList() << peer);
+	getmusiclist.waitForFinished();
+	musicList = getmusiclist.readAllStandardOutput();
+}
 
 SongList::SongList () {
     refresh ();
@@ -15,8 +21,8 @@ SongList::~SongList () {
 }
 
 bool SongList::setReadSource (const char* f) {
-/*    list.clear ();
     QString filename (f);
+    QString list;
     
     QFile file (filename);
     if (!file.open (QIODevice::ReadOnly)) {
@@ -28,14 +34,17 @@ bool SongList::setReadSource (const char* f) {
         line = stream.readLine ();
         list.append (line);
     }
-    file.close (); */
+    file.close ();
     return true;
 }
 
 void SongList::refresh () {
     clear ();
     songs.clear ();
-    QString dir ("/mnt/sd/public/p2p/shared/");
+    QProcess napshared;
+    napshared.start("napconfig",QStringList() << "napshared");
+    napshared.waitForFinished();
+    QString dir (napshared.readAllStandardOutput());
     readDir (dir);
 }
 
@@ -83,30 +92,29 @@ void SongList::readFiles (QDir& dir) {
     //qDebug () << peersList;
 
     QString musicFromPeers;
-    for (QStringList::iterator it = peersList.begin (); it != peersList.end (); it++) {
+    // for (QStringList::iterator it = peersList.begin (); it != peersList.end (); it++) {
+    foreach (QString peer, peersList) {
         musicFromPeers.clear ();
-        QString peer = peers.split(" ",QString::SkipEmptyParts).at(0);
-        //qDebug () << peer;
-        getMusicList (peer.toLocal8Bit().data(), musicFromPeers);
+	qDebug () << peer;
+        //getMusicList (peer.toLocal8Bit().data(), musicFromPeers);
+        getMusicList (peer, musicFromPeers);
         if (musicFromPeers.length () != 0) {
             QStringList musics = musicFromPeers.split ('\n');
-            for (QStringList::const_iterator it = musics.begin (); it != musics.end (); it++) {
-                if ((*it).contains (".mp3")) {
+	    foreach (QString filename, musics) {
                     Song* song = new Song;
-                    song->path = peer.toLocal8Bit().data() + *it;
-                    QStringList parts = (*it).split ("/", QString::SkipEmptyParts);
+		    song->path = filename;
+		    QStringList parts = filename.split("/");
                     if (parts.count () == 0) {
-                        song->filename = *it;
+			song->filename = filename;
                     } else {
                         qDebug () << parts[parts.count () - 1];
                         qDebug () << parts[0];
-                        song->filename = parts[parts.count () - 1];
+                        song->filename = peer + "\n" + parts[parts.count () - 1];
                     }
                     song->title = "no title";
                     song->artist = "no artist";
                     song->inPlaylist = true;
                     songs.push_back (song);
-                }
             }
         }
     }
