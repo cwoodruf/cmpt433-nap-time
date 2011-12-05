@@ -21,7 +21,9 @@ extern "C" {
 
 PlayerWindow::PlayerWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::PlayerWindow)
+    ui(new Ui::PlayerWindow),
+    madplay(new QProcess),
+    stopsong(new QProcess)
 {
     ui->setupUi(this);
 
@@ -36,25 +38,30 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
     QObject::connect(ui->allSongsButton, SIGNAL(clicked (bool)), this, SLOT(showAllSongs()));
     connect(ui->prevButton, SIGNAL(pressed ()), this, SLOT(prevSong()));
     connect(ui->nextButton, SIGNAL(pressed ()), this, SLOT(nextSong()));
+
+    // this is done by benny's program buttonControlMadplay now
     // display music list
-    qDebug()<<"Starting thread...";
-    buttonThread = new ButtonThread();
-    QObject::connect(buttonThread, SIGNAL(buttonsChanged(int)), this, SLOT(setButtons(int)));
+    // qDebug()<<"Starting thread...";
+    // buttonThread = new ButtonThread();
+    // QObject::connect(buttonThread, SIGNAL(buttonsChanged(int)), this, SLOT(setButtons(int)));
+    // buttonThread->start();
+
     QObject::connect(ui->playButton, SIGNAL(clicked(bool)), this, SLOT(playSong()));
     //QObject::connect(ui->pauseButton, SIGNAL(pressed()), this, SLOT(pauseSong()));
     QObject::connect(ui->pauseButton, SIGNAL(pressed()), this, SLOT(stopSong()));
-    buttonThread->start();
 }
 
 PlayerWindow::~PlayerWindow()
 {
     delete ui;
+/*
     if (buttonThread) {
         qDebug()<<"Deleting thread...";
         buttonThread->wait(1);
         buttonThread->terminate();
         delete buttonThread;
     }
+*/
 }
 
 void PlayerWindow::playSongDoubleClick (QListWidgetItem* item) {
@@ -155,22 +162,24 @@ void PlayerWindow::playSong () {
     isPlay = true;
     Song* song = musicList.getSongInfo (currentSongIndex);
 
+/*
     if (song->path[0] != '/') {
         downloadSong (song);
     }
     QStringList arguments;
     arguments << "--tty-control" << song->path;
     qDebug () << song->path;
-    madplay.start("madplay", arguments);
-    if (!madplay.waitForStarted())
+    madplay->start("madplay", arguments);
+*/
+    madplay->start("playsong", QStringList() << song->path);
+    if (!madplay->waitForStarted())
         qDebug () << "cannot start madplay process";
-
-    madplay.closeWriteChannel ();
-    /*if (!madplay.waitForFinished())
-        return false;*/
-
-    QByteArray returnValue = madplay.readAllStandardError();
+/*
+    madplay->closeWriteChannel ();
+    if (!madplay->waitForFinished())
+        return false;
     qDebug () << returnValue;
+*/
 }
 
 void writeToPipe () {
@@ -211,7 +220,7 @@ void PlayerWindow::downloadSong (Song* song) {
     QString params = "wget -O /mnt/sd/cache/" + song->filename + " \"http://" + song->path + "\"";
     system (params.toLocal8Bit().data());
 
-    song->path = "/mnt/sd/cache/" + song->filename;
+    // song->path = "/mnt/sd/cache/" + song->filename;
     message.close ();
 }
 
@@ -228,9 +237,14 @@ void PlayerWindow::pauseSong () {
 }
 
 void PlayerWindow::stopSong () {
-    madplay.kill ();
-    if (!madplay.waitForFinished())
+    madplay->terminate();
+    madplay->waitForFinished();
+    stopsong->start("stopsong");
+/*
+    madplay->kill();
+    if (!madplay->waitForFinished())
         qDebug () << "cannot kill madplay process";
+*/
     isPlay = false;
 }
 

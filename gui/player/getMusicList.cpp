@@ -7,8 +7,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <QString>
+#include <QProcess>
+#include <QStringList>
 
 void getMusicList (const char* server, QString& musicList) {
+
   sockaddr_in serverAddr;
 
   int newsocket = socket (PF_INET, SOCK_STREAM, 0);
@@ -29,3 +32,4 @@ void getMusicList (const char* server, QString& musicList) {
   close (newsocket);
   printf ("Client: Exit\n");
 }
+

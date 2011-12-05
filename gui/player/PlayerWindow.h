@@ -37,7 +37,8 @@ private:
     PlaylistWindow *playlistWindow;
     SongList musicList;
     ButtonThread *buttonThread;
-    QProcess madplay;
+    QProcess *madplay;
+    QProcess *stopsong;
     int currentSongIndex;
     int prevSongIndex;
     bool isPlay;
