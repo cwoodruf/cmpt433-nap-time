@@ -15,11 +15,11 @@ HEADERS += buttondrv.h \
            PlaylistWindow.h \
            SongList.h
 FORMS += gui_MainPlay.ui gui_PlaylistCreate.ui
-SOURCES += SongList.cpp \
+SOURCES += PlayerWindow.cpp \
+	   SongList.cpp \
 	   buttondrv.c \
            buttonthread.cpp \
            getMusicList.cpp \
            main.cpp \
            MusicList.cpp \
-           PlayerWindow.cpp \
            PlaylistWindow.cpp 

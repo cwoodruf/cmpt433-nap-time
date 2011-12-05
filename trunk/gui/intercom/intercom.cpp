@@ -18,7 +18,10 @@
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
-	naprtpconnect(new QProcess)
+	naprtpsend(new QProcess),
+	naprtprecv(new QProcess),
+	naprtpconnect(new QProcess),
+	naprtpstop(new QProcess)
 {
 	ui->setupUi(this);
 
@@ -112,6 +115,12 @@ void MainWindow::connectPeer(void)
 		"Connect to peer "+peer+"?",QMessageBox::Cancel|QMessageBox::Ok);
 
 	if (ret == QMessageBox::Ok) {
+/*
+		naprtpstop->start("naprtpstop",QStringList() << peer);
+		naprtpstop->waitForFinished();
+		naprtpsend->start("naprtpsend",QStringList() << peer);
+		naprtprecv->start("naprtprecv");
+*/
 		naprtpconnect->start("naprtpconnect",QStringList() << peer);
 		naprtpconnect->waitForFinished();
 		res = QString(naprtpconnect->readAllStandardOutput());

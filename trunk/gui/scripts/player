@@ -1,4 +1,3 @@
 #!/bin/sh
 echo player starting
-buttonControlmadplay >/dev/null &
 player-arm 

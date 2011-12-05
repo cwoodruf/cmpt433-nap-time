@@ -39,12 +39,11 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
     connect(ui->prevButton, SIGNAL(pressed ()), this, SLOT(prevSong()));
     connect(ui->nextButton, SIGNAL(pressed ()), this, SLOT(nextSong()));
 
-    // this is done by benny's program buttonControlMadplay now
     // display music list
     // qDebug()<<"Starting thread...";
-    // buttonThread = new ButtonThread();
-    // QObject::connect(buttonThread, SIGNAL(buttonsChanged(int)), this, SLOT(setButtons(int)));
-    // buttonThread->start();
+    buttonThread = new ButtonThread();
+    QObject::connect(buttonThread, SIGNAL(buttonsChanged(int)), this, SLOT(setButtons(int)));
+    buttonThread->start();
 
     QObject::connect(ui->playButton, SIGNAL(clicked(bool)), this, SLOT(playSong()));
     //QObject::connect(ui->pauseButton, SIGNAL(pressed()), this, SLOT(pauseSong()));
@@ -54,14 +53,12 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
 PlayerWindow::~PlayerWindow()
 {
     delete ui;
-/*
     if (buttonThread) {
         qDebug()<<"Deleting thread...";
         buttonThread->wait(1);
         buttonThread->terminate();
         delete buttonThread;
     }
-*/
 }
 
 void PlayerWindow::playSongDoubleClick (QListWidgetItem* item) {
@@ -278,20 +275,24 @@ void PlayerWindow::displaySongsList () {
     }
 }
 
+/**
+ * when we press a hardware button do something in the UI
+ */
 void PlayerWindow::setButtons(int btnMask)
 {
     if (btnMask > 0) {
+	int currentRow = ui->listWidget->currentRow ();
         if (btnMask & (1<<BTN_BIT_UP)) {
-            int currentRow = ui->listWidget->currentRow ();
-            if (currentRow > 0) {
-                ui->listWidget->setCurrentRow (currentRow - 1);
-            }
+		if (currentRow > 0) ui->listWidget->setCurrentRow(currentRow-1);
         }
-        if (btnMask & (1<<BTN_BIT_DOWN)) {
-            int currentRow = ui->listWidget->currentRow ();
-            if (currentRow < ui->listWidget->count () - 1) {
-                ui->listWidget->setCurrentRow (currentRow + 1);
-            }
+        else if (btnMask & (1<<BTN_BIT_DOWN)) {
+		if (currentRow < ui->listWidget->count()) ui->listWidget->setCurrentRow(currentRow+1);
+        }
+        else if (btnMask & (1<<BTN_BIT_LEFT)) {
+		stopSong();
+        }
+        else if (btnMask & (1<<BTN_BIT_RIGHT)) {
+		playSong();
         }
 /*
         if (btnMask & (1<<BTN_BIT_LEFT))

@@ -37,7 +37,10 @@ public slots:
 
 private:
 	Ui::MainWindow *ui;
+	QProcess *naprtpsend;
+	QProcess *naprtprecv;
 	QProcess *naprtpconnect;
+	QProcess *naprtpstop;
 	QString getSelectedPeer(void);
 };
 

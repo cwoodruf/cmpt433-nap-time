@@ -1,0 +1,5 @@
+#!/bin/sh
+# modify this file and put it in /usr/bin/chime for the chime test
+# add different delays for different nodes
+# sleep 2
+buzz 329 1000000

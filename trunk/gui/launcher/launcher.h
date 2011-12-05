@@ -15,6 +15,7 @@
 
 #include <QProcess>
 #include <QMainWindow>
+#include <buttonthread.h>
 #include "periodicthread.h"
 #include "dialogconfig.h"
 
@@ -37,6 +38,7 @@ public slots:
 	void showDialogConfig(void);
 	void restartNapListener(void);
 	void chimeTest(void);
+	void setButtons(int);
 
 private:
 	Ui::MainWindow *ui;
@@ -47,6 +49,7 @@ private:
 	QProcess *naplistener;
 	// blinks leds when we have new memos
 	PeriodicThread *memoblink;
+	ButtonThread *buttonThread;
 };
 
 #endif // LAUNCHER_H

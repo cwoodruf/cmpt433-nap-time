@@ -9,6 +9,8 @@
 
 #include <QProcess>
 #include <QMessageBox>
+#include <QDebug>
+#include <buttonthread.h>
 #include "launcher.h"
 #include "dialogconfig.h"
 #include "periodicthread.h"
@@ -26,7 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	memos(new QProcess()),
 	intercom(new QProcess()),
 	naplistener(new QProcess()),
-	memoblink(new PeriodicThread())
+	memoblink(new PeriodicThread()),
+	buttonThread(new ButtonThread)
 {
 	ui->setupUi(this);
 
@@ -37,6 +40,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	QObject::connect(ui->actionConfig, SIGNAL(triggered()), this, SLOT(showDialogConfig()));
 	QObject::connect(ui->actionNapListener, SIGNAL(triggered()), this, SLOT(restartNapListener()));
 	QObject::connect(ui->actionChime_test, SIGNAL(triggered()), this, SLOT(chimeTest()));
+
+	QObject::connect(buttonThread, SIGNAL(buttonsChanged(int)), this, SLOT(setButtons(int)));
+	buttonThread->start();
 
 	restartNapListener();
 	memoblink->setAll(2,"memoblink",QStringList());
@@ -63,6 +69,12 @@ MainWindow::~MainWindow()
 	delete naplistener;
 	delete dialogconfig;
 	delete ui;
+	if (buttonThread) {
+		buttonThread->wait(1);
+		buttonThread->terminate();
+		delete buttonThread;
+	}
+
 }
 
 /**
@@ -153,3 +165,15 @@ void MainWindow::chimeTest(void)
 		chimetest.waitForFinished();
 	}
 }
+/**
+ * when you get a button press pretend you are a doorbell
+ */
+void MainWindow::setButtons(int btnMask)
+{
+	QProcess chimetest;
+	if (btnMask > 0) {
+		chimetest.start("chimetest");
+		chimetest.waitForFinished();
+	}
+}
+

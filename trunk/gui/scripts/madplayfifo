@@ -1,0 +1,8 @@
+#!/bin/sh
+fifo=/tmp/madplayFIFO
+
+if [ ! -e $fifo ]
+then
+	mknod $fifo p
+fi
+echo "$1" /tmp/madplayFIFO
