@@ -1,0 +1,6 @@
+#!/bin/sh
+# clean up playsong related processes
+killall wget
+killall madplay
+killall playsong
+
