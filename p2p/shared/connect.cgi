@@ -1,5 +1,6 @@
 #!/bin/sh
 # get the connection parameters and ask the end user for confirmation from the gui
+. /etc/profile
 . /etc/nap.conf
 
 ip=$REMOTE_ADDR
@@ -18,7 +19,10 @@ then
 	echo START `date` >> $recvlog
 
 	naprtpstop 2>/dev/null
-	naprtprecv $sendport >> "$recvlog" 2>&1 &
+	naprtpstop 2>/dev/null
+	arecord -f cd -c 1 -r 4000 -t raw | rtpsend-arm - $REMOTE_ADDR $sendport >> "$sendlog" 2>&1 &
+	sleep 1
+	rtprecv-arm - $recvport | aplay -f cd -t raw -c 1 -r 4000 >> "$recvlog" 2>&1 &
 
 	# for some reason wget on the board is getting stuck
 	echo content-length: 9
