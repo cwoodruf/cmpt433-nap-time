@@ -1,4 +1,4 @@
 #!/bin/sh
 echo player starting
-buttonControlMadplay >/dev/null 2>&1 &
+buttonControlmadplay >/dev/null &
 player-arm 
