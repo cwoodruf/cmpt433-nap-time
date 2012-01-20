@@ -15,7 +15,8 @@
 #endif
 
 #include <QMainWindow>
-#include <buttonthread.h>
+#include <QProcess>
+#include <QString>
 
 namespace Ui {
 	class MainWindow;
@@ -31,13 +32,19 @@ public:
 
 public slots:
 	void playStop(void);
-	void up(void);
-	void down(void);
-	void setButtons(int);
+	void prevItem(void);
+	void nextItem(void);
 
 private:
 	Ui::MainWindow *ui;
-	ButtonThread *buttonThread;
+	QProcess *madplay;
+	QProcess *stopsong;
+	void displayListSelector();
+	void setItem(int row);
+	int currIndex;
+	int prevIndex;
+	bool isPlay;
+	QString currDir;
 };
 
 #endif // PLAYER_H

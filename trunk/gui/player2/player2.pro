@@ -9,3 +9,5 @@ INCLUDEPATH += .
 
 # Input
 FORMS += player.ui
+SOURCES += player.cpp
+HEADERS += player.h
