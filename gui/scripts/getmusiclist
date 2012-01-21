@@ -10,7 +10,7 @@ case `echo "$1" | cut -d' ' -f1` in
 		ip=`echo "$where" | sed 's/[^0-9\.]//g'`
 		if [ "$ip" != "" ]
 		then
-			wget -q -O - "http://$ip/getmusiclist.cgi" 2>/dev/null
+			wget -q -O - "http://$ip/getmusiclist.cgi" 2>/dev/null | sort
 		fi
 	;;
 	"sdcard")
@@ -31,6 +31,6 @@ then
 	echo "$mounted" | grep "$where" > /dev/null 2>&1
 	if [[ $? = 0 ]] ; then umount "$where"; fi
 	mount "$where" "$dir"
-	find "$dir" -name '*.mp3'
+	find "$dir" -name '*.mp3' | sort
 fi
 
