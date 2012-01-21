@@ -39,14 +39,18 @@ public slots:
 	void shareMedia(void);
 	void unshareMedia(void);
 	void playNext(int madret, QProcess::ExitStatus madstatus);
+	void setPlay_All(bool);
+	void setShuffle(bool);
 
 private:
 	Ui::MainWindow *ui;
+	QProcess *napconfig;
 	QProcess *madplay;
 	QProcess *stopsong;
 	void displayListSelector();
 	void setItem(int row);
 	void share(QString item);
+	bool getNapConfig(QString);
 	int timeout;
 	bool isPlay;
 	QString currSource;
