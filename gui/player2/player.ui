@@ -122,8 +122,8 @@
     <addaction name="actionRefreshSources"/>
     <addaction name="actionUnshare_Media"/>
     <addaction name="separator"/>
-    <addaction name="actionShuffle"/>
     <addaction name="actionPlay_All"/>
+    <addaction name="actionShuffle"/>
     <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
