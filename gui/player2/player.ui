@@ -138,7 +138,7 @@
  <connections>
   <connection>
    <sender>actionClose</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>close()</slot>
    <hints>
