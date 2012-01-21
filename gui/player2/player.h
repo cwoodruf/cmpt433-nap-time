@@ -47,6 +47,7 @@ private:
 	void displayListSelector();
 	void setItem(int row);
 	void share(QString item);
+	int timeout;
 	bool isPlay;
 	QString currSource;
 	QString playing;

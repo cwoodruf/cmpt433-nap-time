@@ -3,7 +3,8 @@
 
 getdevices
 
-for peer in `getpeers`
+for peer in `getpeers | sed -e 's/ /--/g'`
 do
+	peer=`echo "$peer" | sed -e 's/--/ /g'`
 	echo peer $peer
 done
