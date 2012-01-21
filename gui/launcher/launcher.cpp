@@ -10,12 +10,15 @@
 #include <QProcess>
 #include <QMessageBox>
 #include <QDebug>
-#include <buttonthread.h>
-#include <buttondrv.h>
 #include "launcher.h"
 #include "dialogconfig.h"
 #include "periodicthread.h"
 #include "ui_launcher.h"
+
+extern "C" {
+	#include "buttonthread.h"
+	#include "buttondrv.h"
+}
 
 /**
  * Launcher constructor. Sets up ui. Also starts thread that listens 
@@ -173,10 +176,10 @@ void MainWindow::chimeTest(void)
  */
 void MainWindow::setButtons(int btnMask)
 {
-	QProcess chimetest;
+	QProcess buttonpress;
 	if (btnMask > 0) {
-		chimetest.start("chimetest");
-		chimetest.waitForFinished();
+		buttonpress.start("buttonpress",QStringList() << QString(btnMask));
+		buttonpress.waitForFinished();
 	}
 }
 

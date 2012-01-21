@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'periodicthread.h'
 **
-** Created: Mon Dec 5 12:03:10 2011
+** Created: Sat Jan 21 12:04:47 2012
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
