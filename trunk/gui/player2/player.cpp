@@ -87,8 +87,8 @@ void MainWindow::prevItem()
 void MainWindow::setItem(int row) 
 {
 	if (isPlay) playStop();
-	prevItem = currItem;
-	currItem = row;
+	prevIndex = currIndex;
+	currIndex = row;
 	ui->listSelector->setCurrentRow(row);
 }
 
@@ -119,7 +119,7 @@ void MainWindow::playStop()
 		isPlay = false;
 	} else {
 // todo: handle the external nodes on the network?
-		if (currDir.equals("")) {
+		if (currDir == "") {
 			return;
 		} 
 
