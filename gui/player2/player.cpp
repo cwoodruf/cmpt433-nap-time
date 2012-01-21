@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->actionShuffle->setChecked(getNapConfig("shuffle"));
 	displayListSelector();
 
+	connect(ui->listSelector, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(setShared(QListWidgetItem *)));
 	connect(ui->buttonUp, SIGNAL(pressed()), this, SLOT(prevItem()));
 	connect(ui->buttonDown, SIGNAL(pressed()), this, SLOT(nextItem()));
 	connect(ui->buttonPlayStop, SIGNAL(pressed()), this, SLOT(playStop()));
@@ -55,6 +56,19 @@ MainWindow::~MainWindow()
 	delete madplay;
 	delete stopsong;
 	delete ui;
+}
+
+/**
+ * turn on or off the shared button based on what we've selected in the listSelector
+ */
+void MainWindow::setShared(QListWidgetItem *item)
+{
+	QString text = item->text();
+	if (text.startsWith("peer") || text.startsWith("http")) {
+		ui->buttonShare->setEnabled(false);
+	} else {
+		ui->buttonShare->setEnabled(true);
+	}
 }
 
 /**
@@ -108,6 +122,7 @@ void MainWindow::displayListSelector()
  */
 void MainWindow::refreshSources()
 {
+	ui->buttonShare->setEnabled(true);
 	if (isPlay) playStop();
 	currSource = "";
 	displayListSelector();
@@ -198,6 +213,7 @@ void MainWindow::setItem(int row)
 {
 //	if (isPlay) playStop();
 	ui->listSelector->setCurrentRow(row);
+	setShared(ui->listSelector->currentItem());
 }
 
 /**
