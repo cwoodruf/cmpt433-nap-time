@@ -3,16 +3,19 @@
 
 if [[ -f "$1" ]]
 then
-	ln -s "$1" "$napshared"
+	sharename=`echo "$1" | sed -e 's#/# #g' -e 's/  */ /g'`
+	ln -s "$1" "$napshared/links/$sharename"
 	if [[ $? = 0 ]]
 	then
 		echo shared 1 item
 	fi
 else 
+	IFS=$(echo -en "\n\b")
 	list=`getmusiclist "$1"`
 	for item in $list
 	do
-		ln -s "$1" "$napshared"
+		sharename=`echo "$item" | sed -e 's#/# #g' -e 's/  */ /g'`
+		ln -s "$item" "$napshared/links/$sharename"
 	done
 	echo shared `echo "$list" | wc -l` items
 fi

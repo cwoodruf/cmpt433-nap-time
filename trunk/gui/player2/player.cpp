@@ -1,6 +1,9 @@
 /**
+ * player2 
+ * @author Cal Woodruff <cwoodruf@sfu.ca>
  * Alternate version of the player app that includes 
  * finding songs on devices
+ * doesn't know how to make playlists or cache settings
  */
 #include "player.h"
 #include "ui_player.h"
@@ -21,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	madplay(new QProcess),
 	stopsong(new QProcess)
 {
+	// how long to wait for a process to end
+	timeout = 60000;
 	currSource = QString();
 
 	ui->setupUi(this);
@@ -73,7 +78,7 @@ void MainWindow::displayListSelector()
 		ui->buttonPlayStop->setText("Play");
 		getrawlist.start("getmusiclist",QStringList() << currSource);
 	}
-	getrawlist.waitForFinished(60000);
+	getrawlist.waitForFinished(timeout);
 	rawlist = getrawlist.readAllStandardOutput();
 
 	// then dump our current list in there
@@ -203,7 +208,7 @@ void MainWindow::playStop()
 	ui->statusbar->clearMessage();
 	if (isPlay == true) {
 		madplay->terminate();
-		madplay->waitForFinished();
+		madplay->waitForFinished(timeout);
 		stopsong->start("stopsong");
 		isPlay = false;
 		ui->buttonPlayStop->setText("Play");
@@ -257,7 +262,7 @@ void MainWindow::unshareMedia()
 	QProcess unsharemedia;
 
 	unsharemedia.start("unsharemedia");
-	unsharemedia.waitForFinished();
+	unsharemedia.waitForFinished(timeout);
 	QMessageBox::information(
 		this,"Share Media","All shared media has been cleared."
 	);
@@ -272,7 +277,7 @@ void MainWindow::share(QString item)
 	QString shareresult;
 
 	sharemedia.start("sharemedia", QStringList() << item);
-	sharemedia.waitForFinished();
+	sharemedia.waitForFinished(timeout);
 	shareresult = sharemedia.readAllStandardOutput();
 	QMessageBox::information(
 		this,"Share Media",shareresult
