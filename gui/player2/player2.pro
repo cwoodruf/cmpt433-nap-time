@@ -3,11 +3,11 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = player
+TARGET = player2
 DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
 FORMS += player.ui
-SOURCES += player.cpp
+SOURCES += player.cpp main.cpp
 HEADERS += player.h
