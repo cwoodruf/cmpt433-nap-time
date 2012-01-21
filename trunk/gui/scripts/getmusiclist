@@ -1,16 +1,36 @@
 #!/bin/sh
 . /etc/nap.conf
-echo "$1" | grep '^/mnt' > /dev/null 2>&1
-# do we have a device directory?
-if [[ $? = 0 && -d "$1" ]]
+
+mounted=`mount | cut -d' ' -f1`
+
+case `echo "$1" | cut -d' ' -f1` in
+	"peer")
+		# peer __ip___ ... other stuff ...
+		where=`echo "$1" | cut -d' ' -f2`
+		ip=`echo "$where" | sed 's/[^0-9\.]//g'`
+		if [ "$ip" != "" ]
+		then
+			wget -q -O - "http://$ip/getmusiclist.cgi" 2>/dev/null
+		fi
+	;;
+	"sdcard")
+		# sdcard __________
+		where=`echo "$1" | cut -d' ' -f2`
+		dir=/mnt/sd
+	;;
+	"usb")
+		# usb drive ____________
+		where=`echo "$1" | cut -d' ' -f3`
+		dir=/mnt/udisk
+	;;
+	*)
+esac
+
+if [[ -e "$where" ]]
 then
-	find "$1" -name '*.mp3' | sort
-else
-	# ip?
-	ip=`echo $1 | sed 's/[^0-9\.]//g'`
-	if [ "$ip" != "" ]
-	then
-		wget -q -O - "http://$ip/getmusiclist.cgi" 2>/dev/null
-	fi
+	echo "$mounted" | grep "$where" > /dev/null 2>&1
+	if [[ $? = 0 ]] ; then umount "$where"; fi
+	mount "$where" "$dir"
+	find "$dir" -name '*.mp3'
 fi
 

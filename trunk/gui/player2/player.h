@@ -34,6 +34,11 @@ public slots:
 	void playStop(void);
 	void prevItem(void);
 	void nextItem(void);
+	void randomItem(void);
+	void refreshSources(void);
+	void shareMedia(void);
+	void unshareMedia(void);
+	void playNext(int madret, QProcess::ExitStatus madstatus);
 
 private:
 	Ui::MainWindow *ui;
@@ -41,10 +46,10 @@ private:
 	QProcess *stopsong;
 	void displayListSelector();
 	void setItem(int row);
-	int currIndex;
-	int prevIndex;
+	void share(QString item);
 	bool isPlay;
-	QString currDir;
+	QString currSource;
+	QString playing;
 };
 
 #endif // PLAYER_H
