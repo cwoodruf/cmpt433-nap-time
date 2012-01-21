@@ -257,9 +257,9 @@ void MainWindow::shareMedia()
 	if (currSource == "") {
 		int res = QMessageBox::question(
 			this,"Share Media", "Share all media on " + item->text() + "?",
-			QMessageBox::Ok || QMessageBox::Cancel, 2
+			QMessageBox::Ok|QMessageBox::Cancel
 		);
-		if (res == 1) { // Ok is the first button 
+		if (res == QMessageBox::Ok) { // Ok is the first button 
 			share(item->text());
 		}
 	} else {
