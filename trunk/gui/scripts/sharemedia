@@ -10,6 +10,12 @@ then
 		echo shared 1 item
 	fi
 else 
+	echo "$1" | egrep '^peer|^http' > /dev/null 2>&1
+	if [[ $? = 0 ]]
+	then
+		echo "unable to share over a network"
+		return
+	fi
 	IFS=$(echo -en "\n\b")
 	list=`getmusiclist "$1"`
 	for item in $list

@@ -21,6 +21,7 @@ extern "C" {
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
+	napconfig(new QProcess),
 	madplay(new QProcess),
 	stopsong(new QProcess)
 {
@@ -29,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	currSource = QString();
 
 	ui->setupUi(this);
+	ui->actionPlay_All->setChecked(getNapConfig("play_all"));
+	ui->actionShuffle->setChecked(getNapConfig("shuffle"));
 	displayListSelector();
 
 	connect(ui->buttonUp, SIGNAL(pressed()), this, SLOT(prevItem()));
@@ -38,13 +41,17 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->buttonBack, SIGNAL(pressed()), this, SLOT(refreshSources()));
 	connect(ui->buttonShare, SIGNAL(pressed()), this, SLOT(shareMedia()));
 	connect(ui->actionUnshare_Media, SIGNAL(triggered()), this, SLOT(unshareMedia()));
+	connect(ui->actionPlay_All, SIGNAL(triggered(bool)), this, SLOT(setPlay_All(bool)));
+	connect(ui->actionShuffle, SIGNAL(triggered(bool)), this, SLOT(setShuffle(bool)));
 	connect(madplay, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(playNext(int,QProcess::ExitStatus)));
 }
 
 MainWindow::~MainWindow()
 {
+	if (napconfig->state() != QProcess::NotRunning) napconfig->terminate();
 	if (madplay->state() != QProcess::NotRunning) madplay->terminate();
 	if (stopsong->state() != QProcess::NotRunning) stopsong->terminate();
+	delete napconfig;
 	delete madplay;
 	delete stopsong;
 	delete ui;
@@ -74,6 +81,11 @@ void MainWindow::displayListSelector()
 		getrawlist.start("getsources");
 	} else {
 		ui->labelTitle->setText("Source " + currSource);
+		if (currSource.startsWith("peer")) {
+			ui->buttonShare->setEnabled(false);
+		} else {
+			ui->buttonShare->setEnabled(true);
+		}
 		ui->buttonBack->setEnabled(true);
 		ui->buttonPlayStop->setText("Play");
 		getrawlist.start("getmusiclist",QStringList() << currSource);
@@ -282,5 +294,52 @@ void MainWindow::share(QString item)
 	QMessageBox::information(
 		this,"Share Media",shareresult
 	);
+}
+
+/**
+ * set or unset the play_all napconfig parameter
+ * we use this to set the menuitem when we start
+ */
+void MainWindow::setPlay_All(bool playall) 
+{
+	QString action;
+	if (playall) {
+		action = "setvar";
+	} else {
+		action = "clearvar";
+	}
+	napconfig->start("napconfig", QStringList() << action << "play_all");
+	napconfig->waitForFinished();
+}
+
+/**
+ * set or unset the shuffle napconfig parameter
+ * we use this to set the menuitem when we start
+ */
+void MainWindow::setShuffle(bool playall) 
+{
+	QString action;
+	if (playall) {
+		action = "setvar";
+	} else {
+		action = "clearvar";
+	}
+	napconfig->start("napconfig", QStringList() << action << "shuffle");
+	napconfig->waitForFinished();
+}
+
+/**
+ * return true if a specific gui parameter is set
+ * false for any  other condition including if the parameter doesn't exist
+ */
+bool MainWindow::getNapConfig(QString param) 
+{
+	if (param == "shuffle" || param == "play_all") {
+		napconfig->start("napconfig", QStringList() << param);
+		napconfig->waitForFinished();
+		QString res = napconfig->readAllStandardOutput();
+		if (res.toInt() == 1) return true;
+	}
+	return false;
 }
 
