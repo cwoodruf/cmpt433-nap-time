@@ -34,7 +34,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Play</string>
+     <string>Open</string>
     </property>
    </widget>
    <widget class="QPushButton" name="buttonUp">
@@ -86,7 +86,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Devices</string>
+     <string>Sources</string>
     </property>
    </widget>
    <widget class="QPushButton" name="buttonShare">
@@ -125,7 +125,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionRefreshSources">
    <property name="text">
-    <string>Show Devices</string>
+    <string>Show Sources</string>
    </property>
   </action>
   <action name="actionClose">
