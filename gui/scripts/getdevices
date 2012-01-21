@@ -1,0 +1,25 @@
+#!/bin/sh
+. /etc/nap.conf
+# we are fortunate in that the board seems to only create 2 devices
+# /dev/sda for the usb device - might also be /dev/sda1 ... etc
+# /dev/mmcblk0p1 for the sd card
+# these won't be there if they aren't actually attached to the board
+
+usb=`ls /dev/sda[0-9] 2>/dev/null`
+if [ $usb == "" ]
+then
+	usb=`ls /dev/sda 2>/dev/null`
+fi
+
+for dev in $usb
+do
+	echo usb drive $dev
+done
+
+sdcard=`ls /dev/mmcblk0p[0-9] 2>/dev/null`
+
+for dev in $sdcard
+do
+	echo sdcard $dev
+done
+

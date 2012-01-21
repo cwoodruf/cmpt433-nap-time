@@ -1,8 +1,16 @@
 #!/bin/sh
 . /etc/nap.conf
-ip=`echo $1 | sed 's/[^0-9\.]//g'`
-if [ "$ip" != "" ]
+echo "$1" | grep '^/mnt' > /dev/null 2>&1
+# do we have a device directory?
+if [[ $? = 0 && -d "$1" ]]
 then
-	wget -q -O - "http://$ip/getmusiclist.cgi" 2>/dev/null
+	find "$1" -name '*.mp3' | sort
+else
+	# ip?
+	ip=`echo $1 | sed 's/[^0-9\.]//g'`
+	if [ "$ip" != "" ]
+	then
+		wget -q -O - "http://$ip/getmusiclist.cgi" 2>/dev/null
+	fi
 fi
 
