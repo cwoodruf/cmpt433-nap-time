@@ -24,4 +24,30 @@ name)
 password)
 	cat "$napdata/password" 2>/dev/null
 ;;
+play_all)
+	if [[ -d "$napdata/gui/play_all" ]] ; then echo 1; else echo 0; fi
+;;
+shuffle)
+	if [[ -d "$napdata/gui/shuffle" ]] ; then echo 1; else echo 0; fi
+;;
+setvar)
+	case $2 in
+	play_all)
+		mkdir -p "$napdata/gui/play_all"
+	;;
+	shuffle)
+		mkdir -p "$napdata/gui/shuffle"
+	;;
+	esac
+;;
+clearvar)
+	case $2 in
+	play_all)
+		rm -r "$napdata/gui/play_all"
+	;;
+	shuffle)
+		rm -r "$napdata/gui/shuffle"
+	;;
+	esac
+;;
 esac
