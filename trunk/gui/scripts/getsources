@@ -1,0 +1,9 @@
+#!/bin/sh
+. /etc/nap.conf
+
+getdevices
+
+for peer in `getpeers | cut -d' ' -f1`
+do
+	echo peer $peer
+done
