@@ -1,4 +1,4 @@
 #!/bin/sh
 . /etc/nap.conf
 
-echo button press $1
+chimetest

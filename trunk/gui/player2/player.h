@@ -17,6 +17,7 @@
 #include <QMainWindow>
 #include <QProcess>
 #include <QString>
+#include <QListWidgetItem>
 
 namespace Ui {
 	class MainWindow;
@@ -31,6 +32,7 @@ public:
 	~MainWindow();
 
 public slots:
+	void setShared(QListWidgetItem *);
 	void playStop(void);
 	void prevItem(void);
 	void nextItem(void);
