@@ -120,6 +120,7 @@
      <string>Player</string>
     </property>
     <addaction name="actionRefreshSources"/>
+    <addaction name="actionUnshare_Media"/>
     <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
@@ -134,6 +135,11 @@
   <action name="actionClose">
    <property name="text">
     <string>Close</string>
+   </property>
+  </action>
+  <action name="actionUnshare_Media">
+   <property name="text">
+    <string>Unshare Media</string>
    </property>
   </action>
  </widget>
