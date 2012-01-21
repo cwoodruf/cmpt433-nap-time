@@ -122,6 +122,9 @@
     <addaction name="actionRefreshSources"/>
     <addaction name="actionUnshare_Media"/>
     <addaction name="separator"/>
+    <addaction name="actionShuffle"/>
+    <addaction name="actionPlay_All"/>
+    <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
    <addaction name="menuPlayer"/>
@@ -129,7 +132,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionRefreshSources">
    <property name="text">
-    <string>Show Sources</string>
+    <string>Refresh Sources</string>
    </property>
   </action>
   <action name="actionClose">
@@ -140,6 +143,25 @@
   <action name="actionUnshare_Media">
    <property name="text">
     <string>Unshare Media</string>
+   </property>
+  </action>
+  <action name="actionShuffle">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Shuffle</string>
+   </property>
+  </action>
+  <action name="actionPlay_All">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Play All</string>
    </property>
   </action>
  </widget>
