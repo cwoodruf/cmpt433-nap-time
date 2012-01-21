@@ -25,6 +25,7 @@ fi
 
 naprtpstop 2>/dev/null
 arecord -f cd -c 1 -r 4000 -t raw | rtpsend-arm - $ip $recvport >> "$napdata/naprtpsend.log" 2>&1 &
+# this pause is critical or aplay will fail - why?
 sleep 1
 rtprecv-arm - $sendport | aplay -f cd -t raw -c 1 -r 4000 >> "$napdata/naprtprecv.log" 2>&1 &
 

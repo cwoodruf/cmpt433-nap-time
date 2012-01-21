@@ -1,0 +1,7 @@
+#!/bin/sh
+. /etc/nap.conf
+for item in `find "$napshared" -type l`
+do
+	rm "$item"
+done
+

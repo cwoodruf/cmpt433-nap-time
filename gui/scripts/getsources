@@ -3,7 +3,7 @@
 
 getdevices
 
-for peer in `getpeers | cut -d' ' -f1`
+for peer in `getpeers`
 do
 	echo peer $peer
 done

@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <buttonthread.h>
+#include <buttondrv.h>
 #include "launcher.h"
 #include "dialogconfig.h"
 #include "periodicthread.h"
@@ -130,11 +131,13 @@ void MainWindow::startMemos(void)
 void MainWindow::startPlayer(void)
 {
 	if (player->state() == QProcess::NotRunning) {
+		ButtonDrv_cleanup();
 		player->start("player");
 		player->waitForStarted();
 		ui->statusbar->showMessage("player started");
 	} else {
 		player->terminate();
+		ButtonDrv_init();
 		ui->statusbar->showMessage("player stopped");
 	}
 }
