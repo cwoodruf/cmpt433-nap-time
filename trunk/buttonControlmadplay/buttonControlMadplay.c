@@ -11,7 +11,7 @@
 #define FIFO_NAME "/tmp/madplayFIFO"
 #define FALSE 0
 #define TRUE 1
-#define DEBUG 0
+#define DEBUG 1
 
 int pipe1;
 
