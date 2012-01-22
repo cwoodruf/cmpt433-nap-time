@@ -1,4 +1,28 @@
 #!/bin/sh
 . /etc/nap.conf
+madplayfifo=/tmp/madplayFIFO
 
-chimetest
+# is madplay running?
+ps | grep madplay | grep -v grep >/dev/null 2>&1
+if [[ $? = 0 ]]
+then
+	# need to create the fifo before starting madplay
+	if [ -e "$madplayfifo" ]
+	then
+		case $1 in 
+		1) 
+			writeFIFO "$madplayfifo" 'p'
+		;;
+		2)
+			writeFIFO "$madplayfifo" '+'
+		;;
+		3)
+			writeFIFO "$madplayfifo" 'q'
+		;;
+		4)
+			writeFIFO "$madplayfifo" '-'
+		esac
+	fi
+else
+	chimetest
+fi
