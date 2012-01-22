@@ -80,28 +80,24 @@ void MainWindow::setShared(QListWidgetItem *item)
 void MainWindow::displayListSelector() 
 {
 	QProcess getrawlist;
-	QString rawlist;
-
-	// clear the list
-	while (ui->listSelector->count()) {
-		QListWidgetItem * item = ui->listSelector->takeItem(0);
-		if (item) delete item;
-	}
+	QString rawlist, playtxt, titletxt;
+	bool backenabled, shareenabled;
 
 	if (currSource == "") {
-		ui->labelTitle->setText("Sources");
-		ui->buttonBack->setEnabled(false);
-		ui->buttonPlayStop->setText("Open");
+		titletxt = "Sources";
+		shareenabled = true;
+		backenabled = false;
+		playtxt = "Open";
 		getrawlist.start("getsources");
 	} else {
-		ui->labelTitle->setText("Source " + currSource);
+		titletxt = "Source " + currSource;
 		if (currSource.startsWith("peer")) {
-			ui->buttonShare->setEnabled(false);
+			shareenabled = false;
 		} else {
-			ui->buttonShare->setEnabled(true);
+			shareenabled = true;
 		}
-		ui->buttonBack->setEnabled(true);
-		ui->buttonPlayStop->setText("Play");
+		backenabled = true;
+		playtxt = "Play";
 		getrawlist.start("getmusiclist",QStringList() << currSource);
 	}
 	getrawlist.waitForFinished(timeout);
@@ -109,8 +105,25 @@ void MainWindow::displayListSelector()
 
 	// then dump our current list in there
 	ui->listSelector->setWordWrap(true);
-	ui->listSelector->insertItems(0,rawlist.split("\n",QString::SkipEmptyParts));
-	setItem(0);
+	if (rawlist.size() > 0) {
+		QStringList items = rawlist.split("\n", QString::SkipEmptyParts);
+		// clear the list
+		while (ui->listSelector->count()) {
+			QListWidgetItem * item = ui->listSelector->takeItem(0);
+			if (item) delete item;
+		}
+
+		ui->labelTitle->setText(titletxt);
+		ui->buttonBack->setEnabled(backenabled);
+		ui->buttonShare->setEnabled(shareenabled);
+		ui->buttonPlayStop->setText(playtxt);
+		ui->listSelector->insertItems(0,rawlist.split("\n",QString::SkipEmptyParts));
+		setItem(0);
+	} else {
+		QMessageBox::information(
+			this,"Show List","No items to show."
+		);
+	}
 }
 
 /**
@@ -137,8 +150,8 @@ void MainWindow::refreshSources()
 void MainWindow::playNext(int madret, QProcess::ExitStatus madstatus) 
 {
 	ui->statusbar->clearMessage();
-	if (madstatus == QProcess::CrashExit) {
-		ui->statusbar->showMessage("player crashed with exit code "+madret);
+	if (madstatus == QProcess::CrashExit || madret != 0) {
+		// ui->statusbar->showMessage("player crashed with exit code "+madret);
 		return;
 	}
 	// if we are playing stop that
@@ -304,12 +317,14 @@ void MainWindow::share(QString item)
 	QProcess sharemedia;
 	QString shareresult;
 
+	ui->statusbar->showMessage("sharing "+item+" please wait...");
 	sharemedia.start("sharemedia", QStringList() << item);
 	sharemedia.waitForFinished(timeout);
 	shareresult = sharemedia.readAllStandardOutput();
 	QMessageBox::information(
 		this,"Share Media",shareresult
 	);
+	ui->statusbar->clearMessage();
 }
 
 /**
@@ -332,10 +347,10 @@ void MainWindow::setPlay_All(bool playall)
  * set or unset the shuffle napconfig parameter
  * we use this to set the menuitem when we start
  */
-void MainWindow::setShuffle(bool playall) 
+void MainWindow::setShuffle(bool shuffle) 
 {
 	QString action;
-	if (playall) {
+	if (shuffle) {
 		action = "setvar";
 	} else {
 		action = "clearvar";
