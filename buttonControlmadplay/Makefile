@@ -1,14 +1,15 @@
 CC=arm-linux-gcc
 EXECUTABLE=buttonControlmadplay
+WRITER=writeFIFO
 CFLAGS=-Wall -g
-COMPILE=$(CC) $(CFLAGS) -c 
 
-SRCS:=$(wildcard *.c)
-OBJS:=$(patsubst %.c, %.o, $(SRCS))
+all: $(EXECUTABLE) $(WRITER)
 
 $(EXECUTABLE):$(OBJS)
-	$(CC) -o $(EXECUTABLE) $(OBJS)
+	$(CC) -o $(EXECUTABLE) $(EXECUTABLE).c
 	-cp $(EXECUTABLE) ${PUBLIC}/bin
 
-%.o: %.c
-	$(COMPILE) -o $@ $< 
+$(WRITER):$(OBJS)
+	$(CC) $(CFLAGS) -o $(WRITER) $(WRITER).c
+	-cp $(WRITER) ${PUBLIC}/bin
+
