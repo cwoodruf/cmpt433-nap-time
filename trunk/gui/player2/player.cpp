@@ -13,6 +13,7 @@
 #include <QProcess>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QHash>
 
 extern "C" {
 	#include <time.h>
@@ -38,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->buttonUp, SIGNAL(pressed()), this, SLOT(prevItem()));
 	connect(ui->buttonDown, SIGNAL(pressed()), this, SLOT(nextItem()));
 	connect(ui->buttonPlayStop, SIGNAL(pressed()), this, SLOT(playStop()));
-	connect(ui->actionRefreshSources, SIGNAL(triggered()), this, SLOT(refreshSources()));
+	connect(ui->actionRefreshSources, SIGNAL(triggered()), this, SLOT(clearRefreshSources()));
 	connect(ui->buttonBack, SIGNAL(pressed()), this, SLOT(refreshSources()));
 	connect(ui->buttonShare, SIGNAL(pressed()), this, SLOT(shareMedia()));
 	connect(ui->actionUnshare_Media, SIGNAL(triggered()), this, SLOT(unshareMedia()));
@@ -77,10 +78,10 @@ void MainWindow::setShared(QListWidgetItem *item)
  * if not split off part of the path and search that path for media
  * use external script to do this as this is device dependent 
  */
-void MainWindow::displayListSelector() 
+bool MainWindow::displayListSelector(QString rawlist) 
 {
 	QProcess getrawlist;
-	QString rawlist, playtxt, titletxt;
+	QString playtxt, titletxt;
 	bool backenabled, shareenabled;
 
 	if (currSource == "") {
@@ -88,7 +89,7 @@ void MainWindow::displayListSelector()
 		shareenabled = true;
 		backenabled = false;
 		playtxt = "Open";
-		getrawlist.start("getsources");
+		if (rawlist.size() <= 0) getrawlist.start("getsources");
 	} else {
 		titletxt = "Source " + currSource;
 		if (currSource.startsWith("peer")) {
@@ -98,15 +99,22 @@ void MainWindow::displayListSelector()
 		}
 		backenabled = true;
 		playtxt = "Play";
-		getrawlist.start("getmusiclist",QStringList() << currSource);
+		if (rawlist.size() <= 0) getrawlist.start("getmusiclist",QStringList() << currSource);
 	}
-	getrawlist.waitForFinished(timeout);
-	rawlist = getrawlist.readAllStandardOutput();
+	if (rawlist.size() <= 0) {
+		getrawlist.waitForFinished(timeout);
+		rawlist = getrawlist.readAllStandardOutput();
+	}
 
 	// then dump our current list in there
 	ui->listSelector->setWordWrap(true);
 	if (rawlist.size() > 0) {
 		QStringList items = rawlist.split("\n", QString::SkipEmptyParts);
+		// before we clear the list remember the playlist associated with this device
+		// assuming we are looking at the contents of a device
+		if (currSource != "") {
+			playlists[currSource] = rawlist;
+		}
 		// clear the list
 		while (ui->listSelector->count()) {
 			QListWidgetItem * item = ui->listSelector->takeItem(0);
@@ -119,11 +127,13 @@ void MainWindow::displayListSelector()
 		ui->buttonPlayStop->setText(playtxt);
 		ui->listSelector->insertItems(0,rawlist.split("\n",QString::SkipEmptyParts));
 		setItem(0);
+		return true;
 	} else {
 		QMessageBox::information(
 			this,"Show List","No items to show."
 		);
 	}
+	return false;
 }
 
 /**
@@ -139,6 +149,15 @@ void MainWindow::refreshSources()
 	if (isPlay) playStop();
 	currSource = "";
 	displayListSelector();
+}
+
+/**
+ * clear stored playlists and refresh sources
+ */
+void MainWindow::clearRefreshSources()
+{
+	playlists.clear();
+	refreshSources();
 }
 
 /**
@@ -257,8 +276,7 @@ void MainWindow::playStop()
 		item = ui->listSelector->currentItem();
 		if (currSource == "") {
 			currSource = item->text();
-			displayListSelector();
-			ui->buttonPlayStop->setText("Play");
+			if (displayListSelector(playlists[currSource])) ui->buttonPlayStop->setText("Play");
 		} else {
 			isPlay = true;
 			playing = item->text();

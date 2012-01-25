@@ -18,6 +18,7 @@
 #include <QProcess>
 #include <QString>
 #include <QListWidgetItem>
+#include <QHash>
 
 namespace Ui {
 	class MainWindow;
@@ -38,6 +39,7 @@ public slots:
 	void nextItem(void);
 	void randomItem(void);
 	void refreshSources(void);
+	void clearRefreshSources(void);
 	void shareMedia(void);
 	void unshareMedia(void);
 	void playNext(int madret, QProcess::ExitStatus madstatus);
@@ -49,7 +51,8 @@ private:
 	QProcess *napconfig;
 	QProcess *madplay;
 	QProcess *stopsong;
-	void displayListSelector();
+	QHash<QString,QString> playlists;
+	bool displayListSelector(QString rawlist="");
 	void setItem(int row);
 	void share(QString item);
 	bool getNapConfig(QString);
