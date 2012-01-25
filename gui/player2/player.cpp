@@ -320,6 +320,7 @@ void MainWindow::unshareMedia()
 {
 	QProcess unsharemedia;
 
+	playlists.clear();
 	unsharemedia.start("unsharemedia");
 	unsharemedia.waitForFinished(timeout);
 	QMessageBox::information(

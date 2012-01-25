@@ -4,6 +4,11 @@
 if [[ -f "$1" ]]
 then
 	sharename=`echo "$1" | sed -e 's#/# #g' -e 's/  */ /g'`
+	link=$napshared/links/$sharename
+	if [ -e "$link" ]
+	then
+		rm "$link"
+	fi
 	ln -s "$1" "$napshared/links/$sharename"
 	if [[ $? = 0 ]]
 	then
@@ -21,7 +26,12 @@ else
 	for item in $list
 	do
 		sharename=`echo "$item" | sed -e 's#/# #g' -e 's/  */ /g'`
-		ln -s "$item" "$napshared/links/$sharename"
+		link=$napshared/links/$sharename
+		if [ -e "$link" ]
+		then
+			rm "$link"
+		fi
+		ln -s "$item" "$link"
 	done
 	echo shared `echo "$list" | wc -l` items
 fi
