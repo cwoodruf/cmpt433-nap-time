@@ -129,6 +129,7 @@ bool MainWindow::displayListSelector(QString rawlist)
 		setItem(0);
 		return true;
 	} else {
+		currSource = "";
 		QMessageBox::information(
 			this,"Show List","No items to show."
 		);
