@@ -1,0 +1,19 @@
+by cal
+EmbedSky_adc.c - analog to digital converter
+
+EmbedSky_gpio.c - led controller
+
+EmbedSky_hello.c - example driver
+
+EmbedSky_irq.c - button controller 
+ - make sure the CONFIG_SKY2440_IRQ_TEST menu option is not selected 
+   or 2 buttons won't work
+
+EmbedSky_pwm.c - buzzer controller
+
+There are other gpio pins on the side of the device directly above the power switch:
+EINT4,8,14,19,18 on the "omo" side (facing out it looks like)
+pins 7,9,11,13,15 respectively
+EINT3,11,13,15,9 on the gnd side
+pins 8,10,12,14,16 respectively
+Note that EINT4 is mapped to a button also as are EINT0,1,2
