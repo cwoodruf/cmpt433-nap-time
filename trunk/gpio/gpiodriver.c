@@ -14,7 +14,7 @@ static int gh = -1;
  */
 int gpio_init()
 {
-	if ((gh = open(GPIODEV,O_RDWR)) < 0) {
+	if ((gh = open(GPIODEV,0)) < 0) {
 		perror("can't open gpio device");
 		gh = -1;
 		return -1;
