@@ -21,6 +21,20 @@ Note that EINT4 is mapped to a button also as are EINT0,1,2
 EmbedSky_gpio_pins.c - driver for breakout pins on side of board
  - This is a combination of gpio.c and irq.c above.
    You must explicitly activate pins for reading and writing.
+	Module information:
+	filename:       EmbedSky_gpio_pins.ko
+	description:    GPIO IRQ reader / writer for breakout pins on side of board
+	author:         cal/embedsky
+	license:        GPL
+	depends:        
+	vermagic:       2.6.30.4-EmbedSky mod_unload ARMv4 
+	parm:           writeable:make EINT_ pins writeable:
+			(bit val=>pin) 1=>8, 2=>9, 4=>11, 8=>13, 16=>14, 32=>15, 64=>18, 128=>19
+			pins cannot be readable and writeable (int)
+	parm:           readable:make EINT_ pins readable:
+			(bit val=>pin) 1=>8, 2=>9, 4=>11, 8=>13, 16=>14, 32=>15, 64=>18, 128=>19
+			pins cannot be readable and writeable (int)
+
    Copy this file into drivers/char where the other above drivers are
    in the linux distribution and modify the Kconfig and Makefile similar to this patch:
 
