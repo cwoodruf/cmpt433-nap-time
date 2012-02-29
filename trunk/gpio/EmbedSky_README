@@ -17,3 +17,41 @@ pins 7,9,11,13,15 respectively
 EINT3,11,13,15,9 on the gnd side
 pins 8,10,12,14,16 respectively
 Note that EINT4 is mapped to a button also as are EINT0,1,2
+
+EmbedSky_gpio_pins.c - driver for breakout pins on side of board
+ - This is a combination of gpio.c and irq.c above.
+   You must explicitly activate pins for reading and writing.
+   Copy this file into drivers/char where the other above drivers are
+   in the linux distribution and modify the Kconfig and Makefile similar to this patch:
+
+diff --git a/Kconfig b/Kconfig
+index 1f21fa2..3a7cfb6 100755
+--- a/Kconfig
++++ b/Kconfig
+@@ -97,6 +97,13 @@ config DEVKMEM
+          kind of kernel debugging operations.
+          When in doubt, say "N".
+ 
++config TQ2440_GPIO_PINS
++       tristate "EmbedSky SKY2440/TQ2440 Board GPIO breakout pins"
++       depends on ARCH_S3C2440
++       default M if ARCH_S3C2440
++       help
++         GPIO control for EmbedSky SKY2440/TQ2440 Board breakout pins on side of board.
++
+ config TQ2440_HELLO
+        tristate "SKY2440/TQ2440 Board Hello module test"
+        depends on ARCH_S3C2440
+diff --git a/Makefile b/Makefile
+index 47474b2..493e211 100755
+--- a/Makefile
++++ b/Makefile
+@@ -9,6 +9,7 @@ FONTMAPFILE = cp437.uni
+ 
+ obj-y   += mem.o random.o tty_io.o n_tty.o tty_ioctl.o tty_ldisc.o tty_buffer.o tty_port.o
+ 
++obj-$(CONFIG_TQ2440_GPIO_PINS)         += EmbedSky_gpio_pins.o
+ obj-$(CONFIG_TQ2440_HELLO)             += EmbedSky_hello.o
+ obj-$(CONFIG_TQ2440_GPIO_TEST)         += EmbedSky_gpio.o
+ obj-$(CONFIG_TQ2440_PWM)               += EmbedSky_pwm.o
+
